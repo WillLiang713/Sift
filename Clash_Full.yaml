@@ -299,7 +299,7 @@ rules:
 - GEOIP,private,DIRECT,no-resolve
 
 # 游戏平台：国内服务直连
-- GEOSITE,category-games-cn,DIRECT
+- GEOSITE,category-games@cn,DIRECT
 
 # 游戏平台：下载/CDN和其他服务走游戏平台组，保留手动切换能力
 - GEOSITE,category-game-platforms-download,游戏平台
