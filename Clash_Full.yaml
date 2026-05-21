@@ -298,13 +298,12 @@ rules:
 - GEOSITE,private,DIRECT
 - GEOIP,private,DIRECT,no-resolve
 
-# 游戏平台：国内服务和下载/CDN直连
-- GEOSITE,category-games-!cn@cn,DIRECT
-- GEOSITE,category-game-platforms-download@cn,DIRECT
+# 游戏平台：国内服务直连
+- GEOSITE,category-games-cn,DIRECT
 
-# 游戏平台：其他服务走游戏平台组，保留手动切换能力
+# 游戏平台：下载/CDN和其他服务走游戏平台组，保留手动切换能力
 - GEOSITE,category-game-platforms-download,游戏平台
-- GEOSITE,category-games-!cn,游戏平台
+- GEOSITE,category-games,游戏平台
 
 # AI 服务：统一进入 AI 出口
 - GEOSITE,category-ai-!cn,AI出口
