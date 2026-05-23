@@ -1,0 +1,190 @@
+# 适用于 Mihomo 核心
+# 日常主力极简分流：ACL4SSR 规则源，国内/局域网/下载直连，AI/流媒体独立出口，普通海外统一代理，未命中规则流量进入「漏网之鱼」
+
+dns:
+  default-nameserver:
+  - 223.5.5.5
+  - 119.29.29.29
+  nameserver:
+  - https://dns.alidns.com/dns-query
+  - https://doh.pub/dns-query
+  fake-ip-filter:
+  - "*.lan"
+  - "*.local"
+  - localhost
+  - time.*.com
+  - time.*.gov
+  - time.*.edu.cn
+  - time.*.apple.com
+  - time-ios.apple.com
+  - time1.cloud.tencent.com
+  - ntp.*.com
+  - ntp?.*.com
+  - "+.pool.ntp.org"
+  - "+.msftconnecttest.com"
+  - "+.msftncsi.com"
+  - "+.stun.*.*"
+  - "+.stun.*.*.*"
+  - "+.stun.*.*.*.*"
+
+proxy-groups:
+# 统一代理出口 - 普通国外流量进入这里，放在最前方便面板快速选择
+- name: 代理出口
+  type: select
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+# AI 出口 - 海外 AI 服务统一进入这里，方便固定更稳定的出口
+- name: AI出口
+  type: select
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+# 流媒体 - 视频、音乐、直播等娱乐服务统一进入这里，方便按地区切换
+- name: 流媒体
+  type: select
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+# 漏网之鱼 - 未命中分流规则的最终兜底出口
+- name: 漏网之鱼
+  type: select
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+# 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
+- name: 自动测速
+  type: url-test
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+# 手动切换代理组 - 用户可以手动切换代理节点
+- name: 手动切换
+  type: select
+  icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
+  include-all: true
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+
+rule-providers:
+  LocalAreaNetwork:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/LocalAreaNetwork.yaml
+    path: ./ruleset/ACL4SSR/LocalAreaNetwork.yaml
+    interval: 86400
+  ChinaDomain:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaDomain.yaml
+    path: ./ruleset/ACL4SSR/ChinaDomain.yaml
+    interval: 86400
+  ChinaIp:
+    type: http
+    behavior: ipcidr
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIp.yaml
+    path: ./ruleset/ACL4SSR/ChinaIp.yaml
+    interval: 86400
+  ChinaIpV6:
+    type: http
+    behavior: ipcidr
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIpV6.yaml
+    path: ./ruleset/ACL4SSR/ChinaIpV6.yaml
+    interval: 86400
+  ProxyLite:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ProxyLite.yaml
+    path: ./ruleset/ACL4SSR/ProxyLite.yaml
+    interval: 86400
+  ProxyMedia:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ProxyMedia.yaml
+    path: ./ruleset/ACL4SSR/ProxyMedia.yaml
+    interval: 86400
+  AI:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/AI.yaml
+    path: ./ruleset/ACL4SSR/AI.yaml
+    interval: 86400
+  GoogleCN:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/GoogleCN.yaml
+    path: ./ruleset/ACL4SSR/GoogleCN.yaml
+    interval: 86400
+  SteamCN:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamCN.yaml
+    path: ./ruleset/ACL4SSR/SteamCN.yaml
+    interval: 86400
+  SteamRegionCheck:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamRegionCheck.yaml
+    path: ./ruleset/ACL4SSR/SteamRegionCheck.yaml
+    interval: 86400
+  Download:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Download.yaml
+    path: ./ruleset/ACL4SSR/Download.yaml
+    interval: 86400
+
+rules:
+# 局域网 / 私有地址
+- RULE-SET,LocalAreaNetwork,DIRECT
+
+# 国内服务、下载和地区检测直连
+- RULE-SET,SteamCN,DIRECT
+- RULE-SET,SteamRegionCheck,DIRECT
+- RULE-SET,Download,DIRECT
+- RULE-SET,GoogleCN,DIRECT
+
+# AI 服务
+- RULE-SET,AI,AI出口
+
+# 流媒体 / 娱乐服务
+- RULE-SET,ProxyMedia,流媒体
+
+# 海外常规代理
+- RULE-SET,ProxyLite,代理出口
+
+# 国内兜底
+- RULE-SET,ChinaDomain,DIRECT
+- RULE-SET,ChinaIp,DIRECT
+- RULE-SET,ChinaIpV6,DIRECT
+- GEOIP,CN,DIRECT
+
+# 最终兜底
+- MATCH,漏网之鱼

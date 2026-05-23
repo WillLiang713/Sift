@@ -1,8 +1,6 @@
-# Clash 配置文件 (YAML格式)
-# 适用于 OpenClash 和 Clash 核心
-# 精简分流：ACL4SSR 规则源，国内/局域网/游戏直连，商店/流媒体/AI按场景分流，其他流量统一进入「代理出口」
+# 适用于 Mihomo 核心
+# 精简分流：ACL4SSR 规则源，国内/局域网/游戏直连，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
-# DNS - 适合 OpenClash DNS 覆写使用，模式与监听端口交由 OpenClash 管理
 dns:
   default-nameserver:
   - 223.5.5.5
@@ -30,8 +28,28 @@ dns:
   - "+.stun.*.*.*.*"
 
 proxy-groups:
-# 统一代理出口 - 国外流量和最终兜底都进入这里，放在最前方便面板快速选择
+# 统一代理出口 - 国外流量进入这里，放在最前方便面板快速选择
 - name: 代理出口
+  type: select
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  proxies:
+  - 自动测速
+  - 手动切换
+  - 自建节点
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 台湾节点
+  - 韩国节点
+  - 其他节点
+  - DIRECT
+
+# 漏网之鱼 - 未命中分流规则的最终兜底出口
+- name: 漏网之鱼
   type: select
   include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
@@ -354,6 +372,12 @@ rule-providers:
     url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Google.yaml
     path: ./ruleset/ACL4SSR/Google.yaml
     interval: 86400
+  GoogleCN:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/GoogleCN.yaml
+    path: ./ruleset/ACL4SSR/GoogleCN.yaml
+    interval: 86400
   Apple:
     type: http
     behavior: classical
@@ -377,6 +401,12 @@ rule-providers:
     behavior: classical
     url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamRegionCheck.yaml
     path: ./ruleset/ACL4SSR/SteamRegionCheck.yaml
+    interval: 86400
+  Download:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Download.yaml
+    path: ./ruleset/ACL4SSR/Download.yaml
     interval: 86400
   GameDownload:
     type: http
@@ -431,9 +461,11 @@ rules:
 # 局域网 / 私有地址
 - RULE-SET,LocalAreaNetwork,DIRECT
 
-# 游戏平台：国内服务和国内下载节点直连
+# 国内服务、下载和地区检测直连
 - RULE-SET,SteamCN,DIRECT
 - RULE-SET,SteamRegionCheck,DIRECT
+- RULE-SET,Download,DIRECT
+- RULE-SET,GoogleCN,DIRECT
 
 # AI 服务
 - RULE-SET,AI,AI出口
@@ -470,4 +502,4 @@ rules:
 - GEOIP,CN,DIRECT
 
 # 最终兜底
-- MATCH,代理出口
+- MATCH,漏网之鱼
