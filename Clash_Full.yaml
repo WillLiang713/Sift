@@ -312,6 +312,12 @@ rule-providers:
     url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIp.yaml
     path: ./ruleset/ACL4SSR/ChinaIp.yaml
     interval: 86400
+  ChinaIpV6:
+    type: http
+    behavior: ipcidr
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIpV6.yaml
+    path: ./ruleset/ACL4SSR/ChinaIpV6.yaml
+    interval: 86400
   ProxyLite:
     type: http
     behavior: classical
@@ -336,6 +342,12 @@ rule-providers:
     url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Developer.yaml
     path: ./ruleset/ACL4SSR/Developer.yaml
     interval: 86400
+  Github:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Github.yaml
+    path: ./ruleset/ACL4SSR/Github.yaml
+    interval: 86400
   Google:
     type: http
     behavior: classical
@@ -359,6 +371,12 @@ rule-providers:
     behavior: classical
     url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamCN.yaml
     path: ./ruleset/ACL4SSR/SteamCN.yaml
+    interval: 86400
+  SteamRegionCheck:
+    type: http
+    behavior: classical
+    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamRegionCheck.yaml
+    path: ./ruleset/ACL4SSR/SteamRegionCheck.yaml
     interval: 86400
   GameDownload:
     type: http
@@ -415,6 +433,7 @@ rules:
 
 # 游戏平台：国内服务和国内下载节点直连
 - RULE-SET,SteamCN,DIRECT
+- RULE-SET,SteamRegionCheck,DIRECT
 
 # AI 服务
 - RULE-SET,AI,AI出口
@@ -433,6 +452,7 @@ rules:
 - RULE-SET,Xbox,游戏平台
 
 # 开发工具：代码托管、包管理器、开发文档等进入开发工具组
+- RULE-SET,Github,开发工具
 - RULE-SET,Developer,开发工具
 
 # Google / Apple / Microsoft 服务：用于普通品牌服务和商店地区控制
@@ -446,6 +466,7 @@ rules:
 # 国内兜底
 - RULE-SET,ChinaDomain,DIRECT
 - RULE-SET,ChinaIp,DIRECT
+- RULE-SET,ChinaIpV6,DIRECT
 - GEOIP,CN,DIRECT
 
 # 最终兜底
