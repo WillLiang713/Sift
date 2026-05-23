@@ -32,7 +32,7 @@ proxy-groups:
 - name: 代理出口
   type: select
   include-all: true
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
   proxies:
@@ -64,18 +64,6 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 漏网之鱼 - 未命中分流规则的最终兜底出口
-- name: 漏网之鱼
-  type: select
-  include-all: true
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  proxies:
-  - 自动测速
-  - 手动切换
-  - DIRECT
-
 # 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
 - name: 自动测速
   type: url-test
@@ -92,6 +80,18 @@ proxy-groups:
   include-all: true
   url: https://cp.cloudflare.com/generate_204
   interval: 300
+
+# 漏网之鱼 - 未命中分流规则的最终兜底出口
+- name: 漏网之鱼
+  type: select
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
 
 rule-providers:
   LocalAreaNetwork:
@@ -114,7 +114,7 @@ rule-providers:
     interval: 86400
   ChinaIpV6:
     type: http
-    behavior: ipcidr
+    behavior: classical
     url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIpV6.yaml
     path: ./ruleset/ACL4SSR/ChinaIpV6.yaml
     interval: 86400
