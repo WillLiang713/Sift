@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 精简分流：ACL4SSR 规则源，国内/局域网/游戏直连，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
+# 精简分流：ACL4SSR 规则源，国内/局域网/游戏直连，普通海外进入「手动切换」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -28,25 +28,22 @@ dns:
   - "+.stun.*.*.*.*"
 
 proxy-groups:
-# 统一代理出口 - 国外流量进入这里，放在最前方便面板快速选择
-- name: 代理出口
+# 手动切换代理组 - 用户可以手动切换代理节点
+- name: 手动切换
   type: select
+  icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
   include-all: true
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
-  proxies:
-  - 自动测速
-  - 手动切换
-  - 自建节点
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 台湾节点
-  - 韩国节点
-  - 其他节点
-  - DIRECT
+
+# 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
+- name: 自动测速
+  type: url-test
+  include-all: true
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
 
 # AI 出口 - 海外 AI 服务统一进入这里，方便固定更稳定的出口
 - name: AI出口
@@ -168,7 +165,7 @@ proxy-groups:
   - 其他节点
   - DIRECT
 
-# 游戏平台 - 保留独立入口，商店打不开时可手动切到代理出口或指定地区
+# 游戏平台 - 保留独立入口，商店打不开时可手动切到指定节点或地区组
 - name: 游戏平台
   type: select
   include-all: true
@@ -187,23 +184,6 @@ proxy-groups:
   - 韩国节点
   - 其他节点
   - DIRECT
-
-# 手动切换代理组 - 用户可以手动切换代理节点
-- name: 手动切换
-  type: select
-  icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
-  include-all: true
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-
-# 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
-- name: 自动测速
-  type: url-test
-  include-all: true
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  tolerance: 50
 
 # 自建节点代理组
 - name: 自建节点
@@ -493,7 +473,7 @@ rules:
 - RULE-SET,Microsoft,微软服务
 
 # 海外常规代理
-- RULE-SET,ProxyLite,代理出口
+- RULE-SET,ProxyLite,手动切换
 
 # 国内兜底
 - RULE-SET,ChinaDomain,DIRECT

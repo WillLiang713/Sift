@@ -5,7 +5,7 @@
 This repository is a compact Mihomo configuration template project.
 
 - `Full.yaml` is the full template and should remain node-free; it keeps AI, streaming, Google, Apple, Microsoft, developer tooling, gaming platform, and region node strategy groups.
-- `Mini.yaml` is the daily-driver minimal template and should remain node-free; it keeps only `代理出口`, `AI出口`, `流媒体`, `漏网之鱼`, `自动测速`, and `手动切换`.
+- `Mini.yaml` is the daily-driver minimal template and should remain node-free; it keeps only `手动切换`, `自动测速`, `AI出口`, `流媒体`, and `漏网之鱼`.
 - `scripts/convert.js` contains the JavaScript operator for creating chained proxy nodes from `relay` and `landing` arguments.
 - `demo/` stores example Mihomo YAML files used for reference and manual comparison.
 - `ruleset/` is reserved for external or generated rule-set assets if they are added later.
@@ -23,7 +23,7 @@ There is no package manager manifest and no generated build step. Use lightweigh
 
 ## Coding Style & Naming Conventions
 
-Keep YAML indentation at two spaces and group rules by routing intent, with short comments explaining each block. Preserve established Chinese strategy-group names such as `代理出口`, `漏网之鱼`, `AI出口`, `流媒体`, `谷歌服务`, `苹果服务`, `微软服务`, `开发工具`, and `游戏平台` unless a routing change requires renaming them. Keep `Mini.yaml` intentionally smaller than `Full.yaml`; do not add brand, developer, gaming, or region node groups there unless the template goal is explicitly changed. For overlapping `GEOSITE` categories, place the more specific or higher-intent rule first; for example, keep `GEOSITE,category-dev` before `GEOSITE,microsoft` so GitHub traffic reaches `开发工具`. Top-level scenario `select` groups should keep a consistent candidate order and use `include-all: true` so each scenario can directly select a concrete node without adding one-off duplicate groups such as `开发自建节点`. In JavaScript, use two-space indentation, semicolons, `const`/`let`, and small helper functions as shown in `scripts/convert.js`. Prefer descriptive argument aliases and avoid changing existing aliases unless backward compatibility is intentionally broken.
+Keep YAML indentation at two spaces and group rules by routing intent, with short comments explaining each block. Preserve established Chinese strategy-group names such as `手动切换`, `自动测速`, `漏网之鱼`, `AI出口`, `流媒体`, `谷歌服务`, `苹果服务`, `微软服务`, `开发工具`, and `游戏平台` unless a routing change requires renaming them. Keep `Mini.yaml` intentionally smaller than `Full.yaml`; do not add brand, developer, gaming, or region node groups there unless the template goal is explicitly changed. For overlapping `GEOSITE` categories, place the more specific or higher-intent rule first; for example, keep `GEOSITE,category-dev` before `GEOSITE,microsoft` so GitHub traffic reaches `开发工具`. Top-level scenario `select` groups should keep a consistent candidate order and use `include-all: true` so each scenario can directly select a concrete node without adding one-off duplicate groups such as `开发自建节点`. In JavaScript, use two-space indentation, semicolons, `const`/`let`, and small helper functions as shown in `scripts/convert.js`. Prefer descriptive argument aliases and avoid changing existing aliases unless backward compatibility is intentionally broken.
 
 ## Testing Guidelines
 
