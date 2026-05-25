@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 精简分流：Mihomo GEOSITE/GEOIP 规则，国内/局域网/游戏直连，普通海外进入「手动切换」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
+# 精简分流：Mihomo GEOSITE/GEOIP 规则，国内/局域网/游戏直连，GFW 命中流量进入「手动切换」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -320,8 +320,8 @@ rules:
 - GEOSITE,apple,苹果服务
 - GEOSITE,microsoft,微软服务
 
-# 海外常规代理
-- GEOSITE,geolocation-!cn,手动切换
+# GFW 命中代理
+- GEOSITE,gfw,手动切换
 
 # 国内兜底
 - GEOSITE,cn,DIRECT

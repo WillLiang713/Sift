@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 日常主力极简分流：Mihomo GEOSITE/GEOIP 规则，国内/局域网直连，AI/流媒体独立出口，普通海外进入「手动切换」，未命中规则流量进入「漏网之鱼」
+# 日常主力极简分流：Mihomo GEOSITE/GEOIP 规则，国内/局域网直连，AI/流媒体独立出口，GFW 命中流量进入「手动切换」，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -99,8 +99,8 @@ rules:
 # 流媒体 / 娱乐服务
 - GEOSITE,category-media,流媒体
 
-# 海外常规代理
-- GEOSITE,geolocation-!cn,手动切换
+# GFW 命中代理
+- GEOSITE,gfw,手动切换
 
 # 国内兜底
 - GEOSITE,cn,DIRECT
