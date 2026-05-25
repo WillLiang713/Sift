@@ -45,8 +45,8 @@ proxy-groups:
   interval: 300
   tolerance: 50
 
-# AI 出口 - 海外 AI 服务统一进入这里，方便固定更稳定的出口
-- name: AI出口
+# AI - 海外 AI 服务统一进入这里，方便固定更稳定的出口
+- name: AI
   type: select
   include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
@@ -435,7 +435,7 @@ rules:
 - RULE-SET,SteamRegionCheck,DIRECT
 
 # AI 服务
-- RULE-SET,AI,AI出口
+- RULE-SET,AI,AI
 
 # 流媒体 / 娱乐服务
 - RULE-SET,ProxyMedia,流媒体

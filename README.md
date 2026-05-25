@@ -8,8 +8,8 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，GFW 命
 
 | 文件 | 定位 | 保留的主要策略组 |
 | --- | --- | --- |
-| [`Full.yaml`](https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml) | 完整精简版 | `节点选择`、`自动测速`、`漏网之鱼`、`AI出口`、`流媒体`、`谷歌服务`、`苹果服务`、`微软服务`、`开发工具`、`游戏平台`、地区节点组 |
-| [`Mini.yaml`](https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml) | 日常极简版 | `节点选择`、`自动测速`、`AI出口`、`流媒体`、`漏网之鱼` |
+| [`Full.yaml`](https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml) | 完整精简版 | `节点选择`、`自动测速`、`漏网之鱼`、`AI`、`流媒体`、`谷歌服务`、`苹果服务`、`微软服务`、`开发工具`、`游戏平台`、地区节点组 |
+| [`Mini.yaml`](https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml) | 日常极简版 | `节点选择`、`自动测速`、`AI`、`流媒体`、`漏网之鱼` |
 
 ## 分流逻辑
 
@@ -19,7 +19,7 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，GFW 命
 | --- | --- |
 | 局域网、私有地址、中国大陆域名与 IP | `DIRECT` |
 | Steam 中国区、国内游戏平台、GoogleCN、AppleCN、Microsoft CN | `DIRECT` |
-| AI 服务 | `AI出口` |
+| AI 服务 | `AI` |
 | 流媒体 / 娱乐服务 | `流媒体` |
 | Steam、Epic、Origin、Blizzard、Nintendo、Sony、Xbox 等游戏平台 | `游戏平台` |
 | GitHub、开发工具、包管理器、开发文档 | `开发工具` |
@@ -33,7 +33,7 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，GFW 命
 | --- | --- |
 | 局域网、私有地址、中国大陆域名与 IP | `DIRECT` |
 | Steam 中国区、国内游戏平台、GoogleCN、AppleCN、Microsoft CN | `DIRECT` |
-| AI 服务 | `AI出口` |
+| AI 服务 | `AI` |
 | 流媒体 / 娱乐服务 | `流媒体` |
 | GFW 命中流量 | `节点选择` |
 | 未命中规则 | `漏网之鱼` |
@@ -54,8 +54,8 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，GFW 命
 
 - 模板使用 ACL4SSR 远程 `rule-providers`，首次加载或规则更新时需要客户端能访问 GitHub Raw。
 - ACL4SSR 的中国 IP 规则作为国内兜底，用于补充未被国内域名规则覆盖的流量。
-- DNS 块按 OpenClash 覆写场景精简，不包含 `enable`、`listen`、`enhanced-mode`、`fake-ip-range` 等运行时开关。
-- `Mini.yaml` 不保留地区节点组；需要指定地区时，直接在 `节点选择`、`AI出口`、`流媒体` 或 `漏网之鱼` 中选择具体节点。
+- DNS 块按配置覆写场景精简，不包含 `enable`、`listen`、`enhanced-mode`、`fake-ip-range` 等运行时开关。
+- `Mini.yaml` 不保留地区节点组；需要指定地区时，直接在 `节点选择`、`AI`、`流媒体` 或 `漏网之鱼` 中选择具体节点。
 - `Full.yaml` 中流媒体和游戏平台规则优先于 Google / Apple 品牌规则，开发工具规则优先于 Microsoft 规则。
 
 ## License
