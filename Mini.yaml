@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 日常主力极简分流：ACL4SSR 规则源，国内/局域网/下载直连，AI/流媒体独立出口，普通海外进入「手动切换」，未命中规则流量进入「漏网之鱼」
+# 日常主力极简分流：Mihomo GEOSITE/GEOIP 规则，国内/局域网直连，AI/流媒体独立出口，普通海外进入「手动切换」，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -81,98 +81,30 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-rule-providers:
-  LocalAreaNetwork:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/LocalAreaNetwork.yaml
-    path: ./ruleset/ACL4SSR/LocalAreaNetwork.yaml
-    interval: 86400
-  ChinaDomain:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaDomain.yaml
-    path: ./ruleset/ACL4SSR/ChinaDomain.yaml
-    interval: 86400
-  ChinaIp:
-    type: http
-    behavior: ipcidr
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIp.yaml
-    path: ./ruleset/ACL4SSR/ChinaIp.yaml
-    interval: 86400
-  ChinaIpV6:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIpV6.yaml
-    path: ./ruleset/ACL4SSR/ChinaIpV6.yaml
-    interval: 86400
-  ProxyLite:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ProxyLite.yaml
-    path: ./ruleset/ACL4SSR/ProxyLite.yaml
-    interval: 86400
-  ProxyMedia:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ProxyMedia.yaml
-    path: ./ruleset/ACL4SSR/ProxyMedia.yaml
-    interval: 86400
-  AI:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/AI.yaml
-    path: ./ruleset/ACL4SSR/AI.yaml
-    interval: 86400
-  GoogleCN:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/GoogleCN.yaml
-    path: ./ruleset/ACL4SSR/GoogleCN.yaml
-    interval: 86400
-  SteamCN:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamCN.yaml
-    path: ./ruleset/ACL4SSR/SteamCN.yaml
-    interval: 86400
-  SteamRegionCheck:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamRegionCheck.yaml
-    path: ./ruleset/ACL4SSR/SteamRegionCheck.yaml
-    interval: 86400
-  Download:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Download.yaml
-    path: ./ruleset/ACL4SSR/Download.yaml
-    interval: 86400
-
 rules:
 # 局域网 / 私有地址
-- RULE-SET,LocalAreaNetwork,DIRECT
+- GEOSITE,private,DIRECT
+- GEOIP,private,DIRECT,no-resolve
 
-# 国内服务、下载和地区检测直连
-- RULE-SET,SteamCN,DIRECT
-- RULE-SET,SteamRegionCheck,DIRECT
-- RULE-SET,Download,DIRECT
-- RULE-SET,GoogleCN,DIRECT
+# 国内服务和地区检测直连
+- GEOSITE,steam@cn,DIRECT
+- GEOSITE,category-games@cn,DIRECT
+- GEOSITE,google-cn,DIRECT
+- GEOSITE,apple-cn,DIRECT
+- GEOSITE,microsoft@cn,DIRECT
 
 # AI 服务
-- RULE-SET,AI,AI出口
+- GEOSITE,category-ai-!cn,AI出口
 
 # 流媒体 / 娱乐服务
-- RULE-SET,ProxyMedia,流媒体
+- GEOSITE,category-media,流媒体
 
 # 海外常规代理
-- RULE-SET,ProxyLite,手动切换
+- GEOSITE,geolocation-!cn,手动切换
 
 # 国内兜底
-- RULE-SET,ChinaDomain,DIRECT
-- RULE-SET,ChinaIp,DIRECT
-- RULE-SET,ChinaIpV6,DIRECT
-- GEOIP,CN,DIRECT
+- GEOSITE,cn,DIRECT
+- GEOIP,CN,DIRECT,no-resolve
 
 # 最终兜底
 - MATCH,漏网之鱼

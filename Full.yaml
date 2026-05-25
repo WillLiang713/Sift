@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 精简分流：ACL4SSR 规则源，国内/局域网/游戏直连，普通海外进入「手动切换」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
+# 精简分流：Mihomo GEOSITE/GEOIP 规则，国内/局域网/游戏直连，普通海外进入「手动切换」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -291,195 +291,41 @@ proxy-groups:
   - 其他节点
   - DIRECT
 
-rule-providers:
-  LocalAreaNetwork:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/LocalAreaNetwork.yaml
-    path: ./ruleset/ACL4SSR/LocalAreaNetwork.yaml
-    interval: 86400
-  ChinaDomain:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaDomain.yaml
-    path: ./ruleset/ACL4SSR/ChinaDomain.yaml
-    interval: 86400
-  ChinaIp:
-    type: http
-    behavior: ipcidr
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIp.yaml
-    path: ./ruleset/ACL4SSR/ChinaIp.yaml
-    interval: 86400
-  ChinaIpV6:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ChinaIpV6.yaml
-    path: ./ruleset/ACL4SSR/ChinaIpV6.yaml
-    interval: 86400
-  ProxyLite:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ProxyLite.yaml
-    path: ./ruleset/ACL4SSR/ProxyLite.yaml
-    interval: 86400
-  ProxyMedia:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/ProxyMedia.yaml
-    path: ./ruleset/ACL4SSR/ProxyMedia.yaml
-    interval: 86400
-  AI:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/AI.yaml
-    path: ./ruleset/ACL4SSR/AI.yaml
-    interval: 86400
-  Developer:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Developer.yaml
-    path: ./ruleset/ACL4SSR/Developer.yaml
-    interval: 86400
-  Github:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Github.yaml
-    path: ./ruleset/ACL4SSR/Github.yaml
-    interval: 86400
-  Google:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Google.yaml
-    path: ./ruleset/ACL4SSR/Google.yaml
-    interval: 86400
-  GoogleCN:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/GoogleCN.yaml
-    path: ./ruleset/ACL4SSR/GoogleCN.yaml
-    interval: 86400
-  Apple:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Apple.yaml
-    path: ./ruleset/ACL4SSR/Apple.yaml
-    interval: 86400
-  Microsoft:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Microsoft.yaml
-    path: ./ruleset/ACL4SSR/Microsoft.yaml
-    interval: 86400
-  SteamCN:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamCN.yaml
-    path: ./ruleset/ACL4SSR/SteamCN.yaml
-    interval: 86400
-  SteamRegionCheck:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/SteamRegionCheck.yaml
-    path: ./ruleset/ACL4SSR/SteamRegionCheck.yaml
-    interval: 86400
-  Download:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Download.yaml
-    path: ./ruleset/ACL4SSR/Download.yaml
-    interval: 86400
-  GameDownload:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/GameDownload.yaml
-    path: ./ruleset/ACL4SSR/GameDownload.yaml
-    interval: 86400
-  Steam:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Steam.yaml
-    path: ./ruleset/ACL4SSR/Steam.yaml
-    interval: 86400
-  Epic:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Epic.yaml
-    path: ./ruleset/ACL4SSR/Epic.yaml
-    interval: 86400
-  Origin:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Origin.yaml
-    path: ./ruleset/ACL4SSR/Origin.yaml
-    interval: 86400
-  Blizzard:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Blizzard.yaml
-    path: ./ruleset/ACL4SSR/Blizzard.yaml
-    interval: 86400
-  Nintendo:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Nintendo.yaml
-    path: ./ruleset/ACL4SSR/Nintendo.yaml
-    interval: 86400
-  Sony:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Sony.yaml
-    path: ./ruleset/ACL4SSR/Sony.yaml
-    interval: 86400
-  Xbox:
-    type: http
-    behavior: classical
-    url: https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Providers/Ruleset/Xbox.yaml
-    path: ./ruleset/ACL4SSR/Xbox.yaml
-    interval: 86400
-
 rules:
 # 局域网 / 私有地址
-- RULE-SET,LocalAreaNetwork,DIRECT
+- GEOSITE,private,DIRECT
+- GEOIP,private,DIRECT,no-resolve
 
-# 国内服务、下载和地区检测直连
-- RULE-SET,SteamCN,DIRECT
-- RULE-SET,SteamRegionCheck,DIRECT
-- RULE-SET,Download,DIRECT
-- RULE-SET,GoogleCN,DIRECT
+# 国内服务和地区检测直连
+- GEOSITE,steam@cn,DIRECT
+- GEOSITE,category-games@cn,DIRECT
+- GEOSITE,google-cn,DIRECT
+- GEOSITE,apple-cn,DIRECT
+- GEOSITE,microsoft@cn,DIRECT
 
 # AI 服务
-- RULE-SET,AI,AI出口
+- GEOSITE,category-ai-!cn,AI出口
 
 # 流媒体 / 娱乐服务
-- RULE-SET,ProxyMedia,流媒体
+- GEOSITE,category-media,流媒体
 
 # 游戏平台
-- RULE-SET,GameDownload,游戏平台
-- RULE-SET,Steam,游戏平台
-- RULE-SET,Epic,游戏平台
-- RULE-SET,Origin,游戏平台
-- RULE-SET,Blizzard,游戏平台
-- RULE-SET,Nintendo,游戏平台
-- RULE-SET,Sony,游戏平台
-- RULE-SET,Xbox,游戏平台
+- GEOSITE,category-games,游戏平台
 
 # 开发工具：代码托管、包管理器、开发文档等进入开发工具组
-- RULE-SET,Github,开发工具
-- RULE-SET,Developer,开发工具
+- GEOSITE,category-dev,开发工具
 
 # Google / Apple / Microsoft 服务：用于普通品牌服务和商店地区控制
-- RULE-SET,Google,谷歌服务
-- RULE-SET,Apple,苹果服务
-- RULE-SET,Microsoft,微软服务
+- GEOSITE,google,谷歌服务
+- GEOSITE,apple,苹果服务
+- GEOSITE,microsoft,微软服务
 
 # 海外常规代理
-- RULE-SET,ProxyLite,手动切换
+- GEOSITE,geolocation-!cn,手动切换
 
 # 国内兜底
-- RULE-SET,ChinaDomain,DIRECT
-- RULE-SET,ChinaIp,DIRECT
-- RULE-SET,ChinaIpV6,DIRECT
-- GEOIP,CN,DIRECT
+- GEOSITE,cn,DIRECT
+- GEOIP,CN,DIRECT,no-resolve
 
 # 最终兜底
 - MATCH,漏网之鱼
