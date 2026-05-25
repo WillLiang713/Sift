@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 日常主力极简分流：Mihomo GEOSITE/GEOIP 规则，国内/局域网直连，AI/流媒体独立出口，GFW 命中流量进入「手动切换」，未命中规则流量进入「漏网之鱼」
+# 日常主力极简分流：ACL4SSR 远程规则，国内/局域网直连，AI/流媒体独立出口，GFW 命中流量进入「节点选择」，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -28,8 +28,8 @@ dns:
   - "+.stun.*.*.*.*"
 
 proxy-groups:
-# 手动切换代理组 - 用户可以手动切换代理节点
-- name: 手动切换
+# 节点选择代理组 - 用户可以手动选择代理节点
+- name: 节点选择
   type: select
   icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
   include-all: true
@@ -54,7 +54,7 @@ proxy-groups:
   interval: 300
   proxies:
   - 自动测速
-  - 手动切换
+  - 节点选择
   - DIRECT
 
 # 流媒体 - 视频、音乐、直播等娱乐服务统一进入这里，方便按地区切换
@@ -66,7 +66,7 @@ proxy-groups:
   interval: 300
   proxies:
   - 自动测速
-  - 手动切换
+  - 节点选择
   - DIRECT
 
 # 漏网之鱼 - 未命中分流规则的最终兜底出口
@@ -78,33 +78,93 @@ proxy-groups:
   interval: 300
   proxies:
   - 自动测速
-  - 手动切换
+  - 节点选择
   - DIRECT
+
+rule-providers:
+  LocalAreaNetwork:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/LocalAreaNetwork.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/LocalAreaNetwork.yaml
+    interval: 86400
+  GoogleCN:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/GoogleCN.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/GoogleCN.yaml
+    interval: 86400
+  SteamCN:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/SteamCN.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/SteamCN.yaml
+    interval: 86400
+  SteamRegionCheck:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/SteamRegionCheck.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/SteamRegionCheck.yaml
+    interval: 86400
+  ChinaDomain:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/ChinaDomain.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml
+    interval: 86400
+  ChinaIp:
+    type: http
+    behavior: ipcidr
+    path: ./ruleset/acl4ssr/ChinaIp.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaIp.yaml
+    interval: 86400
+  ChinaIpV6:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/ChinaIpV6.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaIpV6.yaml
+    interval: 86400
+  AI:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/AI.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/AI.yaml
+    interval: 86400
+  ProxyMedia:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/ProxyMedia.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyMedia.yaml
+    interval: 86400
+  ProxyGFWlist:
+    type: http
+    behavior: classical
+    path: ./ruleset/acl4ssr/ProxyGFWlist.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyGFWlist.yaml
+    interval: 86400
 
 rules:
 # 局域网 / 私有地址
-- GEOSITE,private,DIRECT
-- GEOIP,private,DIRECT,no-resolve
+- RULE-SET,LocalAreaNetwork,DIRECT
 
 # 国内服务和地区检测直连
-- GEOSITE,steam@cn,DIRECT
-- GEOSITE,category-games@cn,DIRECT
-- GEOSITE,google-cn,DIRECT
-- GEOSITE,apple-cn,DIRECT
-- GEOSITE,microsoft@cn,DIRECT
+- RULE-SET,GoogleCN,DIRECT
+- RULE-SET,SteamCN,DIRECT
+- RULE-SET,SteamRegionCheck,DIRECT
 
 # AI 服务
-- GEOSITE,category-ai-!cn,AI出口
+- RULE-SET,AI,AI出口
 
 # 流媒体 / 娱乐服务
-- GEOSITE,category-media,流媒体
+- RULE-SET,ProxyMedia,流媒体
 
 # GFW 命中代理
-- GEOSITE,gfw,手动切换
+- RULE-SET,ProxyGFWlist,节点选择
 
 # 国内兜底
-- GEOSITE,cn,DIRECT
-- GEOIP,CN,DIRECT,no-resolve
+- RULE-SET,ChinaDomain,DIRECT
+- RULE-SET,ChinaIpV6,DIRECT
+- RULE-SET,ChinaIp,DIRECT
 
 # 最终兜底
 - MATCH,漏网之鱼
