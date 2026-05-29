@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 精简分流：ACL4SSR 远程规则，国内/局域网/游戏直连，GFW 命中流量进入「节点选择」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
+# 精简分流：ACL4SSR 远程规则，国内/局域网/游戏直连，轻量代理规则命中流量进入「节点选择」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -418,11 +418,11 @@ rule-providers:
     path: ./ruleset/acl4ssr/Microsoft.yaml
     url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Microsoft.yaml
     interval: 86400
-  ProxyGFWlist:
+  ProxyLite:
     type: http
     behavior: classical
-    path: ./ruleset/acl4ssr/ProxyGFWlist.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyGFWlist.yaml
+    path: ./ruleset/acl4ssr/ProxyLite.yaml
+    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyLite.yaml
     interval: 86400
 
 rules:
@@ -458,8 +458,8 @@ rules:
 - RULE-SET,Apple,苹果服务
 - RULE-SET,Microsoft,微软服务
 
-# GFW 命中代理
-- RULE-SET,ProxyGFWlist,节点选择
+# 轻量代理规则命中
+- RULE-SET,ProxyLite,节点选择
 
 # 国内兜底
 - RULE-SET,ChinaDomain,DIRECT
