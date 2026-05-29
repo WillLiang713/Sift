@@ -100,19 +100,13 @@ rule-providers:
     path: ./ruleset/acl4ssr/SteamCN.yaml
     url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/SteamCN.yaml
     interval: 86400
-  SteamRegionCheck:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/SteamRegionCheck.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/SteamRegionCheck.yaml
-    interval: 86400
   ChinaDomain:
     type: http
     behavior: classical
     path: ./ruleset/acl4ssr/ChinaDomain.yaml
     url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml
     interval: 86400
-  CNIP:
+  cnip:
     type: http
     behavior: ipcidr
     format: mrs
@@ -142,10 +136,9 @@ rules:
 # 局域网 / 私有地址
 - RULE-SET,LocalAreaNetwork,DIRECT
 
-# 国内服务和地区检测直连
+# 国内服务直连
 - RULE-SET,GoogleCN,DIRECT
 - RULE-SET,SteamCN,DIRECT
-- RULE-SET,SteamRegionCheck,DIRECT
 
 # AI 服务
 - RULE-SET,AI,AI
@@ -158,7 +151,7 @@ rules:
 
 # 国内兜底
 - RULE-SET,ChinaDomain,DIRECT
-- RULE-SET,CNIP,DIRECT
+- RULE-SET,cnip,DIRECT
 
 # 最终兜底
 - MATCH,漏网之鱼
