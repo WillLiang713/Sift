@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 精简分流：ACL4SSR 远程规则，国内/局域网/游戏直连，轻量代理规则命中流量进入「节点选择」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
+# 精简分流：远程规则，国内/局域网/游戏直连，轻量代理规则命中流量进入「节点选择」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -322,17 +322,12 @@ rule-providers:
     path: ./ruleset/acl4ssr/ChinaDomain.yaml
     url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml
     interval: 86400
-  ChinaIp:
+  CNIP:
     type: http
     behavior: ipcidr
-    path: ./ruleset/acl4ssr/ChinaIp.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaIp.yaml
-    interval: 86400
-  ChinaIpV6:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/ChinaIpV6.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaIpV6.yaml
+    format: mrs
+    path: ./ruleset/dustinwin/cnip.mrs
+    url: https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/cnip.mrs
     interval: 86400
   AI:
     type: http
@@ -346,47 +341,11 @@ rule-providers:
     path: ./ruleset/acl4ssr/ProxyMedia.yaml
     url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyMedia.yaml
     interval: 86400
-  Steam:
+  Game:
     type: http
     behavior: classical
-    path: ./ruleset/acl4ssr/Steam.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Steam.yaml
-    interval: 86400
-  Epic:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/Epic.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Epic.yaml
-    interval: 86400
-  Origin:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/Origin.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Origin.yaml
-    interval: 86400
-  Blizzard:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/Blizzard.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Blizzard.yaml
-    interval: 86400
-  Nintendo:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/Nintendo.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Nintendo.yaml
-    interval: 86400
-  Sony:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/Sony.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Sony.yaml
-    interval: 86400
-  Xbox:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/Xbox.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/Xbox.yaml
+    path: ./ruleset/blackmatrix7/Game.yaml
+    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Game/Game.yaml
     interval: 86400
   Developer:
     type: http
@@ -441,13 +400,7 @@ rules:
 - RULE-SET,ProxyMedia,流媒体
 
 # 游戏平台
-- RULE-SET,Steam,游戏平台
-- RULE-SET,Epic,游戏平台
-- RULE-SET,Origin,游戏平台
-- RULE-SET,Blizzard,游戏平台
-- RULE-SET,Nintendo,游戏平台
-- RULE-SET,Sony,游戏平台
-- RULE-SET,Xbox,游戏平台
+- RULE-SET,Game,游戏平台
 
 # 开发工具：代码托管、包管理器、开发文档等进入开发工具组
 - RULE-SET,Github,开发工具
@@ -463,8 +416,7 @@ rules:
 
 # 国内兜底
 - RULE-SET,ChinaDomain,DIRECT
-- RULE-SET,ChinaIpV6,DIRECT
-- RULE-SET,ChinaIp,DIRECT
+- RULE-SET,CNIP,DIRECT
 
 # 最终兜底
 - MATCH,漏网之鱼

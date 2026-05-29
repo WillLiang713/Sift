@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 日常主力极简分流：ACL4SSR 远程规则，国内/局域网直连，AI/流媒体独立出口，轻量代理规则命中流量进入「节点选择」，未命中规则流量进入「漏网之鱼」
+# 日常主力极简分流：远程规则，国内/局域网直连，AI/流媒体独立出口，轻量代理规则命中流量进入「节点选择」，未命中规则流量进入「漏网之鱼」
 
 dns:
   default-nameserver:
@@ -112,17 +112,12 @@ rule-providers:
     path: ./ruleset/acl4ssr/ChinaDomain.yaml
     url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml
     interval: 86400
-  ChinaIp:
+  CNIP:
     type: http
     behavior: ipcidr
-    path: ./ruleset/acl4ssr/ChinaIp.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaIp.yaml
-    interval: 86400
-  ChinaIpV6:
-    type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/ChinaIpV6.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaIpV6.yaml
+    format: mrs
+    path: ./ruleset/dustinwin/cnip.mrs
+    url: https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/cnip.mrs
     interval: 86400
   AI:
     type: http
@@ -163,8 +158,7 @@ rules:
 
 # 国内兜底
 - RULE-SET,ChinaDomain,DIRECT
-- RULE-SET,ChinaIpV6,DIRECT
-- RULE-SET,ChinaIp,DIRECT
+- RULE-SET,CNIP,DIRECT
 
 # 最终兜底
 - MATCH,漏网之鱼

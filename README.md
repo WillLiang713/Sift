@@ -52,8 +52,8 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，ACL4SSR
 
 ## 注意事项
 
-- 模板使用 ACL4SSR 远程 `rule-providers`，首次加载或规则更新时需要客户端能访问 GitHub Raw。
-- ACL4SSR 的中国 IP 规则作为国内兜底，用于补充未被国内域名规则覆盖的流量。
+- 模板主要使用 ACL4SSR 远程 `rule-providers`，`Full.yaml` 的游戏平台规则引用 blackmatrix7，国内 IP 兜底引用 DustinWin；首次加载或规则更新时需要客户端能访问 GitHub Raw。
+- DustinWin 的 `CNIP` MRS 规则作为国内 IP 兜底，用于补充未被国内域名规则覆盖的流量。
 - DNS 块按配置覆写场景精简，不包含 `enable`、`listen`、`enhanced-mode`、`fake-ip-range` 等运行时开关。
 - `Mini.yaml` 不保留地区节点组；需要指定地区时，直接在 `节点选择`、`AI`、`流媒体` 或 `漏网之鱼` 中选择具体节点。
 - `Full.yaml` 中流媒体和游戏平台规则优先于 Google / Apple 品牌规则，开发工具规则优先于 Microsoft 规则。
@@ -65,5 +65,7 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，ACL4SSR
 配置中引用的远程规则、图标、演示配置中的第三方规则与资源不属于本项目授权范围，相关内容版权与使用条款归其各自上游项目或权利方所有。本仓库目前主要引用：
 
 - [`ACL4SSR/ACL4SSR`](https://github.com/ACL4SSR/ACL4SSR)：远程分流规则来源。
+- [`blackmatrix7/ios_rule_script`](https://github.com/blackmatrix7/ios_rule_script)：`Full.yaml` 综合游戏平台规则来源。
+- [`DustinWin/ruleset_geodata`](https://github.com/DustinWin/ruleset_geodata)：`CNIP` 国内 IP 兜底规则来源。
 - [`Koolson/Qure`](https://github.com/Koolson/Qure)
 - [`Orz-3/mini`](https://github.com/Orz-3/mini)
