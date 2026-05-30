@@ -6,10 +6,10 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，以 Dus
 
 ## 模板
 
-| 文件 | 定位 | 保留的主要策略组 |
-| --- | --- | --- |
-| [`Full.yaml`](https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml) | 完整精简版 | `节点选择`、`自动测速`、`漏网之鱼`、`AI`、`流媒体`、`谷歌服务`、`苹果服务`、`微软服务`、`开发工具`、`游戏平台`、地区节点组 |
-| [`Mini.yaml`](https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml) | 日常极简版 | `节点选择`、`自动测速`、`AI`、`流媒体`、`漏网之鱼` |
+| 文件 | 定位 | 远程链接 | 保留的主要策略组 |
+| --- | --- | --- | --- |
+| `Full.yaml` | 完整精简版 | `https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml` | `节点选择`、`自动测速`、`漏网之鱼`、`AI`、`流媒体`、`谷歌服务`、`苹果服务`、`微软服务`、`开发工具`、`游戏平台`、地区节点组 |
+| `Mini.yaml` | 日常极简版 | `https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml` | `节点选择`、`自动测速`、`AI`、`流媒体`、`漏网之鱼` |
 
 ## 分流逻辑
 
@@ -45,7 +45,7 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，以 Dus
 
 ## 使用
 
-1. 下载 `Full.yaml` 或 `Mini.yaml`。
+1. 复制上方 `Full.yaml` 或 `Mini.yaml` 远程链接，或下载对应模板文件。
 2. 将模板与自己的节点订阅合并，或手动补充 `proxies`。
 3. 使用支持 Mihomo `rule-providers` / `RULE-SET` 规则语法的客户端加载配置。
 4. 在策略组中选择 `自动测速`、`节点选择`、地区组或具体节点。
