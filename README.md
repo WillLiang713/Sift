@@ -55,7 +55,8 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 
 1. 复制上方模板链接。
 2. 与节点订阅合并，或手动补充 `proxies`。
-3. 使用支持 Mihomo `rule-providers` 和 `RULE-SET` 的客户端加载配置。
+3. 自建节点建议在名称中保留地区关键词，例如 `自建-HK-01` 或 `自建-日本-东京`，以便自动进入对应地区组。
+4. 使用支持 Mihomo `rule-providers` 和 `RULE-SET` 的客户端加载配置。
 
 ## 验证
 
