@@ -369,35 +369,33 @@ rule-providers:
     path: ./ruleset/dustinwin/games.mrs
     url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games.mrs
     interval: 86400
-  GitHub:
+  category-dev:
     type: http
-    behavior: classical
-    path: ./ruleset/blackmatrix7/GitHub.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GitHub/GitHub.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/metacubex/category-dev.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-dev.mrs
     interval: 86400
-  Developer:
+  google:
     type: http
-    behavior: classical
-    path: ./ruleset/blackmatrix7/Developer.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Developer/Developer.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/metacubex/google.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs
     interval: 86400
-  Google:
+  apple:
     type: http
-    behavior: classical
-    path: ./ruleset/blackmatrix7/Google.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/metacubex/apple.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs
     interval: 86400
-  Apple:
+  microsoft:
     type: http
-    behavior: classical
-    path: ./ruleset/blackmatrix7/Apple.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.yaml
-    interval: 86400
-  Microsoft:
-    type: http
-    behavior: classical
-    path: ./ruleset/blackmatrix7/Microsoft.yaml
-    url: https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/metacubex/microsoft.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs
     interval: 86400
   gfw:
     type: http
@@ -428,13 +426,12 @@ rules:
 - RULE-SET,games,游戏平台
 
 # 开发工具：代码托管、包管理器、开发文档等进入开发工具组
-- RULE-SET,GitHub,开发工具
-- RULE-SET,Developer,开发工具
+- RULE-SET,category-dev,开发工具
 
 # Google / Apple / Microsoft 服务：用于普通品牌服务和商店地区控制
-- RULE-SET,Google,谷歌服务
-- RULE-SET,Apple,苹果服务
-- RULE-SET,Microsoft,微软服务
+- RULE-SET,google,谷歌服务
+- RULE-SET,apple,苹果服务
+- RULE-SET,microsoft,微软服务
 
 # GFW 轻量代理规则命中
 - RULE-SET,gfw,节点选择
