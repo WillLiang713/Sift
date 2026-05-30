@@ -6,10 +6,27 @@ Sift 是一组面向 Mihomo 的精简分流模板：国内默认直连，以 Dus
 
 ## 模板
 
-| 文件 | 定位 | 远程链接 | 保留的主要策略组 |
-| --- | --- | --- | --- |
-| `Full.yaml` | 完整精简版 | `https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml` | `节点选择`、`自动测速`、`漏网之鱼`、`AI`、`流媒体`、`谷歌服务`、`苹果服务`、`微软服务`、`开发工具`、`游戏平台`、地区节点组 |
-| `Mini.yaml` | 日常极简版 | `https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml` | `节点选择`、`自动测速`、`AI`、`流媒体`、`漏网之鱼` |
+### Full.yaml
+
+- 定位：完整精简版
+- 远程链接：
+
+  ```text
+  https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
+  ```
+
+- 保留的主要策略组：`节点选择`、`自动测速`、`漏网之鱼`、`AI`、`流媒体`、`谷歌服务`、`苹果服务`、`微软服务`、`开发工具`、`游戏平台`、地区节点组
+
+### Mini.yaml
+
+- 定位：日常极简版
+- 远程链接：
+
+  ```text
+  https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
+  ```
+
+- 保留的主要策略组：`节点选择`、`自动测速`、`AI`、`流媒体`、`漏网之鱼`
 
 ## 分流逻辑
 
