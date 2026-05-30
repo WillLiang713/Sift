@@ -1,32 +1,6 @@
 # 适用于 Mihomo 核心
 # 精简分流：远程规则，国内/局域网/游戏直连，轻量代理规则命中流量进入「节点选择」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
-dns:
-  default-nameserver:
-  - 223.5.5.5
-  - 119.29.29.29
-  nameserver:
-  - https://dns.alidns.com/dns-query
-  - https://doh.pub/dns-query
-  fake-ip-filter:
-  - "*.lan"
-  - "*.local"
-  - localhost
-  - time.*.com
-  - time.*.gov
-  - time.*.edu.cn
-  - time.*.apple.com
-  - time-ios.apple.com
-  - time1.cloud.tencent.com
-  - ntp.*.com
-  - ntp?.*.com
-  - "+.pool.ntp.org"
-  - "+.msftconnecttest.com"
-  - "+.msftncsi.com"
-  - "+.stun.*.*"
-  - "+.stun.*.*.*"
-  - "+.stun.*.*.*.*"
-
 proxy-groups:
 # 节点选择代理组 - 用户可以手动选择代理节点
 - name: 节点选择
