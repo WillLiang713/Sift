@@ -82,75 +82,106 @@ proxy-groups:
   - DIRECT
 
 rule-providers:
-  LocalAreaNetwork:
+  private:
     type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/LocalAreaNetwork.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/LocalAreaNetwork.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/private.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs
     interval: 86400
-  GoogleCN:
+  privateip:
     type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/GoogleCN.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/GoogleCN.yaml
+    behavior: ipcidr
+    format: mrs
+    path: ./ruleset/dustinwin/privateip.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/privateip.mrs
     interval: 86400
-  SteamCN:
+  google-cn:
     type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/SteamCN.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/SteamCN.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/google-cn.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/google-cn.mrs
     interval: 86400
-  ChinaDomain:
+  apple-cn:
     type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/ChinaDomain.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ChinaDomain.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/apple-cn.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/apple-cn.mrs
+    interval: 86400
+  microsoft-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/microsoft-cn.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/microsoft-cn.mrs
+    interval: 86400
+  games-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/games-cn.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games-cn.mrs
+    interval: 86400
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/cn-lite.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs
     interval: 86400
   cnip:
     type: http
     behavior: ipcidr
     format: mrs
     path: ./ruleset/dustinwin/cnip.mrs
-    url: https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/cnip.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cnip.mrs
     interval: 86400
-  AI:
+  ai:
     type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/AI.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/Ruleset/AI.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/ai.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ai.mrs
     interval: 86400
-  ProxyMedia:
+  media:
     type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/ProxyMedia.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyMedia.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/media.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/media.mrs
     interval: 86400
-  ProxyLite:
+  gfw:
     type: http
-    behavior: classical
-    path: ./ruleset/acl4ssr/ProxyLite.yaml
-    url: https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Providers/ProxyLite.yaml
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/gfw.mrs
+    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/gfw.mrs
     interval: 86400
 
 rules:
 # 局域网 / 私有地址
-- RULE-SET,LocalAreaNetwork,DIRECT
+- RULE-SET,private,DIRECT
+- RULE-SET,privateip,DIRECT
 
 # 国内服务直连
-- RULE-SET,GoogleCN,DIRECT
-- RULE-SET,SteamCN,DIRECT
+- RULE-SET,google-cn,DIRECT
+- RULE-SET,apple-cn,DIRECT
+- RULE-SET,microsoft-cn,DIRECT
+- RULE-SET,games-cn,DIRECT
 
 # AI 服务
-- RULE-SET,AI,AI
+- RULE-SET,ai,AI
 
 # 流媒体 / 娱乐服务
-- RULE-SET,ProxyMedia,流媒体
+- RULE-SET,media,流媒体
 
-# 轻量代理规则命中
-- RULE-SET,ProxyLite,节点选择
+# GFW 轻量代理规则命中
+- RULE-SET,gfw,节点选择
 
 # 国内兜底
-- RULE-SET,ChinaDomain,DIRECT
+- RULE-SET,cn,DIRECT
 - RULE-SET,cnip,DIRECT
 
 # 最终兜底
