@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 精简分流：远程规则，国内/局域网/游戏直连，轻量代理规则命中流量进入「节点选择」，商店/流媒体/AI按场景分流，未命中规则流量进入「漏网之鱼」
+# 精简分流：远程规则，国内/局域网/游戏直连，轻量代理规则命中流量进入「节点选择」，商店/娱乐内容/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
 proxy-groups:
 # 节点选择代理组 - 用户可以手动选择代理节点
@@ -38,11 +38,11 @@ proxy-groups:
   - 其他节点
   - DIRECT
 
-# 流媒体 - 视频、音乐、直播等娱乐服务统一进入这里，方便按地区切换
-- name: 流媒体
+# 娱乐内容 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
+- name: 娱乐内容
   type: select
   include-all: true
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png"
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Star.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
   proxies:
@@ -304,12 +304,12 @@ rule-providers:
     path: ./ruleset/dustinwin/ai.mrs
     url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ai.mrs
     interval: 86400
-  media:
+  category-entertainment:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/media.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/media.mrs
+    path: ./ruleset/metacubex/category-entertainment.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-entertainment.mrs
     interval: 86400
   games:
     type: http
@@ -368,11 +368,11 @@ rules:
 # AI 服务
 - RULE-SET,ai,AI
 
-# 流媒体 / 娱乐服务
-- RULE-SET,media,流媒体
-
 # 游戏平台
 - RULE-SET,games,游戏平台
+
+# 娱乐内容：视频、音乐、直播、动漫等泛娱乐内容
+- RULE-SET,category-entertainment,娱乐内容
 
 # 开发工具：代码托管、包管理器、开发文档等进入开发工具组
 - RULE-SET,category-dev,开发工具

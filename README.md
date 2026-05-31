@@ -6,7 +6,7 @@
 
 ### Full.yaml
 
-完整模板，包含 AI、流媒体、Google、Apple、Microsoft、开发工具、游戏平台和地区节点组。
+完整模板，包含 AI、娱乐内容、Google、Apple、Microsoft、开发工具、游戏平台和地区节点组。
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
@@ -14,7 +14,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
 
 ### Mini.yaml
 
-极简模板，仅保留节点选择、自动测速、AI、流媒体和漏网之鱼。
+极简模板，仅保留节点选择、自动测速、AI、娱乐内容和漏网之鱼。
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
@@ -27,8 +27,8 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 1. 局域网 / 私有地址 -> `DIRECT`
 2. 国内服务 / 国内游戏 / 国内域名 / 国内 IP -> `DIRECT`
 3. AI -> `AI`
-4. 流媒体 -> `流媒体`
-5. 游戏平台 -> `游戏平台`
+4. 游戏平台 -> `游戏平台`
+5. 娱乐内容 -> `娱乐内容`
 6. 开发工具 -> `开发工具`
 7. Google / Apple / Microsoft -> 对应策略组
 8. GFW -> `节点选择`
@@ -39,14 +39,14 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 1. 局域网 / 私有地址 -> `DIRECT`
 2. 国内服务 / 国内游戏 / 国内域名 / 国内 IP -> `DIRECT`
 3. AI -> `AI`
-4. 流媒体 -> `流媒体`
+4. 娱乐内容 -> `娱乐内容`
 5. GFW -> `节点选择`
 6. 其他 -> `漏网之鱼`
 
 ## 规则来源
 
-- DustinWin MRS：基础规则、国内服务、国内域名/IP、AI、流媒体、游戏、GFW。
-- MetaCubeX MRS：`Full.yaml` 的开发工具、Google、Apple、Microsoft。
+- DustinWin MRS：基础规则、国内服务、国内域名/IP、AI、游戏、GFW。
+- MetaCubeX MRS：娱乐内容，以及 `Full.yaml` 的开发工具、Google、Apple、Microsoft。
 - Koolson/Qure、Orz-3/mini：策略组图标。
 
 `rule-providers` 名称与规则文件名保持一致，例如 `category-dev` 对应 `category-dev.mrs`。
