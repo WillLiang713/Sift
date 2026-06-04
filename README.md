@@ -1,11 +1,15 @@
-# Sift
+<h1 align="center">Sift</h1>
 
+<p align="center">
 面向 Mihomo 的无节点分流配置模板。Sift 只提供策略组、远程规则提供商和分流顺序，不内置任何机场节点、订阅地址或私有 DNS 配置。你可以把它作为订阅转换后的基础模板，再由客户端、订阅合并工具或手动配置补充 `proxies`。
+</p>
 
-![Mihomo](https://img.shields.io/badge/Mihomo-compatible-blue)
-![Rules](https://img.shields.io/badge/rules-MRS-green)
-![Node Free](https://img.shields.io/badge/nodes-not%20included-lightgrey)
-![License](https://img.shields.io/badge/license-MIT-blue)
+<p align="center">
+  <img alt="Mihomo" src="https://img.shields.io/badge/Mihomo-compatible-blue">
+  <img alt="Rules" src="https://img.shields.io/badge/rules-MRS-green">
+  <img alt="Node Free" src="https://img.shields.io/badge/nodes-not%20included-lightgrey">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
+</p>
 
 ## 适合谁
 
