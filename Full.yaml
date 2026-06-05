@@ -22,7 +22,6 @@ proxy-groups:
 # AI - 海外 AI 服务统一进入这里，方便固定更稳定的出口
 - name: AI
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -41,7 +40,6 @@ proxy-groups:
 # 娱乐内容 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
 - name: 娱乐内容
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Star.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -60,7 +58,6 @@ proxy-groups:
 # 谷歌服务 - Google Play、Gmail、Drive、Search 等普通 Google 服务和商店地区控制
 - name: 谷歌服务
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -79,7 +76,6 @@ proxy-groups:
 # 苹果服务 - App Store、iCloud、iTunes 等普通 Apple 服务和商店地区控制
 - name: 苹果服务
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -98,7 +94,6 @@ proxy-groups:
 # 微软服务 - Microsoft、OneDrive、Office、Windows 更新等普通微软服务
 - name: 微软服务
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -117,7 +112,6 @@ proxy-groups:
 # 开发工具 - GitHub、代码托管、包管理器、开发文档等流量
 - name: 开发工具
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -136,7 +130,6 @@ proxy-groups:
 # 游戏平台 - 保留独立入口，商店打不开时可手动切到指定节点或地区组
 - name: 游戏平台
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -224,7 +217,6 @@ proxy-groups:
 # 漏网之鱼 - 未命中分流规则的最终兜底出口
 - name: 漏网之鱼
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300

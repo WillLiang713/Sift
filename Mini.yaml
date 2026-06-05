@@ -22,7 +22,6 @@ proxy-groups:
 # AI - 海外 AI 服务统一进入这里，方便固定更稳定的出口
 - name: AI
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -34,7 +33,6 @@ proxy-groups:
 # 娱乐内容 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
 - name: 娱乐内容
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Star.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
@@ -46,7 +44,6 @@ proxy-groups:
 # 漏网之鱼 - 未命中分流规则的最终兜底出口
 - name: 漏网之鱼
   type: select
-  include-all: true
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300

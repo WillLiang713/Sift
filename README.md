@@ -42,7 +42,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 
 ### 无节点模板
 
-`Full.yaml` 和 `Mini.yaml` 都不包含 `proxies`。模板默认依赖 Mihomo 的 `include-all: true`，由客户端或订阅合并后的节点列表填充策略组。
+`Full.yaml` 和 `Mini.yaml` 都不包含 `proxies`。模板依赖 Mihomo 的 `include-all: true`，由客户端或订阅合并后的节点列表填充基础节点组。
+
+为降低 ShellCrash 等低内存环境的常驻占用，场景组不直接展开全量节点，而是引用 `节点选择`、`自动测速` 和必要的地区组。
 
 建议把 Sift 放在订阅转换、配置覆写或客户端模板位置使用，而不是直接当作完整配置导入。使用前需要确保最终配置里已经有节点。
 
@@ -223,7 +225,7 @@ git diff --check
 - 不在模板中强行接管 DNS / fake-ip。
 - 保留 `漏网之鱼` 作为最终兜底出口。
 - `Mini.yaml` 保持克制，不加入品牌、开发、游戏和地区节点组。
-- `Full.yaml` 的场景策略组尽量保持相同候选列表和顺序，避免某些分组行为特殊化。
+- `Full.yaml` 的场景策略组尽量保持相同候选列表和顺序，但不要直接 `include-all` 展开全量节点。
 - 调整规则顺序时，优先考虑更具体的服务规则，避免被宽泛品牌规则提前命中。
 
 ## License
