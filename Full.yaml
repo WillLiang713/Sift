@@ -175,7 +175,7 @@ proxy-groups:
 - name: 其他节点
   type: select
   include-all: true
-  filter: "^(?!.*(港|HK|HKG|HongKong|Hong Kong|美|US|USA|United States|美国|洛杉矶|Los Angeles|圣何塞|San Jose|硅谷|日本|JP|Japan|东京|Tokyo|大阪|Osaka|新加坡|SG|SGP|Singapore|狮城|台|TW|Taiwan|台湾|台灣|台北|Taipei|桃園|Taoyuan|HiNet|韩|KR|Korea|韩国|首尔|Seoul)).*"
+  filter: "^(?!.*(港|HK|HKG|HongKong|Hong Kong|美|US|USA|United States|美国|洛杉矶|Los Angeles|圣何塞|San Jose|硅谷|日本|JP|Japan|东京|Tokyo|大阪|Osaka|新加坡|SG|SGP|Singapore|狮城)).*"
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
