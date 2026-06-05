@@ -104,7 +104,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 - `微软服务`：Microsoft、OneDrive、Office、Windows Update 等服务。
 - `开发工具`：GitHub、代码托管、包管理器、开发文档等流量。
 - `游戏平台`：Steam、Epic、PlayStation、Xbox 等游戏平台相关流量。
-- `香港节点` / `美国节点` / `日本节点` / `新加坡节点` / `台湾节点` / `韩国节点` / `其他节点`：按节点名称关键词自动归类的地区组。
+- `香港节点` / `美国节点` / `日本节点` / `新加坡节点` / `其他节点`：按节点名称关键词自动归类的地区组。
 
 ## 节点命名建议
 
