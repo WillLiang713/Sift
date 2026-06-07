@@ -36,8 +36,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
@@ -51,8 +51,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Star.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
@@ -66,8 +66,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
@@ -81,8 +81,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
@@ -96,8 +96,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
@@ -111,8 +111,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
@@ -126,8 +126,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
@@ -197,8 +197,8 @@ proxy-groups:
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
   proxies:
-  - 自动测速
   - 节点选择
+  - 自动测速
   - 香港节点
   - 美国节点
   - 日本节点
