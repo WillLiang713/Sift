@@ -1,14 +1,26 @@
 # 适用于 Mihomo 核心
-# 精简分流：远程规则，国内/局域网/游戏直连，轻量代理规则命中流量进入「节点选择」，商店/娱乐内容/AI按场景分流，未命中规则流量进入「漏网之鱼」
+# 精简分流：远程规则，局域网直连，国内流量进入「全球直连」可按需切换，代理流量进入「节点选择」，商店/娱乐内容/AI按场景分流，未命中规则流量进入「漏网之鱼」
 
 proxy-groups:
-# 节点选择代理组 - 用户可以手动选择代理节点
+# 节点选择 - 日常总控入口，优先选择策略组，避免直接展开大量节点
 - name: 节点选择
   type: select
   icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
+  proxies:
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+# 手动切换 - 全节点手动池，细选具体节点时进入这里
+- name: 手动切换
+  type: select
   include-all: true
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
+  icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
 
 # 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
 - name: 自动测速
@@ -23,8 +35,6 @@ proxy-groups:
 - name: AI
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -33,14 +43,13 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 # 娱乐内容 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
 - name: 娱乐内容
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Star.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -49,14 +58,13 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 # 谷歌服务 - Google Play、Gmail、Drive、Search 等普通 Google 服务和商店地区控制
 - name: 谷歌服务
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -65,14 +73,13 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 # 苹果服务 - App Store、iCloud、iTunes 等普通 Apple 服务和商店地区控制
 - name: 苹果服务
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -81,14 +88,13 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 # 微软服务 - Microsoft、OneDrive、Office、Windows 更新等普通微软服务
 - name: 微软服务
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -97,14 +103,13 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 # 开发工具 - GitHub、代码托管、包管理器、开发文档等流量
 - name: 开发工具
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -113,14 +118,13 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 # 游戏平台 - 保留独立入口，商店打不开时可手动切到指定节点或地区组
 - name: 游戏平台
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -129,6 +133,7 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 # 地区代理组 - 香港
@@ -177,15 +182,20 @@ proxy-groups:
   include-all: true
   filter: "^(?!.*(港|HK|HKG|HongKong|Hong Kong|美|US|USA|United States|美国|洛杉矶|Los Angeles|圣何塞|San Jose|硅谷|日本|JP|Japan|东京|Tokyo|大阪|Osaka|新加坡|SG|SGP|Singapore|狮城)).*"
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
+
+# 全球直连 - 默认直连，必要时可临时切到代理策略
+- name: 全球直连
+  type: select
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
 
 # 漏网之鱼 - 未命中分流规则的最终兜底出口
 - name: 漏网之鱼
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
   proxies:
   - 自动测速
   - 节点选择
@@ -194,6 +204,7 @@ proxy-groups:
   - 日本节点
   - 新加坡节点
   - 其他节点
+  - 手动切换
   - DIRECT
 
 rule-providers:
@@ -315,11 +326,11 @@ rules:
 - RULE-SET,private,DIRECT
 - RULE-SET,privateip,DIRECT
 
-# 国内服务直连
-- RULE-SET,google-cn,DIRECT
-- RULE-SET,apple-cn,DIRECT
-- RULE-SET,microsoft-cn,DIRECT
-- RULE-SET,games-cn,DIRECT
+# 国内服务可切换直连
+- RULE-SET,google-cn,全球直连
+- RULE-SET,apple-cn,全球直连
+- RULE-SET,microsoft-cn,全球直连
+- RULE-SET,games-cn,全球直连
 
 # AI 服务
 - RULE-SET,ai,AI
@@ -342,8 +353,8 @@ rules:
 - RULE-SET,gfw,节点选择
 
 # 国内兜底
-- RULE-SET,cn,DIRECT
-- RULE-SET,cnip,DIRECT
+- RULE-SET,cn,全球直连
+- RULE-SET,cnip,全球直连
 
 # 最终兜底
 - MATCH,漏网之鱼
