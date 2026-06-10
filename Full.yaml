@@ -257,13 +257,6 @@ rule-providers:
     path: ./ruleset/dustinwin/cn-lite.mrs
     url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs
     interval: 86400
-  cnip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    path: ./ruleset/dustinwin/cnip.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cnip.mrs
-    interval: 86400
   ai:
     type: http
     behavior: domain
@@ -354,7 +347,7 @@ rules:
 
 # 国内兜底
 - RULE-SET,cn,全球直连
-- RULE-SET,cnip,全球直连
+- GEOIP,CN,全球直连
 
 # 最终兜底
 - MATCH,漏网之鱼
