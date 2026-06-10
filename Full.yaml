@@ -91,10 +91,25 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 微软服务 - Microsoft、OneDrive、Office、Windows 更新等普通微软服务
+# 微软服务 - Microsoft、Office、Windows 更新等普通微软服务
 - name: 微软服务
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+# OneDrive - OneDrive、SharePoint、云盘同步等流量
+- name: OneDrive
+  type: select
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"
   proxies:
   - 节点选择
   - 自动测速
@@ -299,6 +314,13 @@ rule-providers:
     path: ./ruleset/metacubex/apple.mrs
     url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs
     interval: 86400
+  onedrive:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/metacubex/onedrive.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs
+    interval: 86400
   microsoft:
     type: http
     behavior: domain
@@ -337,9 +359,10 @@ rules:
 # 开发工具：代码托管、包管理器、开发文档等进入开发工具组
 - RULE-SET,category-dev,开发工具
 
-# Google / Apple / Microsoft 服务：用于普通品牌服务和商店地区控制
+# Google / Apple / OneDrive / Microsoft 服务：用于普通品牌服务和商店地区控制
 - RULE-SET,google,谷歌服务
 - RULE-SET,apple,苹果服务
+- RULE-SET,onedrive,OneDrive
 - RULE-SET,microsoft,微软服务
 
 # GFW 轻量代理规则命中

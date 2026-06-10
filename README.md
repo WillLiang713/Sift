@@ -15,7 +15,7 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 17 | 15 | 完整版：AI、娱乐、Google/Apple/Microsoft、开发工具、游戏平台、地区节点 |
+| [`Full.yaml`](./Full.yaml) | 18 | 16 | 完整版：AI、娱乐、Google/Apple/Microsoft/OneDrive、开发工具、游戏平台、地区节点 |
 | [`Mini.yaml`](./Mini.yaml) | 7 | 10 | 极简版：AI、娱乐内容、可切换直连、兜底，适合轻量环境 |
 
 ```text
@@ -42,7 +42,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 | 4 | 游戏平台（仅 Full） | `游戏平台` |
 | 5 | 娱乐内容 | `娱乐内容` |
 | 6 | 开发工具（仅 Full） | `开发工具` |
-| 7 | Google / Apple / Microsoft 服务（仅 Full） | `谷歌服务` / `苹果服务` / `微软服务` |
+| 7 | Google / Apple / OneDrive / Microsoft 服务（仅 Full） | `谷歌服务` / `苹果服务` / `OneDrive` / `微软服务` |
 | 8 | GFW 代理规则 | `节点选择` |
 | 9 | 国内域名 / GeoIP 兜底 | `全球直连` |
 | 10 | 未命中流量 | `漏网之鱼` |
@@ -51,7 +51,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 
 **通用**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `AI` · `娱乐内容` · `漏网之鱼`
 
-**Full 额外**：`谷歌服务` · `苹果服务` · `微软服务` · `开发工具` · `游戏平台` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
+**Full 额外**：`谷歌服务` · `苹果服务` · `微软服务` · `OneDrive` · `开发工具` · `游戏平台` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
 
 > 地区组依赖节点名称中的地区关键词自动归类。建议节点命名包含 `HK`、`日本`、`US` 等标识。
 
@@ -60,7 +60,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 使用远程 MRS 规则集，不提交规则文件：
 
 - [DustinWin MRS](https://github.com/DustinWin/ruleset_geodata)：私有地址、国内服务、国内域名、AI、游戏、GFW
-- [MetaCubeX MRS](https://github.com/MetaCubeX/meta-rules-dat)：娱乐内容、开发工具、Google、Apple、Microsoft
+- [MetaCubeX MRS](https://github.com/MetaCubeX/meta-rules-dat)：娱乐内容、开发工具、Google、Apple、Microsoft、OneDrive
 - Mihomo 内置 `GEOIP,CN`：国内 IP 兜底
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
