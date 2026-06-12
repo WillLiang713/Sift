@@ -101,12 +101,12 @@ rule-providers:
     path: ./ruleset/metacubex/category-games@cn.mrs
     url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games@cn.mrs
     interval: 86400
-  cn:
+  geolocation-cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/metacubex/cn.mrs
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
+    path: ./ruleset/metacubex/geolocation-cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-cn.mrs
     interval: 86400
   category-ai-!cn:
     type: http
@@ -150,7 +150,7 @@ rules:
 - RULE-SET,gfw,节点选择
 
 # 国内兜底
-- RULE-SET,cn,全球直连
+- RULE-SET,geolocation-cn,全球直连
 - GEOIP,CN,全球直连
 
 # 最终兜底
