@@ -1,5 +1,5 @@
 # 适用于 Mihomo 核心
-# 远程规则（DustinWin），局域网直连，国内域名和品牌服务命中「全球直连」，GEOIP 国内 IP 兜底，AI/娱乐/游戏按场景分流，代理流量进入「国外流量」，未命中流量进入「漏网之鱼」
+# 远程规则（DustinWin），局域网直连，国内域名和品牌服务命中「全球直连」，GEOIP 国内 IP 兜底，AI/流媒体/游戏按场景分流，代理流量进入「国外流量」，未命中流量进入「漏网之鱼」
 
 proxy-groups:
 # 节点选择 - 日常总控入口，优先选择策略组，避免直接展开大量节点
@@ -46,8 +46,8 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 娱乐内容 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
-- name: 娱乐内容
+# 流媒体 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
+- name: 流媒体
   type: select
   icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Star.png"
   proxies:
@@ -269,8 +269,8 @@ rules:
 # 境外游戏平台代理
 - RULE-SET,games,游戏平台
 
-# 泛娱乐内容代理 — 视频、音乐、直播、动漫
-- RULE-SET,media,娱乐内容
+# 流媒体代理 — 视频、音乐、直播、动漫
+- RULE-SET,media,流媒体
 
 # 境外域名代理
 - RULE-SET,proxy,国外流量
