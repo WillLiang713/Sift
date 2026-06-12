@@ -49,7 +49,7 @@ proxy-groups:
 # 流媒体 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
 - name: 流媒体
   type: select
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Star.png"
+  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ForeignMedia.png"
   proxies:
   - 节点选择
   - 自动测速
