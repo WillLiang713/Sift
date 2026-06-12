@@ -15,8 +15,8 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 18 | 16 | 完整版：AI、娱乐、Google/Apple/Microsoft/OneDrive、开发工具、游戏平台、地区节点 |
-| [`Mini.yaml`](./Mini.yaml) | 7 | 10 | 极简版：AI、娱乐内容、可切换直连、兜底，适合轻量环境 |
+| [`Full.yaml`](./Full.yaml) | 18 | 15 | 完整版：AI、娱乐、Google/Apple/Microsoft/OneDrive、开发工具、游戏平台、地区节点 |
+| [`Mini.yaml`](./Mini.yaml) | 7 | 9 | 极简版：AI、娱乐内容、可切换直连、兜底，适合轻量环境 |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
@@ -57,10 +57,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 
 ## 规则来源
 
-使用远程 MRS 规则集，不提交规则文件：
+全部远程 MRS 规则集由 [MetaCubeX](https://github.com/MetaCubeX/meta-rules-dat) 统一提供：
 
-- [DustinWin MRS](https://github.com/DustinWin/ruleset_geodata)：私有地址、国内服务、国内域名、AI、游戏、GFW
-- [MetaCubeX MRS](https://github.com/MetaCubeX/meta-rules-dat)：娱乐内容、开发工具、Google、Apple、Microsoft、OneDrive
+- **geosite**：`private` · `google@cn` · `apple@cn` · `microsoft@cn` · `category-games@cn` · `cn` · `category-ai-!cn` · `category-entertainment` · `category-games` · `category-dev` · `google` · `apple` · `onedrive` · `microsoft` · `gfw`
 - Mihomo 内置 `GEOIP,CN`：国内 IP 兜底
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 

@@ -227,57 +227,50 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/private.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs
+    path: ./ruleset/metacubex/private.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs
     interval: 86400
-  privateip:
-    type: http
-    behavior: ipcidr
-    format: mrs
-    path: ./ruleset/dustinwin/privateip.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/privateip.mrs
-    interval: 86400
-  google-cn:
+  google@cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/google-cn.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/google-cn.mrs
+    path: ./ruleset/metacubex/google@cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google@cn.mrs
     interval: 86400
-  apple-cn:
+  apple@cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/apple-cn.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/apple-cn.mrs
+    path: ./ruleset/metacubex/apple@cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple@cn.mrs
     interval: 86400
-  microsoft-cn:
+  microsoft@cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/microsoft-cn.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/microsoft-cn.mrs
+    path: ./ruleset/metacubex/microsoft@cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft@cn.mrs
     interval: 86400
-  games-cn:
+  category-games@cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/games-cn.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games-cn.mrs
+    path: ./ruleset/metacubex/category-games@cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games@cn.mrs
     interval: 86400
   cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/cn-lite.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs
+    path: ./ruleset/metacubex/cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
     interval: 86400
-  ai:
+  category-ai-!cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/ai.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ai.mrs
+    path: ./ruleset/metacubex/category-ai-!cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-!cn.mrs
     interval: 86400
   category-entertainment:
     type: http
@@ -286,12 +279,12 @@ rule-providers:
     path: ./ruleset/metacubex/category-entertainment.mrs
     url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-entertainment.mrs
     interval: 86400
-  games:
+  category-games:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/games.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games.mrs
+    path: ./ruleset/metacubex/category-games.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games.mrs
     interval: 86400
   category-dev:
     type: http
@@ -332,26 +325,25 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/gfw.mrs
-    url: https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/gfw.mrs
+    path: ./ruleset/metacubex/gfw.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gfw.mrs
     interval: 86400
 
 rules:
 # 局域网 / 私有地址
 - RULE-SET,private,DIRECT
-- RULE-SET,privateip,DIRECT
 
 # 国内服务可切换直连
-- RULE-SET,google-cn,全球直连
-- RULE-SET,apple-cn,全球直连
-- RULE-SET,microsoft-cn,全球直连
-- RULE-SET,games-cn,全球直连
+- RULE-SET,google@cn,全球直连
+- RULE-SET,apple@cn,全球直连
+- RULE-SET,microsoft@cn,全球直连
+- RULE-SET,category-games@cn,全球直连
 
 # AI 服务
-- RULE-SET,ai,AI
+- RULE-SET,category-ai-!cn,AI
 
 # 游戏平台
-- RULE-SET,games,游戏平台
+- RULE-SET,category-games,游戏平台
 
 # 娱乐内容：视频、音乐、直播、动漫等泛娱乐内容
 - RULE-SET,category-entertainment,娱乐内容
