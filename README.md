@@ -59,7 +59,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 
 全部远程 MRS 规则集由 [MetaCubeX](https://github.com/MetaCubeX/meta-rules-dat) 统一提供：
 
-- **geosite**：`private` · `google@cn` · `apple@cn` · `microsoft@cn` · `category-games@cn` · `geolocation-cn` · `category-ai-!cn` · `category-entertainment` · `category-games` · `category-dev` · `google` · `apple` · `onedrive` · `microsoft` · `gfw`
+- **geosite**：`private` · `google@cn` · `apple@cn` · `microsoft@cn` · `category-games@cn` · `cn` · `category-ai-!cn` · `category-entertainment` · `category-games` · `category-dev` · `google` · `apple` · `onedrive` · `microsoft` · `gfw`
 - Mihomo 内置 `GEOIP,CN`：国内 IP 兜底
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
