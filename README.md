@@ -15,12 +15,12 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 18 | 14 | 完整版：AI、娱乐、Google/Apple/Microsoft/OneDrive、开发工具、游戏平台、地区节点 |
-| [`Mini.yaml`](./Mini.yaml) | 7 | 8 | 极简版：AI、娱乐内容、可切换直连、兜底，适合轻量环境 |
+| [`Full.yaml`](./Full.yaml) | 13 | 11 | 完整版：AI、娱乐、游戏平台、地区节点 |
+| [`Nano.yaml`](./Nano.yaml) | 6 | 4 | 极简版：直连/代理/兜底，最轻量的日常分流 |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 ```
 
 ## 设计要点
@@ -30,37 +30,47 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障。
 - **兜底出口**：未命中规则进入 `漏网之鱼`，避免未知流量被静默直连。
-- **游戏独立**：国内游戏直连，境外游戏经 `游戏平台` 策略组（Full），避免被兜底代理误伤。
+- **游戏独立**：国内游戏直连，境外游戏经 `游戏平台` 策略组，避免被兜底代理误伤。
+- **国外流量**：代理规则命中流量统一进入 `国外流量`，可按需切换节点或地区。
 
 ## 分流顺序
+
+### Full
 
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
 | 2 | 国内 Google / Apple / Microsoft / 游戏 | `全球直连` |
 | 3 | AI 服务 | `AI` |
-| 4 | 游戏平台（仅 Full） | `游戏平台` |
+| 4 | 游戏平台 | `游戏平台` |
 | 5 | 娱乐内容 | `娱乐内容` |
-| 6 | 开发工具（仅 Full） | `开发工具` |
-| 7 | Google / Apple / OneDrive / Microsoft 服务（仅 Full） | `谷歌服务` / `苹果服务` / `OneDrive` / `微软服务` |
-| 8 | GFW 代理规则 | `节点选择` |
-| 9 | 国内 IP 兜底 | `全球直连` |
-| 10 | 未命中流量 | `漏网之鱼` |
+| 6 | 代理规则命中 | `国外流量` |
+| 7 | 国内域名 / IP 兜底 | `全球直连` |
+| 8 | 未命中流量 | `漏网之鱼` |
+
+### Nano
+
+| 优先级 | 规则 | 出口 |
+| --- | --- | --- |
+| 1 | 局域网 / 私有地址 | `DIRECT` |
+| 2 | 代理规则命中 | `国外流量` |
+| 3 | 国内域名 / IP 兜底 | `全球直连` |
+| 4 | 未命中流量 | `漏网之鱼` |
 
 ## 策略组
 
-**通用**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `AI` · `娱乐内容` · `漏网之鱼`
+**Full**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `国外流量` · `AI` · `娱乐内容` · `游戏平台` · `漏网之鱼` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
 
-**Full 额外**：`谷歌服务` · `苹果服务` · `微软服务` · `OneDrive` · `开发工具` · `游戏平台` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
+**Nano**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `国外流量` · `漏网之鱼`
 
 > 地区组依赖节点名称中的地区关键词自动归类。建议节点命名包含 `HK`、`日本`、`US` 等标识。
 
 ## 规则来源
 
-全部远程 MRS 规则集由 [MetaCubeX](https://github.com/MetaCubeX/meta-rules-dat) 统一提供：
+远程 MRS 规则集全部由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供：
 
-- **geosite**：`private` · `google@cn` · `apple@cn` · `microsoft@cn` · `category-games@cn` · `category-ai-!cn` · `category-entertainment` · `category-games` · `category-dev` · `google` · `apple` · `onedrive` · `microsoft` · `gfw`
-- Mihomo 内置 `GEOIP,CN`：国内 IP 兜底
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `microsoft-cn` · `games-cn` · `ai` · `media` · `games` · `proxy` · `cn`
+- **Nano**：`private` · `privateip` · `proxy` · `cn`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
 ## 使用
@@ -82,8 +92,9 @@ git clone https://github.com/WillLiang713/Sift.git
 
 ```text
 ├── Full.yaml          # 完整模板
-├── Mini.yaml          # 极简模板
+├── Nano.yaml          # 极简模板
 ├── AGENTS.md          # 维护约定
+├── ruleset/           # 远程规则缓存（DustinWin）
 └── LICENSE
 ```
 

@@ -4,11 +4,11 @@
 
 This repository is a compact Mihomo configuration template project.
 
-- `Full.yaml` is the full template and should remain node-free; it keeps AI, streaming, Google, Apple, Microsoft, developer tooling, gaming platform, and region node strategy groups.
-- `Mini.yaml` is the daily-driver minimal template and should remain node-free; it keeps only `手动切换`, `自动测速`, `AI`, `流媒体`, and `漏网之鱼`.
+- `Full.yaml` is the full template and should remain node-free; it keeps AI, streaming, gaming platform, and region node strategy groups. All rule sets are from [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata).
+- `Nano.yaml` is the nano template and should remain node-free; it keeps only `手动切换`, `自动测速`, `国外流量`, `全球直连`, and `漏网之鱼`. All rule sets are from DustinWin.
 - `scripts/convert.js` contains the JavaScript operator for creating chained proxy nodes from `relay` and `landing` arguments.
-- `demo/` stores example Mihomo YAML files used for reference and manual comparison.
-- `ruleset/` is reserved for external or generated rule-set assets if they are added later.
+- `demo/` stores example Mihomo YAML files used for reference and manual comparison, including legacy ACL4SSR-based configurations.
+- `ruleset/` stores remotely cached MRS rule-set files from DustinWin.
 - `README.md` documents user-facing behavior and should be updated when routing logic or template selection changes.
 - `LICENSE` covers this repository's own template and script content; remotely referenced icons, demo rules, and other third-party resources remain under their upstream terms.
 
@@ -17,13 +17,13 @@ This repository is a compact Mihomo configuration template project.
 There is no package manager manifest and no generated build step. Use lightweight validation before committing:
 
 - `node --check scripts/convert.js` verifies JavaScript syntax without executing the operator.
-- `mihomo -t -f Full.yaml` and `mihomo -t -f Mini.yaml` validate the templates when the Mihomo binary is installed locally.
-- `yamllint Full.yaml Mini.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
+- `mihomo -t -f Full.yaml` and `mihomo -t -f Nano.yaml` validate the templates when the Mihomo binary is installed locally.
+- `yamllint Full.yaml Nano.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
 - `git diff --check` catches trailing whitespace and common patch formatting issues.
 
 ## Coding Style & Naming Conventions
 
-Keep YAML indentation at two spaces and group rules by routing intent, with short comments explaining each block. Preserve established Chinese strategy-group names such as `手动切换`, `自动测速`, `漏网之鱼`, `AI`, `流媒体`, `谷歌服务`, `苹果服务`, `微软服务`, `开发工具`, and `游戏平台` unless a routing change requires renaming them. Keep `Mini.yaml` intentionally smaller than `Full.yaml`; do not add brand, developer, gaming, or region node groups there unless the template goal is explicitly changed. Keep each `rule-providers` key synchronized with the upstream rule-set file basename, including case, for example use `category-dev` for `category-dev.mrs` and `google` for `google.mrs` instead of display-style names such as `Developer` or `Google`. For overlapping `GEOSITE` categories, place the more specific or higher-intent rule first; for example, keep `GEOSITE,category-dev` before `GEOSITE,microsoft` so GitHub traffic reaches `开发工具`. Top-level scenario `select` groups should keep a consistent candidate order and use `include-all: true` so each scenario can directly select a concrete node without adding one-off duplicate groups such as `开发自建节点`. In JavaScript, use two-space indentation, semicolons, `const`/`let`, and small helper functions as shown in `scripts/convert.js`. Prefer descriptive argument aliases and avoid changing existing aliases unless backward compatibility is intentionally broken.
+Keep YAML indentation at two spaces and group rules by routing intent, with short comments explaining each block. Preserve established Chinese strategy-group names such as `手动切换`, `自动测速`, `漏网之鱼`, `国外流量`, `AI`, `娱乐内容`, and `游戏平台` unless a routing change requires renaming them. Keep `Nano.yaml` intentionally smaller than `Full.yaml`; do not add AI, entertainment, gaming, or region node groups there unless the template goal is explicitly changed. Keep each `rule-providers` key synchronized with the upstream rule-set file basename, for example use `google-cn` for `google-cn.mrs` and `ai` for `ai.mrs` instead of display-style names. For overlapping rules, place the more specific or higher-intent rule first. Top-level scenario `select` groups should keep a consistent candidate order and use `include-all: true` so each scenario can directly select a concrete node without adding one-off duplicate groups such as `开发自建节点`. In JavaScript, use two-space indentation, semicolons, `const`/`let`, and small helper functions as shown in `scripts/convert.js`. Prefer descriptive argument aliases and avoid changing existing aliases unless backward compatibility is intentionally broken.
 
 ## Testing Guidelines
 
