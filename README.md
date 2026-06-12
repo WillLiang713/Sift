@@ -15,8 +15,8 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 18 | 15 | 完整版：AI、娱乐、Google/Apple/Microsoft/OneDrive、开发工具、游戏平台、地区节点 |
-| [`Mini.yaml`](./Mini.yaml) | 7 | 9 | 极简版：AI、娱乐内容、可切换直连、兜底，适合轻量环境 |
+| [`Full.yaml`](./Full.yaml) | 18 | 14 | 完整版：AI、娱乐、Google/Apple/Microsoft/OneDrive、开发工具、游戏平台、地区节点 |
+| [`Mini.yaml`](./Mini.yaml) | 7 | 8 | 极简版：AI、娱乐内容、可切换直连、兜底，适合轻量环境 |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
@@ -44,7 +44,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 | 6 | 开发工具（仅 Full） | `开发工具` |
 | 7 | Google / Apple / OneDrive / Microsoft 服务（仅 Full） | `谷歌服务` / `苹果服务` / `OneDrive` / `微软服务` |
 | 8 | GFW 代理规则 | `节点选择` |
-| 9 | 国内域名 / GeoIP 兜底 | `全球直连` |
+| 9 | 国内 IP 兜底 | `全球直连` |
 | 10 | 未命中流量 | `漏网之鱼` |
 
 ## 策略组
@@ -59,7 +59,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Mini.yaml
 
 全部远程 MRS 规则集由 [MetaCubeX](https://github.com/MetaCubeX/meta-rules-dat) 统一提供：
 
-- **geosite**：`private` · `google@cn` · `apple@cn` · `microsoft@cn` · `category-games@cn` · `cn` · `category-ai-!cn` · `category-entertainment` · `category-games` · `category-dev` · `google` · `apple` · `onedrive` · `microsoft` · `gfw`
+- **geosite**：`private` · `google@cn` · `apple@cn` · `microsoft@cn` · `category-games@cn` · `category-ai-!cn` · `category-entertainment` · `category-games` · `category-dev` · `google` · `apple` · `onedrive` · `microsoft` · `gfw`
 - Mihomo 内置 `GEOIP,CN`：国内 IP 兜底
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
