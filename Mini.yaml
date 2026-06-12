@@ -105,8 +105,8 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/metacubex/geolocation-cn.mrs
-    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-cn.mrs
+    path: ./ruleset/metacubex/cn.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
     interval: 86400
   category-ai-!cn:
     type: http
