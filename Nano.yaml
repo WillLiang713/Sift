@@ -80,13 +80,13 @@ rule-providers:
     path: ./ruleset/dustinwin/proxy.mrs
     url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs"
     interval: 86400
-  # 国内域名 — cn / 境内 CDN / 国内网站
+  # 国内域名 — cn / 境内 CDN / 国内网站（精简版，避免 TLD 通配误杀）
   cn:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/cn.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs"
+    path: ./ruleset/dustinwin/cn-lite.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs"
     interval: 86400
 
 rules:
