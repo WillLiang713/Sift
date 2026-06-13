@@ -12,6 +12,10 @@ This repository is a compact Mihomo configuration template project.
 - `README.md` documents user-facing behavior and should be updated when routing logic or template selection changes.
 - `LICENSE` covers this repository's own template and script content; remotely referenced icons, demo rules, and other third-party resources remain under their upstream terms.
 
+## Rule Sources & ShellCrash Compatibility
+
+All remote MRS rule sets come from [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata), and rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans rule-provider URLs and treats those keywords as a signal that the Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra Geo-data downloads and checks that slow down or disrupt startup. DustinWin's MRS paths do not contain those keywords, so startup stays clean; MetaCubeX `meta-rules-dat` URLs (for example `.../geo/geosite/...` or `.../geoip/...`) do contain them and trigger the misdetection. Do not switch rule-provider URLs to MetaCubeX even when the rule content is equivalent — keep DustinWin, or another source whose URL path is free of those keywords.
+
 ## Build, Test, and Development Commands
 
 There is no package manager manifest and no generated build step. Use lightweight validation before committing:
