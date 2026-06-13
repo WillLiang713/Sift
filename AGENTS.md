@@ -20,6 +20,7 @@ All remote MRS rule sets come from [DustinWin/ruleset_geodata](https://github.co
 
 There is no package manager manifest and no generated build step. Use lightweight validation before committing:
 
+- `bash .claude/skills/sift-check/check.sh` (or `/sift-check` in Claude Code) checks project invariants — strategy-group / rule-set referential integrity, the ShellCrash `geosite`/`geoip` URL constraint, node-free / no-DNS rules, and `Nano` ⊆ `Full` scope — and folds in `mihomo -t` / `yamllint` when those are installed. Run it before committing template or rule-provider edits.
 - `node --check scripts/convert.js` verifies JavaScript syntax without executing the operator.
 - `mihomo -t -f Full.yaml` and `mihomo -t -f Nano.yaml` validate the templates when the Mihomo binary is installed locally.
 - `yamllint Full.yaml Nano.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
