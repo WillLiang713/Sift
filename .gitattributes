@@ -1,0 +1,3 @@
+# Keep shell scripts as LF so they run under bash on every platform
+# (this repo otherwise relies on autocrlf, which would rewrite them to CRLF).
+*.sh text eol=lf
