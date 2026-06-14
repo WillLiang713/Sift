@@ -5,7 +5,7 @@ proxy-groups:
 # 节点选择 - 日常总控入口，保持清爽，不直接展开大量节点
 - name: 节点选择
   type: select
-  icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
+  icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
   proxies:
   - 自动测速
   - 手动切换
@@ -15,40 +15,40 @@ proxy-groups:
 - name: 手动切换
   type: select
   include-all: true
-  icon: "https://raw.githubusercontent.com/Orz-3/mini/master/Color/Manual.png"
+  icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
 
 # 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
 - name: 自动测速
   type: url-test
   include-all: true
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
   tolerance: 50
 
-# 全球直连 - 国内流量兜底出口，默认直连，可按需临时切代理
-- name: 全球直连
-  type: select
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
-  proxies:
-  - DIRECT
-  - 节点选择
-  - 自动测速
-
 # 国外流量 - 境外代理流量入口，可按需切换节点
 - name: 国外流量
   type: select
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
   proxies:
   - 节点选择
   - 自动测速
   - 手动切换
   - DIRECT
 
+# 全球直连 - 国内流量兜底出口，默认直连，可按需临时切代理
+- name: 全球直连
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+
 # 漏网之鱼 - 未命中分流规则的最终兜底出口
 - name: 漏网之鱼
   type: select
-  icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
   proxies:
   - 节点选择
   - 自动测速
@@ -62,7 +62,7 @@ rule-providers:
     behavior: domain
     format: mrs
     path: ./ruleset/dustinwin/private.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
     interval: 86400
   # 私有 IP — 局域网 / CGNAT / 链路本地
   privateip:
@@ -70,7 +70,7 @@ rule-providers:
     behavior: ipcidr
     format: mrs
     path: ./ruleset/dustinwin/privateip.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/privateip.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
     interval: 86400
   # 境外域名 — 需要代理访问的域名合集
   proxy:
@@ -78,7 +78,7 @@ rule-providers:
     behavior: domain
     format: mrs
     path: ./ruleset/dustinwin/proxy.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.mrs"
     interval: 86400
   # 国内域名 — cn / 境内 CDN / 国内网站（精简版，避免 TLD 通配误杀）
   cn:
@@ -86,7 +86,7 @@ rule-providers:
     behavior: domain
     format: mrs
     path: ./ruleset/dustinwin/cn-lite.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
     interval: 86400
 
 rules:
