@@ -15,7 +15,7 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 13 | 11 | 完整版：AI、流媒体、游戏平台、地区节点 |
+| [`Full.yaml`](./Full.yaml) | 16 | 14 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、地区节点 |
 | [`Nano.yaml`](./Nano.yaml) | 6 | 4 | 极简版：直连/代理/兜底，最轻量的日常分流 |
 
 ```text
@@ -41,12 +41,15 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
 | 2 | 国内 Google / Apple / Microsoft / 游戏 | `全球直连` |
-| 3 | AI 服务 | `AI` |
-| 4 | 游戏平台 | `游戏平台` |
-| 5 | 流媒体 | `流媒体` |
-| 6 | 代理规则命中 | `国外流量` |
-| 7 | 国内域名 / IP 兜底 | `全球直连` |
-| 8 | 未命中流量 | `漏网之鱼` |
+| 3 | Apple 海外服务 | `苹果服务` |
+| 4 | AI 服务 | `AI` |
+| 5 | 游戏平台 | `游戏平台` |
+| 6 | 流媒体 | `流媒体` |
+| 7 | OneDrive 网盘 | `OneDrive` |
+| 8 | Microsoft 海外服务 | `微软服务` |
+| 9 | 代理规则命中 | `国外流量` |
+| 10 | 国内域名 / IP 兜底 | `全球直连` |
+| 11 | 未命中流量 | `漏网之鱼` |
 
 ### Nano
 
@@ -59,7 +62,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 ## 策略组
 
-**Full**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `国外流量` · `AI` · `流媒体` · `游戏平台` · `漏网之鱼` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
+**Full**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `国外流量` · `AI` · `流媒体` · `游戏平台` · `苹果服务` · `微软服务` · `OneDrive` · `漏网之鱼` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
 
 **Nano**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `国外流量` · `漏网之鱼`
 
@@ -67,9 +70,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 ## 规则来源
 
-远程 MRS 规则集全部由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供：
+远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `Clash/Apple.list`；`microsoft` = `Clash/Microsoft.list`；`onedrive` = `Clash/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `microsoft-cn` · `games-cn` · `ai` · `media` · `games` · `proxy` · `cn`
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（ACL4SSR）· `microsoft-cn` · `microsoft`（ACL4SSR）· `onedrive`（ACL4SSR）· `games-cn` · `ai` · `media` · `games` · `proxy` · `cn`
 - **Nano**：`private` · `privateip` · `proxy` · `cn`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
@@ -86,7 +89,7 @@ git clone https://github.com/WillLiang713/Sift.git
 
 ## 兼容性要求
 
-客户端需支持：Mihomo 核心、`rule-providers`、`RULE-SET`、`GEOIP`、`format: mrs`、策略组 `include-all` 与 `filter` 关键词匹配。
+客户端需支持：Mihomo 核心、`rule-providers`、`RULE-SET`、`GEOIP`、`format: mrs` 与 `format: text`（`behavior: classical`）、策略组 `include-all` 与 `filter` 关键词匹配。
 
 ## 目录结构
 

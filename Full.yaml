@@ -76,6 +76,51 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
+# 苹果服务 - 海外 Apple 域名，默认直连
+- name: 苹果服务
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+
+# 微软服务 - 海外 Microsoft 域名，默认直连
+- name: 微软服务
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+
+# OneDrive - 网盘流量，默认走代理
+- name: OneDrive
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/OneDrive.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
 # 国外流量 - 境外代理流量入口，可按需切换节点或地区
 - name: 国外流量
   type: select
@@ -195,6 +240,14 @@ rule-providers:
     path: ./ruleset/dustinwin/apple-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/apple-cn.mrs"
     interval: 86400
+  # Apple 海外服务 — App Store / iCloud / 系统服务（ACL4SSR）
+  apple:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/apple.list
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Apple.list"
+    interval: 86400
   # Microsoft 国内服务 — Windows Update CN / Office 365 世纪互联
   microsoft-cn:
     type: http
@@ -202,6 +255,22 @@ rule-providers:
     format: mrs
     path: ./ruleset/dustinwin/microsoft-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/microsoft-cn.mrs"
+    interval: 86400
+  # Microsoft 海外服务 — Office / Outlook / Bing 等（ACL4SSR）
+  microsoft:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/microsoft.list
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Microsoft.list"
+    interval: 86400
+  # OneDrive — 微软网盘，常需代理（ACL4SSR）
+  onedrive:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/onedrive.list
+    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/OneDrive.list"
     interval: 86400
   # 国内游戏商店 — Steam CN / Nintendo eShop 国内 CDN
   games-cn:
@@ -263,6 +332,9 @@ rules:
 - RULE-SET,microsoft-cn,全球直连
 - RULE-SET,games-cn,全球直连
 
+# Apple 海外服务
+- RULE-SET,apple,苹果服务
+
 # AI 服务
 - RULE-SET,ai,AI
 
@@ -271,6 +343,12 @@ rules:
 
 # 流媒体代理 — 视频、音乐、直播、动漫
 - RULE-SET,media,流媒体
+
+# OneDrive 网盘 — 须在 Microsoft 之前
+- RULE-SET,onedrive,OneDrive
+
+# Microsoft 海外服务（须排在 AI 之后）
+- RULE-SET,microsoft,微软服务
 
 # 境外域名代理
 - RULE-SET,proxy,国外流量
