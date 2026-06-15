@@ -70,9 +70,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 ## 规则来源
 
-远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `Clash/Apple.list`；`microsoft` = `Clash/Microsoft.list`；`onedrive` = `Clash/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
+远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（ACL4SSR）· `microsoft-cn` · `microsoft`（ACL4SSR）· `onedrive`（ACL4SSR）· `games-cn` · `ai` · `media` · `games` · `proxy` · `cn`
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `proxy` · `cn`
 - **Nano**：`private` · `privateip` · `proxy` · `cn`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 

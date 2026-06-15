@@ -240,13 +240,13 @@ rule-providers:
     path: ./ruleset/dustinwin/apple-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/apple-cn.mrs"
     interval: 86400
-  # Apple 海外服务 — App Store / iCloud / 系统服务（ACL4SSR）
+  # Apple 海外服务 — App Store / iCloud / 系统服务（blackmatrix7）
   apple:
     type: http
     behavior: classical
     format: text
-    path: ./ruleset/acl4ssr/apple.list
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Apple.list"
+    path: ./ruleset/blackmatrix7/apple.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Apple/Apple.list"
     interval: 86400
   # Microsoft 国内服务 — Windows Update CN / Office 365 世纪互联
   microsoft-cn:
@@ -256,21 +256,21 @@ rule-providers:
     path: ./ruleset/dustinwin/microsoft-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/microsoft-cn.mrs"
     interval: 86400
-  # Microsoft 海外服务 — Office / Outlook / Bing 等（ACL4SSR）
+  # Microsoft 海外服务 — Office / Outlook / Bing 等（blackmatrix7）
   microsoft:
     type: http
     behavior: classical
     format: text
-    path: ./ruleset/acl4ssr/microsoft.list
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/Microsoft.list"
+    path: ./ruleset/blackmatrix7/microsoft.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Microsoft/Microsoft.list"
     interval: 86400
-  # OneDrive — 微软网盘，常需代理（ACL4SSR）
+  # OneDrive — 微软网盘，常需代理（blackmatrix7）
   onedrive:
     type: http
     behavior: classical
     format: text
-    path: ./ruleset/acl4ssr/onedrive.list
-    url: "https://cdn.jsdelivr.net/gh/ACL4SSR/ACL4SSR@master/Clash/OneDrive.list"
+    path: ./ruleset/blackmatrix7/onedrive.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OneDrive/OneDrive.list"
     interval: 86400
   # 国内游戏商店 — Steam CN / Nintendo eShop 国内 CDN
   games-cn:
