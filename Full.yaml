@@ -304,13 +304,21 @@ rule-providers:
     path: ./ruleset/dustinwin/games.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.mrs"
     interval: 86400
-  # 境外域名 — 需要代理访问的域名合集
-  proxy:
+  # 境外域名 — GFWList 精简代理域名集
+  gfw:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/proxy.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.mrs"
+    path: ./ruleset/dustinwin/gfw.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.mrs"
+    interval: 86400
+  # Telegram IP — Telegram 直连 IP 段，避免落入漏网之鱼
+  telegramip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    path: ./ruleset/dustinwin/telegramip.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/telegramip.mrs"
     interval: 86400
   # 国内域名 — cn / 境内 CDN / 国内网站（精简版，避免 TLD 通配误杀）
   cn:
@@ -350,8 +358,11 @@ rules:
 # Microsoft 海外服务（须排在 AI 之后）
 - RULE-SET,microsoft,微软服务
 
-# 境外域名代理
-- RULE-SET,proxy,国外流量
+# 境外域名代理（GFWList 精简集）
+- RULE-SET,gfw,国外流量
+
+# Telegram IP — 须在国内 IP 兜底和 MATCH 之前
+- RULE-SET,telegramip,国外流量,no-resolve
 
 # 国内域名直连
 - RULE-SET,cn,全球直连

@@ -15,8 +15,8 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 16 | 14 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、地区节点 |
-| [`Nano.yaml`](./Nano.yaml) | 6 | 4 | 极简版：直连/代理/兜底，最轻量的日常分流 |
+| [`Full.yaml`](./Full.yaml) | 16 | 15 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、Telegram IP、地区节点 |
+| [`Nano.yaml`](./Nano.yaml) | 6 | 5 | 极简版：直连/代理/兜底，补充 Telegram IP 分流 |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
@@ -47,18 +47,20 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | 6 | 流媒体 | `流媒体` |
 | 7 | OneDrive 网盘 | `OneDrive` |
 | 8 | Microsoft 海外服务 | `微软服务` |
-| 9 | 代理规则命中 | `国外流量` |
-| 10 | 国内域名 / IP 兜底 | `全球直连` |
-| 11 | 未命中流量 | `漏网之鱼` |
+| 9 | GFW 代理规则命中 | `国外流量` |
+| 10 | Telegram IP | `国外流量` |
+| 11 | 国内域名 / IP 兜底 | `全球直连` |
+| 12 | 未命中流量 | `漏网之鱼` |
 
 ### Nano
 
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 代理规则命中 | `国外流量` |
-| 3 | 国内域名 / IP 兜底 | `全球直连` |
-| 4 | 未命中流量 | `漏网之鱼` |
+| 2 | GFW 代理规则命中 | `国外流量` |
+| 3 | Telegram IP | `国外流量` |
+| 4 | 国内域名 / IP 兜底 | `全球直连` |
+| 5 | 未命中流量 | `漏网之鱼` |
 
 ## 策略组
 
@@ -72,8 +74,8 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `proxy` · `cn`
-- **Nano**：`private` · `privateip` · `proxy` · `cn`
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `gfw` · `telegramip` · `cn`
+- **Nano**：`private` · `privateip` · `gfw` · `telegramip` · `cn`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
 ## 使用
