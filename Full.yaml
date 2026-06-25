@@ -1,34 +1,31 @@
-# 适用于 Mihomo 核心
-# 远程规则（DustinWin），局域网直连，国内域名和品牌服务命中「全球直连」，GEOIP 国内 IP 兜底，AI/流媒体/游戏按场景分流，未命中流量进入「漏网之鱼」
+# Mihomo Full：无节点规则、策略组和 DNS。
 
-# DNS — fake-ip + 分流 DNS；代理解析走海外 DoH，直连域名和代理节点解析走国内 DoH
-# 注：OpenClash 会接管 enable/listen/enhanced-mode/fake-ip-range（开「自定义上游 DNS」时连 nameserver 一并接管），届时以客户端为准
+# DNS：fake-ip；默认海外 DoH，直连/节点解析国内 DoH。
 dns:
   enable: true
-  ipv6: false                     # 关闭 AAAA，避免 IPv6 解析泄露 / 双栈干扰（按需改 true）
-  listen: ":53"                   # DNS 监听端口（OpenClash 会改写为 7874）
+  ipv6: false
+  listen: ":53"
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-  fake-ip-filter-mode: blacklist  # 黑名单：命中下列集合的域名返回真实 IP
+  fake-ip-filter-mode: blacklist
   fake-ip-filter:
-    - rule-set:fakeip-filter      # BT tracker / STUN / 游戏回流等需 realip 的域名
-    - rule-set:private            # 局域网域名走真实 IP（复用已有 private 集）
-  respect-rules: true             # 防泄露：DNS 连接遵循分流规则（须配 proxy-server-nameserver）
-  default-nameserver:             # 仅解析下方 DoH 服务器域名，必须为纯 IP
+    - rule-set:fakeip-filter
+    - rule-set:private
+  respect-rules: true
+  default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
-  proxy-server-nameserver:        # 解析代理节点域名，避免 respect-rules 解析环路
+  proxy-server-nameserver:
     - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
-  nameserver:                     # 默认解析走海外 DoH，其连接由 respect-rules 按分流规则处理
+  nameserver:
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
-  direct-nameserver:              # 直连（国内）域名用国内加密 DNS，防污染、低延迟
+  direct-nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
 
 proxy-groups:
-# 节点选择 - 日常总控入口，优先选择策略组，避免直接展开大量节点
 - name: 节点选择
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
@@ -42,13 +39,11 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 手动切换 - 全节点手动池，细选具体节点时进入这里
 - name: 手动切换
   type: select
   include-all: true
   icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
 
-# 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
 - name: 自动测速
   type: url-test
   include-all: true
@@ -57,7 +52,6 @@ proxy-groups:
   interval: 300
   tolerance: 50
 
-# AI - 海外 AI 服务统一进入这里，方便固定更稳定的出口
 - name: AI
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"
@@ -72,7 +66,6 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 流媒体 - 视频、音乐、直播等泛娱乐内容统一进入这里，方便按地区切换
 - name: 流媒体
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png"
@@ -87,7 +80,6 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 游戏平台 - 境外游戏商店和联机流量，商店打不开时可手动切换地区
 - name: 游戏平台
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
@@ -102,7 +94,6 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 苹果服务 - 海外 Apple 域名，默认直连
 - name: 苹果服务
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
@@ -117,7 +108,6 @@ proxy-groups:
   - 其他节点
   - 手动切换
 
-# 微软服务 - 海外 Microsoft 域名，默认直连
 - name: 微软服务
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png"
@@ -132,7 +122,6 @@ proxy-groups:
   - 其他节点
   - 手动切换
 
-# OneDrive - 网盘流量，默认走代理
 - name: OneDrive
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/OneDrive.png"
@@ -147,7 +136,6 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 香港节点 — 关键词自动归类，url-test 优选
 - name: 香港节点
   type: url-test
   include-all: true
@@ -157,7 +145,6 @@ proxy-groups:
   interval: 300
   tolerance: 50
 
-# 美国节点 — 关键词自动归类，url-test 优选
 - name: 美国节点
   type: url-test
   include-all: true
@@ -167,7 +154,6 @@ proxy-groups:
   interval: 300
   tolerance: 50
 
-# 日本节点 — 关键词自动归类，url-test 优选
 - name: 日本节点
   type: url-test
   include-all: true
@@ -177,7 +163,6 @@ proxy-groups:
   interval: 300
   tolerance: 50
 
-# 新加坡节点 — 关键词自动归类，url-test 优选
 - name: 新加坡节点
   type: url-test
   include-all: true
@@ -187,14 +172,12 @@ proxy-groups:
   interval: 300
   tolerance: 50
 
-# 其他节点 — 未命中上述地区的节点聚合，手动选择
 - name: 其他节点
   type: select
   include-all: true
   filter: "^(?!.*(港|HK|HKG|HongKong|Hong Kong|美|US|USA|United States|美国|洛杉矶|Los Angeles|圣何塞|San Jose|硅谷|日本|JP|Japan|东京|Tokyo|大阪|Osaka|新加坡|SG|SGP|Singapore|狮城)).*"
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
 
-# 全球直连 - 国内流量兜底出口，默认直连，可按需临时切代理
 - name: 全球直连
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
@@ -203,7 +186,6 @@ proxy-groups:
   - 节点选择
   - 自动测速
 
-# 漏网之鱼 - 未命中分流规则的最终兜底出口
 - name: 漏网之鱼
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
@@ -219,7 +201,6 @@ proxy-groups:
   - DIRECT
 
 rule-providers:
-  # 私有网络 — 局域网 / RFC 1918 / 本地回环
   private:
     type: http
     behavior: domain
@@ -227,7 +208,6 @@ rule-providers:
     path: ./ruleset/dustinwin/private.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
     interval: 86400
-  # 私有 IP — 局域网 / CGNAT / 链路本地
   privateip:
     type: http
     behavior: ipcidr
@@ -235,7 +215,6 @@ rule-providers:
     path: ./ruleset/dustinwin/privateip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
     interval: 86400
-  # Google 国内服务 — google.cn / Google Play 国内下载 / 备案域名
   google-cn:
     type: http
     behavior: domain
@@ -243,7 +222,6 @@ rule-providers:
     path: ./ruleset/dustinwin/google-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/google-cn.mrs"
     interval: 86400
-  # Apple 国内服务 — iCloud CN / Apple CDN 国内节点
   apple-cn:
     type: http
     behavior: domain
@@ -251,7 +229,6 @@ rule-providers:
     path: ./ruleset/dustinwin/apple-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/apple-cn.mrs"
     interval: 86400
-  # Apple 海外服务 — App Store / iCloud / 系统服务（blackmatrix7）
   apple:
     type: http
     behavior: classical
@@ -259,7 +236,6 @@ rule-providers:
     path: ./ruleset/blackmatrix7/apple.list
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Apple/Apple.list"
     interval: 86400
-  # Microsoft 国内服务 — Windows Update CN / Office 365 世纪互联
   microsoft-cn:
     type: http
     behavior: domain
@@ -267,7 +243,6 @@ rule-providers:
     path: ./ruleset/dustinwin/microsoft-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/microsoft-cn.mrs"
     interval: 86400
-  # Microsoft 海外服务 — Office / Outlook / Bing 等（blackmatrix7）
   microsoft:
     type: http
     behavior: classical
@@ -275,7 +250,6 @@ rule-providers:
     path: ./ruleset/blackmatrix7/microsoft.list
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Microsoft/Microsoft.list"
     interval: 86400
-  # OneDrive — 微软网盘，常需代理（blackmatrix7）
   onedrive:
     type: http
     behavior: classical
@@ -283,7 +257,6 @@ rule-providers:
     path: ./ruleset/blackmatrix7/onedrive.list
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OneDrive/OneDrive.list"
     interval: 86400
-  # 国内游戏商店 — Steam CN / Nintendo eShop 国内 CDN
   games-cn:
     type: http
     behavior: domain
@@ -291,7 +264,6 @@ rule-providers:
     path: ./ruleset/dustinwin/games-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs"
     interval: 86400
-  # AI 平台 — ChatGPT / Claude / Gemini / Copilot 等海外 AI
   ai:
     type: http
     behavior: domain
@@ -299,7 +271,6 @@ rule-providers:
     path: ./ruleset/dustinwin/ai.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.mrs"
     interval: 86400
-  # 国外流媒体 — YouTube / Netflix / Disney+ / Spotify / Bilibili 等
   media:
     type: http
     behavior: domain
@@ -307,7 +278,6 @@ rule-providers:
     path: ./ruleset/dustinwin/media.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/media.mrs"
     interval: 86400
-  # 境外游戏平台 — Steam / Epic / Origin / Nintendo / Sony
   games:
     type: http
     behavior: domain
@@ -315,7 +285,6 @@ rule-providers:
     path: ./ruleset/dustinwin/games.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.mrs"
     interval: 86400
-  # 境外域名 — GFWList 精简代理域名集
   gfw:
     type: http
     behavior: domain
@@ -323,7 +292,6 @@ rule-providers:
     path: ./ruleset/dustinwin/gfw.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.mrs"
     interval: 86400
-  # Telegram IP — Telegram 直连 IP 段，避免落入漏网之鱼
   telegramip:
     type: http
     behavior: ipcidr
@@ -331,7 +299,6 @@ rule-providers:
     path: ./ruleset/dustinwin/telegramip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/telegramip.mrs"
     interval: 86400
-  # 国内域名 — cn / 境内 CDN / 国内网站（精简版，避免 TLD 通配误杀）
   cn:
     type: http
     behavior: domain
@@ -339,7 +306,6 @@ rule-providers:
     path: ./ruleset/dustinwin/cn-lite.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
     interval: 86400
-  # fake-ip 过滤集 — BT tracker / STUN / 游戏回流等需返回真实 IP（DustinWin fakeip-filter，仅供 dns.fake-ip-filter 引用）
   fakeip-filter:
     type: http
     behavior: domain
@@ -349,45 +315,33 @@ rule-providers:
     interval: 86400
 
 rules:
-# 局域网 / 私有地址
+# 顺序要求：OneDrive 先于 Microsoft，Microsoft 后于 AI。
 - RULE-SET,private,DIRECT
 - RULE-SET,privateip,DIRECT,no-resolve
 
-# 国内品牌服务直连
 - RULE-SET,google-cn,全球直连
 - RULE-SET,apple-cn,全球直连
 - RULE-SET,microsoft-cn,全球直连
 - RULE-SET,games-cn,全球直连
 
-# Apple 海外服务
 - RULE-SET,apple,苹果服务
 
-# AI 服务
 - RULE-SET,ai,AI
 
-# 境外游戏平台代理
 - RULE-SET,games,游戏平台
 
-# 流媒体代理 — 视频、音乐、直播、动漫
 - RULE-SET,media,流媒体
 
-# OneDrive 网盘 — 须在 Microsoft 之前
 - RULE-SET,onedrive,OneDrive
 
-# Microsoft 海外服务（须排在 AI 之后）
 - RULE-SET,microsoft,微软服务
 
-# 境外域名代理（GFWList 精简集）
 - RULE-SET,gfw,节点选择
 
-# Telegram IP — 须在国内 IP 兜底和 MATCH 之前
 - RULE-SET,telegramip,节点选择,no-resolve
 
-# 国内域名直连
 - RULE-SET,cn,全球直连
 
-# 国内 IP 兜底
 - GEOIP,CN,全球直连
 
-# 最终兜底
 - MATCH,漏网之鱼
