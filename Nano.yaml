@@ -1,8 +1,6 @@
-# 适用于 Mihomo 核心
-# 远程规则（DustinWin），局域网直连，GFW 进入「节点选择」，国内域名和 GEOIP 命中「全球直连」，未命中流量进入「漏网之鱼」
+# Nano：无节点极简规则和策略组。
 
 proxy-groups:
-# 节点选择 - 日常总控入口，保持清爽，不直接展开大量节点
 - name: 节点选择
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
@@ -11,13 +9,11 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
-# 手动切换 - 全节点手动池，细选具体节点时进入这里
 - name: 手动切换
   type: select
   include-all: true
   icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
 
-# 自动测速代理组 - 根据测试 URL 和延迟自动选择节点
 - name: 自动测速
   type: url-test
   include-all: true
@@ -26,7 +22,6 @@ proxy-groups:
   interval: 300
   tolerance: 50
 
-# 全球直连 - 国内流量兜底出口，默认直连，可按需临时切代理
 - name: 全球直连
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
@@ -35,7 +30,6 @@ proxy-groups:
   - 节点选择
   - 自动测速
 
-# 漏网之鱼 - 未命中分流规则的最终兜底出口
 - name: 漏网之鱼
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
@@ -46,7 +40,6 @@ proxy-groups:
   - DIRECT
 
 rule-providers:
-  # 私有网络 — 局域网 / RFC 1918 / 本地回环
   private:
     type: http
     behavior: domain
@@ -54,7 +47,6 @@ rule-providers:
     path: ./ruleset/dustinwin/private.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
     interval: 86400
-  # 私有 IP — 局域网 / CGNAT / 链路本地
   privateip:
     type: http
     behavior: ipcidr
@@ -62,7 +54,6 @@ rule-providers:
     path: ./ruleset/dustinwin/privateip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
     interval: 86400
-  # 境外域名 — GFWList 精简代理域名集
   gfw:
     type: http
     behavior: domain
@@ -70,7 +61,6 @@ rule-providers:
     path: ./ruleset/dustinwin/gfw.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.mrs"
     interval: 86400
-  # 国内域名 — cn / 境内 CDN / 国内网站（精简版，避免 TLD 通配误杀）
   cn:
     type: http
     behavior: domain
@@ -80,18 +70,13 @@ rule-providers:
     interval: 86400
 
 rules:
-# 局域网 / 私有地址
 - RULE-SET,private,DIRECT
 - RULE-SET,privateip,DIRECT,no-resolve
 
-# 境外域名代理（GFWList 精简集）
 - RULE-SET,gfw,节点选择
 
-# 国内域名直连
 - RULE-SET,cn,全球直连
 
-# 国内 IP 兜底
 - GEOIP,CN,全球直连
 
-# 最终兜底
 - MATCH,漏网之鱼

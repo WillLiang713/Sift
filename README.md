@@ -1,11 +1,11 @@
 <h1 align="center">Sift</h1>
 
 <p align="center">
-面向 Mihomo 的无节点分流模板 — 只提供策略组、远程规则和分流顺序，不内置节点。
+面向通用代理内核的无节点分流模板 — 只提供策略组、远程规则和分流顺序，不内置节点。
 </p>
 
 <p align="center">
-  <img alt="Mihomo" src="https://img.shields.io/badge/Mihomo-compatible-blue">
+  <img alt="Core" src="https://img.shields.io/badge/core-compatible-blue">
   <img alt="Rules" src="https://img.shields.io/badge/rules-MRS-green">
   <img alt="Node Free" src="https://img.shields.io/badge/nodes-not%20included-lightgrey">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">

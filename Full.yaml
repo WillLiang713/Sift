@@ -1,4 +1,4 @@
-# Mihomo Full：无节点规则、策略组和 DNS。
+# Full：无节点规则、策略组和 DNS。
 
 # DNS：fake-ip；默认海外 DoH，直连/节点解析国内 DoH。
 dns:
@@ -315,7 +315,6 @@ rule-providers:
     interval: 86400
 
 rules:
-# 顺序要求：OneDrive 先于 Microsoft，Microsoft 后于 AI。
 - RULE-SET,private,DIRECT
 - RULE-SET,privateip,DIRECT,no-resolve
 
