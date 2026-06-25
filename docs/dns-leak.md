@@ -27,6 +27,15 @@ nameserver:
 `Full.yaml` 按用途拆分 DNS：
 
 ```yaml
+fake-ip-filter:
+  - rule-set:fakeip-filter
+  - rule-set:private
+  - rule-set:google-cn
+  - rule-set:apple-cn
+  - rule-set:microsoft-cn
+  - rule-set:games-cn
+  - rule-set:cn
+
 nameserver-policy:
   "rule-set:cn":
     - https://dns.alidns.com/dns-query
@@ -51,6 +60,7 @@ proxy-server-nameserver:
 
 | 字段 | 用途 |
 | --- | --- |
+| `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
 | `nameserver-policy` | 国内直连规则集优先使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
 | `nameserver` | 默认解析，使用海外 DoH，泄露测试只会看到海外 DNS。 |
 | `fallback` | 默认解析不可用时的兜底，Quad9 + Google TLS，避免单点故障。 |
@@ -60,27 +70,12 @@ proxy-server-nameserver:
 
 ## 国内域名为什么仍然直连
 
-国内域名不是靠“先用国内 DNS 解析”来判断的。
+国内域名分两条路径：
 
-fake-ip 模式下的主要流程是：
+1. 命中 `dns.fake-ip-filter` 的国内直连规则集时，客户端直接拿到真实 IP；在 OpenWrt/OpenClash 这类路由器环境里，真实中国 IP 可以继续命中本机的 China IP 直连链路，也不会被禁 QUIC 规则当作 `198.18/16` fake-ip 误拒绝。
+2. 未命中 `fake-ip-filter` 的域名仍走 fake-ip 流程：客户端拿到 fake IP，内核再按原始域名匹配 `rules`，命中直连规则后进入 `全球直连`。
 
-1. 客户端请求域名。
-2. 内核返回 fake IP。
-3. 客户端连接 fake IP。
-4. 内核根据 fake IP 找回原始域名。
-5. 原始域名匹配 `rules`。
-6. 命中 `cn`、`google-cn`、`apple-cn`、`microsoft-cn`、`games-cn`，或后续命中 `GEOIP,CN`。
-7. 策略进入 `全球直连`。
-8. 客户端查询命中国内直连规则集时，`nameserver-policy` 先使用国内 DoH 解析。
-9. 如果 `全球直连` 当前是 `DIRECT`，最终出站解析继续使用 `direct-nameserver`。
-
-关键点是：
-
-```text
-先由 rules 判断最终出口，再按最终出口选择 DNS。
-```
-
-所以默认 `nameserver` 可以使用海外 DoH；确认直连的国内域名仍然会优先使用国内 DoH。
+因此默认 `nameserver` 仍可以使用海外 DoH；明确国内直连的域名由 `fake-ip-filter` / `nameserver-policy` / `direct-nameserver` 保留国内解析质量。
 
 ## 客户端设置
 
@@ -99,6 +94,8 @@ fake-ip 模式下的主要流程是：
 | Fake-IP 持久化 | 开启 |
 | Fake-IP-Filter 覆写 | 关闭 |
 | IPv6 DNS 解析 | 未主动使用 IPv6 时关闭 |
+
+如果使用 `Nano.yaml` 或 OpenClash 自己覆写 DNS，模板不会提供 `dns.fake-ip-filter`；需要在客户端的 fake-ip-filter 自定义里同步追加国内直连规则集。
 
 改完 DNS 后，清理 DNS/Fake-IP 缓存并重启客户端。
 
