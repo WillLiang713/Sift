@@ -15,7 +15,7 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 16 | 16 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、Telegram IP、地区节点；内置 fake-ip DNS（BT realip + 防泄露） |
+| [`Full.yaml`](./Full.yaml) | 16 | 16 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、Telegram IP、地区节点；内置 fake-ip 分流 DNS |
 | [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：直连/代理/兜底，补充 Telegram IP 分流 |
 
 ```text
@@ -26,7 +26,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 ## 设计要点
 
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
-- **DNS 分模板**：Nano 不接管 DNS，留给客户端本地管理；Full 内置 fake-ip DNS（BT/STUN/游戏回流走真实 IP，DustinWin 防泄露 DoH 解析），OpenClash 等客户端接管 DNS 时以客户端为准。
+- **DNS 分模板**：Nano 不接管 DNS，留给客户端本地管理；Full 内置 fake-ip 分流 DNS（BT/STUN/游戏回流走真实 IP，默认解析走海外 DoH，直连域名和代理节点解析走国内 DoH），OpenClash 等客户端接管 DNS 时以客户端为准。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障。
 - **兜底出口**：未命中规则进入 `漏网之鱼`，避免未知流量被静默直连。

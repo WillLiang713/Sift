@@ -1,7 +1,7 @@
 # 适用于 Mihomo 核心
 # 远程规则（DustinWin），局域网直连，国内域名和品牌服务命中「全球直连」，GEOIP 国内 IP 兜底，AI/流媒体/游戏按场景分流，未命中流量进入「漏网之鱼」
 
-# DNS — fake-ip + DustinWin 防泄露思路；fake-ip-filter 让 BT tracker / STUN / 游戏回流走真实 IP
+# DNS — fake-ip + 分流 DNS；代理解析走海外 DoH，直连域名和代理节点解析走国内 DoH
 # 注：OpenClash 会接管 enable/listen/enhanced-mode/fake-ip-range（开「自定义上游 DNS」时连 nameserver 一并接管），届时以客户端为准
 dns:
   enable: true
@@ -20,9 +20,9 @@ dns:
   proxy-server-nameserver:        # 解析代理节点域名，避免 respect-rules 解析环路
     - https://223.5.5.5/dns-query
     - https://doh.pub/dns-query
-  nameserver:                     # 主解析全程加密：fake-ip-filter 内域名（含 BT tracker）走 DoH，不明文泄露
-    - https://223.5.5.5/dns-query
-    - https://doh.pub/dns-query
+  nameserver:                     # 默认解析走海外 DoH，其连接由 respect-rules 按分流规则处理
+    - https://cloudflare-dns.com/dns-query
+    - https://dns.google/dns-query
   direct-nameserver:              # 直连（国内）域名用国内加密 DNS，防污染、低延迟
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
