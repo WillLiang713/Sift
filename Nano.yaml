@@ -65,8 +65,8 @@ rule-providers:
     type: http
     behavior: domain
     format: mrs
-    path: ./ruleset/dustinwin/cn-lite.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
+    path: ./ruleset/dustinwin/cn.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn.mrs"
     interval: 86400
 
 rules:
