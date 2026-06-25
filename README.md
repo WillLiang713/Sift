@@ -16,7 +16,7 @@
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
 | [`Full.yaml`](./Full.yaml) | 16 | 15 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、Telegram IP、地区节点 |
-| [`Nano.yaml`](./Nano.yaml) | 6 | 5 | 极简版：直连/代理/兜底，补充 Telegram IP 分流 |
+| [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：直连/代理/兜底，补充 Telegram IP 分流 |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
@@ -31,7 +31,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 - **可切换直连**：国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障。
 - **兜底出口**：未命中规则进入 `漏网之鱼`，避免未知流量被静默直连。
 - **游戏独立**：国内游戏直连，境外游戏经 `游戏平台` 策略组，避免被兜底代理误伤。
-- **国外流量**：代理规则命中流量统一进入 `国外流量`，可按需切换节点或地区。
+- **聚合入口**：代理规则命中流量统一进入 `节点选择`，不再单独占用一个策略组。
 
 ## 分流顺序
 
@@ -47,8 +47,8 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | 6 | 流媒体 | `流媒体` |
 | 7 | OneDrive 网盘 | `OneDrive` |
 | 8 | Microsoft 海外服务 | `微软服务` |
-| 9 | GFW 代理规则命中 | `国外流量` |
-| 10 | Telegram IP | `国外流量` |
+| 9 | GFW 代理规则命中 | `节点选择` |
+| 10 | Telegram IP | `节点选择` |
 | 11 | 国内域名 / IP 兜底 | `全球直连` |
 | 12 | 未命中流量 | `漏网之鱼` |
 
@@ -57,16 +57,16 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | GFW 代理规则命中 | `国外流量` |
-| 3 | Telegram IP | `国外流量` |
+| 2 | GFW 代理规则命中 | `节点选择` |
+| 3 | Telegram IP | `节点选择` |
 | 4 | 国内域名 / IP 兜底 | `全球直连` |
 | 5 | 未命中流量 | `漏网之鱼` |
 
 ## 策略组
 
-**Full**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `国外流量` · `AI` · `流媒体` · `游戏平台` · `苹果服务` · `微软服务` · `OneDrive` · `漏网之鱼` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
+**Full**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `AI` · `流媒体` · `游戏平台` · `苹果服务` · `微软服务` · `OneDrive` · `漏网之鱼` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点`
 
-**Nano**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `国外流量` · `漏网之鱼`
+**Nano**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `漏网之鱼`
 
 > 地区组依赖节点名称中的地区关键词自动归类。建议节点命名包含 `HK`、`日本`、`US` 等标识。
 
@@ -78,31 +78,6 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 - **Nano**：`private` · `privateip` · `gfw` · `telegramip` · `cn`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
-## 使用
+## 贡献
 
-1. 复制模板的 Raw 链接，在 Mihomo 客户端中作为远程模板引用。
-2. 与节点订阅合并，或手动补充 `proxies`。
-3. 也可直接 clone 后按需编辑：
-
-```bash
-git clone https://github.com/WillLiang713/Sift.git
-```
-
-
-## 兼容性要求
-
-客户端需支持：Mihomo 核心、`rule-providers`、`RULE-SET`、`GEOIP`、`format: mrs` 与 `format: text`（`behavior: classical`）、策略组 `include-all` 与 `filter` 关键词匹配。
-
-## 目录结构
-
-```text
-├── Full.yaml          # 完整模板
-├── Nano.yaml          # 极简模板
-├── AGENTS.md          # 维护约定
-├── ruleset/           # 远程规则缓存（DustinWin）
-└── LICENSE
-```
-
-## License
-
-[MIT](./LICENSE) · 远程规则与图标属于各自上游项目，使用前请遵守其许可条款。
+如有改进建议或发现规则集变更，欢迎提交 Issue 或 Pull Request。
