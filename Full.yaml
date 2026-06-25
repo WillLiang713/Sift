@@ -1,6 +1,32 @@
 # 适用于 Mihomo 核心
 # 远程规则（DustinWin），局域网直连，国内域名和品牌服务命中「全球直连」，GEOIP 国内 IP 兜底，AI/流媒体/游戏按场景分流，未命中流量进入「漏网之鱼」
 
+# DNS — fake-ip + DustinWin 防泄露思路；fake-ip-filter 让 BT tracker / STUN / 游戏回流走真实 IP
+# 注：OpenClash 会接管 enable/listen/enhanced-mode/fake-ip-range（开「自定义上游 DNS」时连 nameserver 一并接管），届时以客户端为准
+dns:
+  enable: true
+  ipv6: false                     # 关闭 AAAA，避免 IPv6 解析泄露 / 双栈干扰（按需改 true）
+  listen: ":53"                   # DNS 监听端口（OpenClash 会改写为 7874）
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist  # 黑名单：命中下列集合的域名返回真实 IP
+  fake-ip-filter:
+    - rule-set:fakeip-filter      # BT tracker / STUN / 游戏回流等需 realip 的域名
+    - rule-set:private            # 局域网域名走真实 IP（复用已有 private 集）
+  respect-rules: true             # 防泄露：DNS 连接遵循分流规则（须配 proxy-server-nameserver）
+  default-nameserver:             # 仅解析下方 DoH 服务器域名，必须为纯 IP
+    - 223.5.5.5
+    - 119.29.29.29
+  proxy-server-nameserver:        # 解析代理节点域名，避免 respect-rules 解析环路
+    - https://223.5.5.5/dns-query
+    - https://doh.pub/dns-query
+  nameserver:                     # 主解析全程加密：fake-ip-filter 内域名（含 BT tracker）走 DoH，不明文泄露
+    - https://223.5.5.5/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:              # 直连（国内）域名用国内加密 DNS，防污染、低延迟
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+
 proxy-groups:
 # 节点选择 - 日常总控入口，优先选择策略组，避免直接展开大量节点
 - name: 节点选择
@@ -312,6 +338,14 @@ rule-providers:
     format: mrs
     path: ./ruleset/dustinwin/cn-lite.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
+    interval: 86400
+  # fake-ip 过滤集 — BT tracker / STUN / 游戏回流等需返回真实 IP（DustinWin fakeip-filter，仅供 dns.fake-ip-filter 引用）
+  fakeip-filter:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/fakeip-filter.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.mrs"
     interval: 86400
 
 rules:

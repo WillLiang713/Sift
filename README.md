@@ -1,7 +1,7 @@
 <h1 align="center">Sift</h1>
 
 <p align="center">
-面向 Mihomo 的无节点分流模板 — 只提供策略组、远程规则和分流顺序，不内置节点与 DNS。
+面向 Mihomo 的无节点分流模板 — 只提供策略组、远程规则和分流顺序，不内置节点。
 </p>
 
 <p align="center">
@@ -15,7 +15,7 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 16 | 15 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、Telegram IP、地区节点 |
+| [`Full.yaml`](./Full.yaml) | 16 | 16 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、Telegram IP、地区节点；内置 fake-ip DNS（BT realip + 防泄露） |
 | [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：直连/代理/兜底，补充 Telegram IP 分流 |
 
 ```text
@@ -26,7 +26,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 ## 设计要点
 
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
-- **不接管 DNS**：不写顶层 `dns` / `fake-ip`，留给客户端本地管理。
+- **DNS 分模板**：Nano 不接管 DNS，留给客户端本地管理；Full 内置 fake-ip DNS（BT/STUN/游戏回流走真实 IP，DustinWin 防泄露 DoH 解析），OpenClash 等客户端接管 DNS 时以客户端为准。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障。
 - **兜底出口**：未命中规则进入 `漏网之鱼`，避免未知流量被静默直连。
@@ -74,7 +74,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `gfw` · `telegramip` · `cn`
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `gfw` · `telegramip` · `cn` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `telegramip` · `cn`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 

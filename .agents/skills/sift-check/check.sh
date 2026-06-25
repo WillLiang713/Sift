@@ -10,9 +10,9 @@ cd "$ROOT" || exit 2
 
 # --- Canonical contract -------------------------------------------------------
 # Keep these in sync with AGENTS.md when a strategy group is added/renamed/removed.
-FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 国外流量 漏网之鱼"
+FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
 FULL_FORB=""
-NANO_REQ="节点选择 手动切换 自动测速 全球直连 国外流量 漏网之鱼"
+NANO_REQ="节点选择 手动切换 自动测速 全球直连 漏网之鱼"
 NANO_FORB="AI 流媒体 游戏平台 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 
 # --- Static analyzer (one pass per file) --------------------------------------
@@ -25,7 +25,7 @@ BEGIN{
   split(required, rq, " ");  for(i in rq) if(rq[i]!="") reqset[rq[i]]=1
   split(forbidden, fb, " "); for(i in fb) if(fb[i]!="") forbset[fb[i]]=1
   section=""; g=""; in_proxies=0; pk=""
-  np=0; npol=0; nrs=0; nurl=0
+  np=0; npol=0; nrs=0; nurl=0; ndnsrs=0
 }
 { sub(/\r$/,"") }                                  # normalize CRLF
 
@@ -34,9 +34,10 @@ BEGIN{
   if(key=="proxy-groups")        section="pg"
   else if(key=="rule-providers") section="rp"
   else if(key=="rules")          section="rules"
+  else if(key=="dns")            section="dns"
   else                           section="other"
   if(key=="proxies") fail_proxies=1
-  if(key=="dns" || key=="fake-ip") fail_dns=1
+  if((key=="dns" || key=="fake-ip") && allow_dns!="1") fail_dns=1
   in_proxies=0; next
 }
 
@@ -66,13 +67,22 @@ section=="rules" {
   next
 }
 
+section=="dns" {                                   # dns block: collect fake-ip-filter rule-set refs
+  if($0 ~ /^[ \t]*-[ \t]*rule-set:/){
+    s=$0; sub(/.*rule-set:[ \t]*/,"",s); sub(/[ \t,].*$/,"",s); gsub(/["']/,"",s); s=trim(s)
+    if(s!=""){ dnsrs[ndnsrs]=s; ndnsrs++ }
+  }
+  next
+}
+
 END{
   if(fail_proxies) emit("FAIL","top-level `proxies:` present — template must stay node-free")
-  if(fail_dns)     emit("FAIL","top-level `dns:`/`fake-ip` present — DNS must be delegated to the client")
+  if(fail_dns)     emit("FAIL","top-level `dns:`/`fake-ip` present — this template must stay DNS-free")
 
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
   for(i=0;i<npol;i++){ p=pols[i]; if(!(p in groups) && !(p in builtin)) emit("FAIL","rule policy `" p "` is not a defined group or builtin") }
   for(i=0;i<nrs;i++){ s=rsrefs[i]; usedprov[s]=1; if(!(s in provs)) emit("FAIL","RULE-SET references undefined provider `" s "`") }
+  for(i=0;i<ndnsrs;i++){ s=dnsrs[i]; usedprov[s]=1; if(!(s in provs)) emit("FAIL","fake-ip-filter references undefined provider `" s "`") }
   for(k in provs) if(!(k in usedprov)) emit("WARN","rule-provider `" k "` defined but never used in rules")
 
   for(i=0;i<nurl;i++){
@@ -92,11 +102,11 @@ AWKEOF
 fails=0; warns=0
 
 check_file(){
-  local file="$1" role="$2" req="$3" forb="$4"
+  local file="$1" role="$2" req="$3" forb="$4" allow_dns="$5"
   printf '\n== %s (%s) ==\n' "$file" "$role"
   if [ ! -f "$file" ]; then printf '  [SKIP] not found\n'; return; fi
   local out before="$fails"
-  out=$(awk -v required="$req" -v forbidden="$forb" "$AWK" "$file")
+  out=$(awk -v required="$req" -v forbidden="$forb" -v allow_dns="$allow_dns" "$AWK" "$file")
   if [ -z "$out" ]; then printf '  [ OK ] all structural invariants passed\n'; return; fi
   while IFS=$'\t' read -r lvl msg; do
     [ -z "$lvl" ] && continue
@@ -110,8 +120,8 @@ check_file(){
   [ "$fails" -eq "$before" ] && printf '  [ OK ] no structural failures\n'
 }
 
-check_file Full.yaml full "$FULL_REQ" "$FULL_FORB"
-check_file Nano.yaml nano "$NANO_REQ" "$NANO_FORB"
+check_file Full.yaml full "$FULL_REQ" "$FULL_FORB" 1
+check_file Nano.yaml nano "$NANO_REQ" "$NANO_FORB" 0
 
 # --- Optional toolchain -------------------------------------------------------
 printf '\n== toolchain ==\n'
