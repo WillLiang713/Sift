@@ -32,11 +32,16 @@ dns:
     - 223.5.5.5
     - 119.29.29.29
   proxy-server-nameserver:
-    - https://223.5.5.5/dns-query
+    - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
   nameserver:
     - https://cloudflare-dns.com/dns-query
     - https://dns.google/dns-query
+  fallback:
+    - https://dns.quad9.net/dns-query
+    - tls://dns.google
+  fallback-filter:
+    geoip: false
   direct-nameserver:
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
