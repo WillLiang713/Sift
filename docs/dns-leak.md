@@ -27,6 +27,11 @@ nameserver:
 `Full.yaml` 按用途拆分 DNS：
 
 ```yaml
+nameserver-policy:
+  "rule-set:cn":
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+
 nameserver:
   - https://cloudflare-dns.com/dns-query
   - https://dns.google/dns-query
@@ -42,6 +47,7 @@ proxy-server-nameserver:
 
 | 字段 | 用途 |
 | --- | --- |
+| `nameserver-policy` | 国内直连规则集优先使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
 | `nameserver` | 默认解析，使用海外 DoH，泄露测试只会看到海外 DNS。 |
 | `direct-nameserver` | 最终直连的域名使用国内 DoH，保留国内 CDN 质量。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
@@ -60,7 +66,8 @@ fake-ip 模式下的主要流程是：
 5. 原始域名匹配 `rules`。
 6. 命中 `cn`、`google-cn`、`apple-cn`、`microsoft-cn`、`games-cn`，或后续命中 `GEOIP,CN`。
 7. 策略进入 `全球直连`。
-8. 如果 `全球直连` 当前是 `DIRECT`，真实 IP 使用 `direct-nameserver` 解析。
+8. 客户端查询命中国内直连规则集时，`nameserver-policy` 先使用国内 DoH 解析。
+9. 如果 `全球直连` 当前是 `DIRECT`，最终出站解析继续使用 `direct-nameserver`。
 
 关键点是：
 
@@ -68,7 +75,7 @@ fake-ip 模式下的主要流程是：
 先由 rules 判断最终出口，再按最终出口选择 DNS。
 ```
 
-所以默认 `nameserver` 可以使用海外 DoH；确认直连的国内域名仍然会使用国内 DoH。
+所以默认 `nameserver` 可以使用海外 DoH；确认直连的国内域名仍然会优先使用国内 DoH。
 
 ## 客户端设置
 
@@ -96,7 +103,7 @@ fake-ip 模式下的主要流程是：
 
 因此测试域名继续使用默认 `nameserver`，也就是海外 DoH。
 
-国内域名命中直连规则后使用 `direct-nameserver`，这是为了国内访问质量，不会影响海外泄露测试结果。
+国内域名命中直连规则后通过 `nameserver-policy` / `direct-nameserver` 使用国内 DoH，这是为了国内访问质量，不会影响海外泄露测试结果。
 
 ## 复发排查
 

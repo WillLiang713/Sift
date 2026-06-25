@@ -11,6 +11,22 @@ dns:
   fake-ip-filter:
     - rule-set:fakeip-filter
     - rule-set:private
+  nameserver-policy:
+    "rule-set:google-cn":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "rule-set:apple-cn":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "rule-set:microsoft-cn":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "rule-set:games-cn":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
+    "rule-set:cn":
+      - https://dns.alidns.com/dns-query
+      - https://doh.pub/dns-query
   respect-rules: true
   default-nameserver:
     - 223.5.5.5
