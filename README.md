@@ -16,7 +16,7 @@
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
 | [`Full.yaml`](./Full.yaml) | 16 | 16 | 完整版：AI、流媒体、游戏平台、苹果、微软、OneDrive、Telegram IP、地区节点；内置 fake-ip 分流 DNS |
-| [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：直连/代理/兜底，补充 Telegram IP 分流 |
+| [`Nano.yaml`](./Nano.yaml) | 5 | 4 | 极简版：局域网直连、GFW 代理、国内直连和兜底分流 |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
@@ -58,9 +58,8 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
 | 2 | GFW 代理规则命中 | `节点选择` |
-| 3 | Telegram IP | `节点选择` |
-| 4 | 国内域名 / IP 兜底 | `全球直连` |
-| 5 | 未命中流量 | `漏网之鱼` |
+| 3 | 国内域名 / IP 兜底 | `全球直连` |
+| 4 | 未命中流量 | `漏网之鱼` |
 
 ## 策略组
 
@@ -75,7 +74,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
 
 - **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `gfw` · `telegramip` · `cn` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **Nano**：`private` · `privateip` · `gfw` · `telegramip` · `cn`
+- **Nano**：`private` · `privateip` · `gfw` · `cn`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
 ## 贡献
