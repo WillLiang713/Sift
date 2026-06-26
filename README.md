@@ -47,7 +47,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | 6 | 流媒体 | `流媒体` |
 | 7 | OneDrive 网盘 | `OneDrive` |
 | 8 | Microsoft 海外服务 | `微软服务` |
-| 9 | GFW 代理规则命中 | `节点选择` |
+| 9 | 国外域名代理规则命中 | `节点选择` |
 | 10 | Telegram IP | `节点选择` |
 | 11 | 国内域名 / IP 兜底 | `全球直连` |
 | 12 | 未命中流量 | `漏网之鱼` |
@@ -73,7 +73,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `gfw` · `telegramip` · `cn`（映射 `cn-lite.mrs`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `proxy` · `telegramip` · `cn`（映射 `cn-lite.mrs`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn`（映射 `cn-lite.mrs`）· `cnip`
 - [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
 
