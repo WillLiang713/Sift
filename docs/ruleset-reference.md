@@ -1,22 +1,22 @@
-# Ruleset Reference
+# 规则集参考
 
-Generated on 2026-06-24 from upstream documentation and GitHub tree metadata.
+生成日期：2026-06-24，基于上游文档和 GitHub 目录元数据。
 
-Sources:
+来源：
 
-- DustinWin/ruleset_geodata README and release branches: main `89f3c5602c9d`, mihomo-ruleset `7cc3bbfcd94a`, mihomo-geodata `08216f25ad2e`, sing-box-ruleset `916c9b9cc4e6`.
-- blackmatrix7/ios_rule_script repository tree: master `7d423fca37e6`, release `1aa69f3eeef2`.
+- DustinWin/ruleset_geodata README 及发布分支：main `89f3c5602c9d`、mihomo-ruleset `7cc3bbfcd94a`、mihomo-geodata `08216f25ad2e`、sing-box-ruleset `916c9b9cc4e6`。
+- blackmatrix7/ios_rule_script 仓库目录：master `7d423fca37e6`、release `1aa69f3eeef2`。
 
-Notes:
+说明：
 
-- DustinWin URLs below use GitHub release downloads because those are the paths used by the official examples. jsDelivr equivalents follow the same filename under the release branch name.
-- blackmatrix7 entries use the master branch as the daily-updated source and include release links when the same file is present on release.
-- For Mihomo rule-providers, DustinWin `mrs` files use the listed `behavior`; DustinWin and blackmatrix7 `.list` files should generally be used as `format: text`. blackmatrix7 Clash `.list` files are safest as `behavior: classical`.
-- blackmatrix7 rule paths checked here do not contain `geosite` or `geoip`. Keep checking URL paths before wiring them into ShellCrash-facing templates.
+- 以下 DustinWin URL 使用 GitHub release 下载链接，与官方示例保持一致。jsDelivr 同等链接遵循相同文件名，路径中使用发布分支名。
+- blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
+- Mihomo rule-provider 中，DustinWin `mrs` 文件使用表中列出的 `behavior`；DustinWin 和 blackmatrix7 `.list` 文件通常使用 `format: text`。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
+- 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
-## URL Templates
+## URL 模板
 
-| Source | Template |
+| 来源 | 模板 |
 | --- | --- |
 | DustinWin Mihomo MRS | `https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/{name}.mrs` |
 | DustinWin Mihomo text | `https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/{name}.list` |
@@ -28,7 +28,7 @@ Notes:
 
 ## DustinWin Rule Sets
 
-| Key | 用途 | Mihomo behavior | Mihomo 文件 | sing-box 文件 | 来源/备注 |
+| Key | 用途 | Mihomo 行为 | Mihomo 文件 | sing-box 文件 | 来源/备注 |
 | --- | --- | --- | --- | --- | --- |
 | `fakeip-filter` | fakeip 过滤 | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter.json>) | DustinWin fake_ip_filter；完整 fake-ip/realip 过滤域名；配置时通常与 fakeip-filter-lite 二选一。 |
 | `fakeip-filter-lite` | fakeip 过滤（精简版） | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter-lite.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter-lite.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter-lite.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter-lite.json>) | DustinWin fake_ip_filter 精简；仅保留主要域名；配置 tag 可继续命名为 fakeip-filter。 |
@@ -64,7 +64,7 @@ Notes:
 | `netflixip` | Netflix IP | `ipcidr` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/netflixip.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/netflixip.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/netflixip.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/netflixip.json>) | GeoLite2-ASN + blackmatrix7 Netflix_IP；Netflix IP 段。 |
 | `mediaip` | 国外媒体 IP | `ipcidr` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/mediaip.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/mediaip.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/mediaip.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/mediaip.json>) | blackmatrix7 GlobalMedia IP；海外媒体 IP 段。 |
 
-## DustinWin Geodata Bundles
+## DustinWin Geodata 捆绑包
 
 | 文件 | GitHub release | jsDelivr | 备注 |
 | --- | --- | --- | --- |
@@ -85,7 +85,7 @@ Notes:
 | `geoip-lite.metadb` | [download](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-geodata/geoip-lite.metadb>) | [cdn](<https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-geodata/geoip-lite.metadb>) | 更轻量 MetaDB，含 private、cn、telegram。 |
 | `Country-ASN.mmdb` | [download](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-geodata/Country-ASN.mmdb>) | [cdn](<https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-geodata/Country-ASN.mmdb>) | 精简 ASN MMDB，含 telegram 与 netflix。 |
 
-## blackmatrix7 Platform Overview
+## blackmatrix7 平台概览
 
 | 平台 | 一级目录数 | 规则文件数 | 扩展名统计 | 路径前缀 |
 | --- | --- | --- | --- | --- |
@@ -96,7 +96,7 @@ Notes:
 | Shadowrocket | 668 | 812 | conf:6, list:806 | `rule/Shadowrocket/...` |
 | AdGuard | 7 | 6 | txt:6 | `rule/AdGuard/...` |
 
-## blackmatrix7 AdGuard Rules
+## blackmatrix7 AdGuard 规则
 
 | 规则名 | 路径 | Master |
 | --- | --- | --- |
@@ -107,9 +107,9 @@ Notes:
 | `BlockHttpDNS` | `rule/AdGuard/BlockHttpDNS/BlockHttpDNS.txt` | [master](<https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/AdGuard/BlockHttpDNS/BlockHttpDNS.txt>) |
 | `Privacy` | `rule/AdGuard/Privacy/Privacy.txt` | [master](<https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/AdGuard/Privacy/Privacy.txt>) |
 
-## blackmatrix7 Clash/Mihomo Rule Index
+## blackmatrix7 Clash/Mihomo 规则索引
 
-This table lists 689 master-branch Clash `.list` entries. Use them as Mihomo `format: text` / `behavior: classical` providers unless a specific README says otherwise. The variant column lists sibling Clash files in the same directory, such as YAML, Domain, Classical, or No-Resolve builds.
+本表列出 689 条 master 分支 Clash `.list` 条目。作为 Mihomo `format: text` / `behavior: classical` provider 使用，除非具体 README 另有说明。变体列列出同目录下的其他 Clash 文件，如 YAML、Domain、Classical 或 No-Resolve 版本。
 
 | 规则名 | 分组路径 | Master .list | Release .list | 同目录 Clash 变体 | 其他平台同路径 |
 | --- | --- | --- | --- | --- | --- |

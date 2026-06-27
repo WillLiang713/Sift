@@ -37,6 +37,18 @@ fake-ip-filter:
   - rule-set:cn
 
 nameserver-policy:
+  "rule-set:google-cn":
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  "rule-set:apple-cn":
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  "rule-set:microsoft-cn":
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  "rule-set:games-cn":
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
   "rule-set:cn":
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
@@ -45,9 +57,9 @@ nameserver:
   - https://cloudflare-dns.com/dns-query
   - https://dns.google/dns-query
 
-fallback:
-  - https://dns.quad9.net/dns-query
-  - tls://dns.google
+default-nameserver:
+  - 223.5.5.5
+  - 119.29.29.29
 
 direct-nameserver:
   - https://dns.alidns.com/dns-query
@@ -61,12 +73,11 @@ proxy-server-nameserver:
 | 字段 | 用途 |
 | --- | --- |
 | `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
-| `nameserver-policy` | 国内直连规则集优先使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
+| `nameserver-policy` | `google-cn`、`apple-cn`、`microsoft-cn`、`games-cn`、`cn` 等国内直连规则集使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
 | `nameserver` | 默认解析，使用海外 DoH，泄露测试只会看到海外 DNS。 |
-| `fallback` | 默认解析不可用时的兜底，Quad9 + Google TLS，避免单点故障。 |
+| `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
 | `direct-nameserver` | 最终直连的域名使用国内 DoH，保留国内 CDN 质量。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
-| `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
 
 ## 国内域名为什么仍然直连
 
