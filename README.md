@@ -75,7 +75,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 - **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `proxy` · `telegramip` · `cn`（映射 `cn-lite.mrs`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn`（映射 `cn-lite.mrs`）· `cnip`
-- [Koolson/Qure](https://github.com/Koolson/Qure)、[Orz-3/mini](https://github.com/Orz-3/mini)：策略组图标
+- [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献
 

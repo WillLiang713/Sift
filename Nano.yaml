@@ -3,7 +3,7 @@
 proxy-groups:
 - name: 节点选择
   type: select
-  icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
   proxies:
   - 自动测速
   - 手动切换
@@ -12,7 +12,7 @@ proxy-groups:
 - name: 手动切换
   type: select
   include-all: true
-  icon: "https://cdn.jsdelivr.net/gh/Orz-3/mini@master/Color/Manual.png"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
 
 - name: 自动测速
   type: url-test

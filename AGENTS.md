@@ -46,4 +46,4 @@ Pull requests should describe the routing or script behavior changed, list valid
 
 ## Security & Configuration Tips
 
-Do not commit personal proxy nodes, subscription URLs, credentials, API tokens, or generated configs containing private endpoints. Keep `Full.yaml` and `Nano.yaml` as reusable public templates. Do not vendor third-party icon assets or rulesets unless their license and attribution requirements are checked and documented; remote icon references currently point mainly to `Koolson/Qure` and `Orz-3/mini`.
+Do not commit personal proxy nodes, subscription URLs, credentials, API tokens, or generated configs containing private endpoints. Keep `Full.yaml` and `Nano.yaml` as reusable public templates. Do not vendor third-party icon assets or rulesets unless their license and attribution requirements are checked and documented; remote icon references currently point exclusively to `Koolson/Qure`.
