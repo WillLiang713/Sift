@@ -15,7 +15,7 @@ dns:
     - rule-set:apple-cn
     - rule-set:microsoft-cn
     - rule-set:games-cn
-    - rule-set:cn
+    - rule-set:cn-dns
   nameserver-policy:
     "rule-set:google-cn":
       - https://dns.alidns.com/dns-query
@@ -29,7 +29,7 @@ dns:
     "rule-set:games-cn":
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
-    "rule-set:cn":
+    "rule-set:cn-dns":
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
   respect-rules: true
@@ -321,6 +321,13 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/telegramip.mrs"
     interval: 86400
   cn:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/cn-lite.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
+    interval: 86400
+  cn-dns:
     type: http
     behavior: domain
     format: mrs
