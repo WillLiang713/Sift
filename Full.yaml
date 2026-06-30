@@ -1,9 +1,11 @@
 # Full：无节点规则、策略组和 DNS。
 
+unified-delay: true
+tcp-concurrent: true
+
 # DNS：fake-ip；默认海外 DoH，国内直连域名返回真实 IP。
 dns:
   enable: true
-  ipv6: false
   listen: ":53"
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
