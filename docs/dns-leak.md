@@ -34,7 +34,7 @@ fake-ip-filter:
   - rule-set:apple-cn
   - rule-set:microsoft-cn
   - rule-set:games-cn
-  - rule-set:cn
+  - rule-set:cn-dns
 
 nameserver-policy:
   "rule-set:google-cn":
@@ -49,7 +49,7 @@ nameserver-policy:
   "rule-set:games-cn":
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
-  "rule-set:cn":
+  "rule-set:cn-dns":
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
 
@@ -73,7 +73,7 @@ proxy-server-nameserver:
 | 字段 | 用途 |
 | --- | --- |
 | `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
-| `nameserver-policy` | `google-cn`、`apple-cn`、`microsoft-cn`、`games-cn`、`cn` 等国内直连规则集使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
+| `nameserver-policy` | `google-cn`、`apple-cn`、`microsoft-cn`、`games-cn`、`cn-dns` 等国内直连规则集使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
 | `nameserver` | 默认解析，使用海外 DoH，泄露测试只会看到海外 DNS。 |
 | `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
 | `direct-nameserver` | 最终直连的域名使用国内 DoH，保留国内 CDN 质量。 |
@@ -112,7 +112,7 @@ proxy-server-nameserver:
 
 ## 绕过大陆为什么仍然干净
 
-泄露测试使用的域名不是国内域名，不会命中 `cn` 或国内直连规则。
+泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 `cn-dns` 或路由侧的 `cn`。
 
 因此测试域名继续使用默认 `nameserver`，也就是海外 DoH。
 
