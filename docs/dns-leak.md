@@ -74,7 +74,7 @@ proxy-server-nameserver:
 | `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
-`Core.yaml` 使用同一套 DNS 结构，但会把 Full 中的 `rule-set:apple-cn` / `rule-set:microsoft-cn` 替换为完整 `rule-set:apple` / `rule-set:microsoft`，与 Core 的「完整 Apple / Microsoft 直连」规则保持一致。
+`Core.yaml` 使用同一套 DNS 结构，但会把 Full 中的 `rule-set:apple-cn` / `rule-set:microsoft-cn` 替换为完整 `rule-set:apple` / `rule-set:microsoft`，与 Core 的「完整 Apple / Microsoft 规则进入全球直连」保持一致；Core 的 `全球直连` 目前只保留 `DIRECT` 和 `节点选择`，且 `DIRECT` 排第一。
 
 ## 国内域名为什么仍然直连
 

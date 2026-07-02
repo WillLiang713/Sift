@@ -5,7 +5,7 @@
 This repository is a compact Mihomo configuration template project.
 
 - `Full.yaml` is the full node-free template. It carries top-level Mihomo runtime optimizations (`unified-delay: true`, `tcp-concurrent: true`) plus a top-level `dns:` block (fake-ip + DustinWin `fakeip-filter`, domestic direct rule sets returning real IP, `respect-rules`, domestic DoH policies, and overseas default DoH). It keeps AI, streaming, gaming platform, Telegram, Apple, Microsoft, OneDrive, and region node strategy groups.
-- `Core.yaml` is the core whitelist template. It stays node-free, keeps the same runtime/DNS foundation as `Full.yaml`, keeps only the base selector / region / direct groups, routes full Apple and full Microsoft rule sets to `全球直连`, preserves domestic direct rule sets, and lets all other unmatched traffic fall through directly to `MATCH,节点选择`.
+- `Core.yaml` is the core whitelist template. It stays node-free, keeps the same runtime/DNS foundation as `Full.yaml`, keeps only the base selector / region / `全球直连` groups, routes full Apple and full Microsoft rule sets plus domestic whitelist rules to `全球直连`, and Core's `全球直连` contains only `DIRECT` then `节点选择`; all other unmatched traffic falls through directly to `MATCH,节点选择`.
 - `Nano.yaml` is the nano template and should remain node-free and DNS-free; it keeps only `节点选择`, `手动切换`, `自动测速`, `全球直连`, and `漏网之鱼`. All rule sets are from DustinWin.
 - `demo/` stores example Mihomo YAML files used for reference and manual comparison.
 - `docs/` stores rule-source notes, DNS/fake-ip notes, icon references, and other supporting documentation.
@@ -27,7 +27,7 @@ Microsoft and OneDrive require `classical`: their lists include important `DOMAI
 Template-specific usage:
 
 - `Full.yaml`: `apple-cn` / `microsoft-cn` / `games-cn` are domestic direct supplements; full `apple`, `microsoft`, and `onedrive` route to dedicated service groups. Keep `onedrive` before `microsoft`, because OneDrive domains also appear in Microsoft's broad list.
-- `Core.yaml`: full `apple` and full `microsoft` route directly to `全球直连`; there are no Apple/Microsoft/OneDrive UI strategy groups. Do not re-add `apple-cn` / `microsoft-cn` unless the Core design changes back to CN-only brand supplements.
+- `Core.yaml`: full `apple` and full `microsoft` route to `全球直连`; Core's `全球直连` contains only `DIRECT` and `节点选择`, with `DIRECT` first. There are no Apple/Microsoft/OneDrive UI strategy groups. Do not re-add `apple-cn` / `microsoft-cn` unless the Core design changes back to CN-only brand supplements.
 - `Nano.yaml`: uses only DustinWin `private`, `privateip`, `gfw`, `cn` (`cn-lite.list`), and `cnip`.
 
 Regardless of source, rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans provider URLs and treats those keywords as a signal that Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra downloads and checks. Do not switch provider URLs to MetaCubeX `meta-rules-dat` paths even when rule content looks equivalent.
@@ -48,7 +48,7 @@ Keep YAML indentation at two spaces and group rules by routing intent, with shor
 Template scope rules:
 
 - `Full.yaml` may contain the full service/scene groups: `AI`, `流媒体`, `游戏平台`, `Telegram`, `苹果服务`, `微软服务`, `OneDrive`, plus region groups.
-- `Core.yaml` keeps region groups and the base selector groups, but intentionally removes service/brand UI groups and the separate `漏网之鱼` fallback group. Its special case is full `apple` and full `microsoft` routed to `全球直连` to avoid App Store / Microsoft account and subscription-region issues; final fallback is `MATCH,节点选择`.
+- `Core.yaml` keeps region groups and the base selector groups, but intentionally removes service/brand UI groups and the separate `漏网之鱼` fallback group. Its special case is full `apple` and full `microsoft` routed to `全球直连`; Core's `全球直连` is `DIRECT` first, then `节点选择`, and final fallback is `MATCH,节点选择`.
 - `Nano.yaml` must stay smaller than Full/Core: do not add AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
 
 Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Deliberate exceptions:

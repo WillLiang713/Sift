@@ -1,9 +1,9 @@
-# Core：国内白名单 + Apple/Microsoft 完整直连，其余 MATCH。
+# Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连，其余 MATCH。
 
 unified-delay: true
 tcp-concurrent: true
 
-# DNS：fake-ip；默认海外 DoH，国内/Apple/Microsoft 直连规则返回真实 IP。
+# DNS：fake-ip；默认海外 DoH，国内/Apple/Microsoft 白名单规则返回真实 IP。
 dns:
   enable: true
   listen: ":53"
@@ -120,7 +120,6 @@ proxy-groups:
   proxies:
   - DIRECT
   - 节点选择
-  - 自动测速
 
 rule-providers:
   private:

@@ -16,7 +16,7 @@
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
 | [`Full.yaml`](./Full.yaml) | 17 | 17 | 完整版：AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS，并启用统一延迟与 TCP 并发连接 |
-| [`Core.yaml`](./Core.yaml) | 9 | 10 | 核心白名单版：保留基础节点选择、国内直连和 DNS；完整 Apple / Microsoft 直接进入 `全球直连`，其余未命中流量统一进入 `节点选择` |
+| [`Core.yaml`](./Core.yaml) | 9 | 10 | 核心白名单版：保留基础节点选择、国内白名单和 DNS；完整 Apple / Microsoft 进入 `全球直连`，且 Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，`DIRECT` 排第一 |
 | [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：局域网直连、GFW 代理、国内直连和兜底分流；不接管 DNS |
 
 ```text
@@ -31,10 +31,10 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 - **运行优化**：Full / Core 默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
 - **DNS 分模板**：Nano 不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS（国内直连规则集返回真实 IP，默认解析走海外 DoH，国内直连规则集和代理节点解析走国内 DoH），OpenClash 等客户端接管 DNS 时以客户端为准。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
-- **可切换直连**：国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障。
+- **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
 - **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive 等独立入口。
-- **Core 白名单分流**：核心模板不保留服务 UI 分组；仅将完整 Apple / Microsoft 规则和国内白名单直连，其余流量全部交给 `MATCH,节点选择`。
+- **Core 白名单分流**：核心模板不保留服务 UI 分组；完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择`，其余流量全部交给 `MATCH,节点选择`。
 - **Nano 极简代理**：极简模板只保留 GFW 代理、国内直连和兜底，不提供地区节点或服务分组。
 
 ## 分流顺序
@@ -60,9 +60,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 国内 Google / 游戏 | `全球直连` |
-| 3 | 完整 Apple / Microsoft | `全球直连` |
-| 4 | 国内域名 / IP 兜底 | `全球直连` |
+| 2 | 国内 Google / 游戏 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 3 | 完整 Apple / Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 4 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
 | 5 | 未命中流量 | `节点选择` |
 
 ### Nano
@@ -89,7 +89,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）。
 
 - **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn`（路由直连，映射 `cn-lite.list`）· `cn-dns`（DNS 国内解析，映射完整 `cn.list`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 直连）· `microsoft`（blackmatrix7，完整 Microsoft 直连）· `games-cn` · `cn`（路由直连，映射 `cn-lite.list`）· `cn-dns`（DNS 国内解析，映射完整 `cn.list`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 规则）· `microsoft`（blackmatrix7，完整 Microsoft 规则）· `games-cn` · `cn`（映射 `cn-lite.list`）· `cn-dns`（DNS 国内解析，映射完整 `cn.list`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn`（路由直连，映射 `cn-lite.list`）· `cnip`
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
