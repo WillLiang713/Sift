@@ -61,7 +61,7 @@ rule-providers:
     path: ./ruleset/dustinwin/gfw.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.list"
     interval: 86400
-  cn:
+  cn-lite:
     type: http
     behavior: domain
     format: text
@@ -82,7 +82,7 @@ rules:
 
 - RULE-SET,gfw,节点选择
 
-- RULE-SET,cn,全球直连
+- RULE-SET,cn-lite,全球直连
 
 - RULE-SET,cnip,全球直连
 

@@ -22,9 +22,9 @@ Project invariants that `mihomo -t` cannot catch:
 - **Referential integrity** — every `proxies:` entry and every rule policy resolves to a defined group or a builtin (`DIRECT`/`REJECT`); every `RULE-SET,<x>` and DNS `rule-set:<x>` resolves to a defined `rule-providers` key.
 - **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
 - **Node-free** — no top-level `proxies:` in any template.
-- **DNS scope** — `Full.yaml` and `Core.yaml` may carry top-level `dns:` blocks; `Nano.yaml` must stay DNS-free. DNS `fake-ip-filter` rule-set refs are integrity-checked.
+- **DNS scope** — `Full.yaml` and `Core.yaml` may carry top-level `dns:` blocks; `Nano.yaml` must stay DNS-free. DNS `fake-ip-filter` / `nameserver-policy` rule-set refs are integrity-checked and must use `behavior: domain` providers.
 - **Canonical groups** — required strategy-group names must be present; Core must not contain service/brand UI groups or the separate `漏网之鱼` group, and Nano must not contain its forbidden Full/Core-only groups.
-- **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. `cn` → `cn-lite.list`, a deliberate deviation — informational only).
+- **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. blackmatrix7 service keys mapping to capitalized upstream paths — informational only).
 
 Toolchain (auto-skipped if not installed): `mihomo -t -f`, `yamllint -d relaxed`, `git diff --check`.
 

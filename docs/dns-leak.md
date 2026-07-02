@@ -24,32 +24,16 @@ nameserver:
 
 ## 当前分工
 
-`Full.yaml` / `Core.yaml` 按用途拆分 DNS：
+`Full.yaml` / `Core.yaml` 按用途拆分 DNS，并且 DNS 侧只引用 `cn` 这个完整国内 DNS 入口。`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析：
 
 ```yaml
 fake-ip-filter:
   - rule-set:fakeip-filter
   - rule-set:private
-  - rule-set:google-cn
-  - rule-set:apple-cn
-  - rule-set:microsoft-cn
-  - rule-set:games-cn
-  - rule-set:cn-dns
+  - rule-set:cn
 
 nameserver-policy:
-  "rule-set:google-cn":
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  "rule-set:apple-cn":
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  "rule-set:microsoft-cn":
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  "rule-set:games-cn":
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
-  "rule-set:cn-dns":
+  "rule-set:cn":
     - https://dns.alidns.com/dns-query
     - https://doh.pub/dns-query
 
@@ -69,12 +53,12 @@ proxy-server-nameserver:
 | 字段 | 用途 |
 | --- | --- |
 | `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
-| `nameserver-policy` | `google-cn`、`apple-cn`、`microsoft-cn`、`games-cn`、`cn-dns` 等国内直连规则集使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
+| `nameserver-policy` | 只让 `cn` 使用国内 DoH；`google-cn`、`apple-cn`、`microsoft-cn`、`games-cn` 等 `*-cn` 路由补充规则不进入 DNS policy。 |
 | `nameserver` | 默认解析，使用海外 DoH，泄露测试只会看到海外 DNS。 |
 | `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
-`Core.yaml` 使用同一套 DNS 结构，但会把 Full 中的 `rule-set:apple-cn` / `rule-set:microsoft-cn` 替换为完整 `rule-set:apple` / `rule-set:microsoft`，与 Core 的「完整 Apple / Microsoft 规则进入全球直连」保持一致；Core 的 `全球直连` 目前只保留 `DIRECT` 和 `节点选择`，且 `DIRECT` 排第一。
+DNS 侧只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍只在路由侧进入 `全球直连`；Core 的 `全球直连` 目前只保留 `DIRECT` 和 `节点选择`，且 `DIRECT` 排第一。
 
 ## 国内域名为什么仍然直连
 
@@ -109,7 +93,7 @@ proxy-server-nameserver:
 
 ## 绕过大陆为什么仍然干净
 
-泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 `cn-dns` 或路由侧的 `cn`。
+泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 `cn` 或路由侧的 `cn-lite`。
 
 因此测试域名继续使用默认 `nameserver`，也就是海外 DoH。
 

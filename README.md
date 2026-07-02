@@ -29,7 +29,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
 - **运行优化**：Full / Core 默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
-- **DNS 分模板**：Nano 不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS（国内直连规则集返回真实 IP，默认解析走海外 DoH，国内直连规则集和代理节点解析走国内 DoH），OpenClash 等客户端接管 DNS 时以客户端为准。
+- **DNS 分模板**：Nano 不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS（`cn` 国内域名返回真实 IP，默认解析走海外 DoH，`cn` 和代理节点解析走国内 DoH），OpenClash 等客户端接管 DNS 时以客户端为准。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
@@ -88,9 +88,11 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）。
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn`（路由直连，映射 `cn-lite.list`）· `cn-dns`（DNS 国内解析，映射完整 `cn.list`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 规则）· `microsoft`（blackmatrix7，完整 Microsoft 规则）· `games-cn` · `cn`（映射 `cn-lite.list`）· `cn-dns`（DNS 国内解析，映射完整 `cn.list`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **Nano**：`private` · `privateip` · `gfw` · `cn`（路由直连，映射 `cn-lite.list`）· `cnip`
+DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用 `cn` 这个国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析。blackmatrix7 的完整 Apple / Microsoft / OneDrive classical 规则只用于路由分流，避免其中的 `PROCESS-NAME` 等规则类型进入 DNS 过滤。
+
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **Nano**：`private` · `privateip` · `gfw` · `cn-lite`（路由直连）· `cnip`
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献

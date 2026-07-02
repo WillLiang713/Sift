@@ -28,7 +28,7 @@ Template-specific usage:
 
 - `Full.yaml`: `apple-cn` / `microsoft-cn` / `games-cn` are domestic direct supplements; full `apple`, `microsoft`, and `onedrive` route to dedicated service groups. Keep `onedrive` before `microsoft`, because OneDrive domains also appear in Microsoft's broad list.
 - `Core.yaml`: full `apple` and full `microsoft` route to `全球直连`; Core's `全球直连` contains only `DIRECT` and `节点选择`, with `DIRECT` first. There are no Apple/Microsoft/OneDrive UI strategy groups. Do not re-add `apple-cn` / `microsoft-cn` unless the Core design changes back to CN-only brand supplements.
-- `Nano.yaml`: uses only DustinWin `private`, `privateip`, `gfw`, `cn` (`cn-lite.list`), and `cnip`.
+- `Nano.yaml`: uses only DustinWin `private`, `privateip`, `gfw`, `cn-lite`, and `cnip`.
 
 Regardless of source, rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans provider URLs and treats those keywords as a signal that Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra downloads and checks. Do not switch provider URLs to MetaCubeX `meta-rules-dat` paths even when rule content looks equivalent.
 
@@ -51,13 +51,11 @@ Template scope rules:
 - `Core.yaml` keeps region groups and the base selector groups, but intentionally removes service/brand UI groups and the separate `漏网之鱼` fallback group. Its special case is full `apple` and full `microsoft` routed to `全球直连`; Core's `全球直连` is `DIRECT` first, then `节点选择`, and final fallback is `MATCH,节点选择`.
 - `Nano.yaml` must stay smaller than Full/Core: do not add AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
 
-Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Deliberate exceptions:
+Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Use `cn-lite` for routing-domain fallback and full `cn` only for DNS `nameserver-policy` / `fake-ip-filter` coverage. Deliberate exceptions:
 
-- `cn` maps to `cn-lite.list` for routing compatibility.
-- `cn-dns` maps to full `cn.list` for DNS `nameserver-policy` / `fake-ip-filter` coverage.
 - blackmatrix7 service keys (`apple`, `microsoft`, `onedrive`) map to capitalized upstream paths.
 
-Do not replace the routing `cn` provider with full `cn.list`; the full set can over-direct domains that should fall through to proxy. For overlapping rules, place the more specific or higher-intent rule first.
+Do not replace the routing `cn-lite` provider with full `cn.list`; the full set can over-direct domains that should fall through to proxy. For overlapping rules, place the more specific or higher-intent rule first.
 
 The `其他节点` group is the complement of the region node groups (`香港节点`, `美国节点`, `日本节点`, `新加坡节点`). It uses `include-all: true` + `exclude-filter`; its `exclude-filter` must stay the exact union of those region groups' `filter` keywords, including emoji flags and the `(?i)` case-insensitive flag.
 

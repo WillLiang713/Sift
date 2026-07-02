@@ -3,7 +3,7 @@
 unified-delay: true
 tcp-concurrent: true
 
-# DNS：fake-ip；默认海外 DoH，国内/Apple/Microsoft 白名单规则返回真实 IP。
+# DNS：fake-ip；默认海外 DoH，国内直连域名返回真实 IP。
 dns:
   enable: true
   listen: ":53"
@@ -13,25 +13,9 @@ dns:
   fake-ip-filter:
     - rule-set:fakeip-filter
     - rule-set:private
-    - rule-set:google-cn
-    - rule-set:apple
-    - rule-set:microsoft
-    - rule-set:games-cn
-    - rule-set:cn-dns
+    - rule-set:cn
   nameserver-policy:
-    "rule-set:google-cn":
-      - https://dns.alidns.com/dns-query
-      - https://doh.pub/dns-query
-    "rule-set:apple":
-      - https://dns.alidns.com/dns-query
-      - https://doh.pub/dns-query
-    "rule-set:microsoft":
-      - https://dns.alidns.com/dns-query
-      - https://doh.pub/dns-query
-    "rule-set:games-cn":
-      - https://dns.alidns.com/dns-query
-      - https://doh.pub/dns-query
-    "rule-set:cn-dns":
+    "rule-set:cn":
       - https://dns.alidns.com/dns-query
       - https://doh.pub/dns-query
   respect-rules: true
@@ -164,14 +148,14 @@ rule-providers:
     path: ./ruleset/dustinwin/games-cn.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.list"
     interval: 86400
-  cn:
+  cn-lite:
     type: http
     behavior: domain
     format: text
     path: ./ruleset/dustinwin/cn-lite.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.list"
     interval: 86400
-  cn-dns:
+  cn:
     type: http
     behavior: domain
     format: text
@@ -202,7 +186,7 @@ rules:
 - RULE-SET,microsoft,全球直连
 - RULE-SET,games-cn,全球直连
 
-- RULE-SET,cn,全球直连
+- RULE-SET,cn-lite,全球直连
 
 - RULE-SET,cnip,全球直连
 

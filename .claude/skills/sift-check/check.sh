@@ -53,6 +53,7 @@ section=="pg" {
 
 section=="rp" {
   if($0 ~ /^  [A-Za-z0-9_-]+:[ \t]*$/){ pk=$0; sub(/^  /,"",pk); sub(/:.*/,"",pk); pk=trim(pk); provs[pk]=1; next }
+  if($0 ~ /^    behavior:/){ b=$0; sub(/^    behavior:[ \t]*/,"",b); gsub(/"/,"",b); b=trim(b); prov_behavior[pk]=b; next }
   if($0 ~ /^    url:/){ u=$0; sub(/^    url:[ \t]*/,"",u); gsub(/"/,"",u); u=trim(u); url_key[nurl]=pk; url_val[nurl]=u; nurl++; next }
   next
 }
@@ -69,10 +70,11 @@ section=="rules" {
   next
 }
 
-section=="dns" {                                   # dns block: collect fake-ip-filter rule-set refs
-  if($0 ~ /^[ \t]*-[ \t]*rule-set:/){
-    s=$0; sub(/.*rule-set:[ \t]*/,"",s); sub(/[ \t,].*$/,"",s); gsub(/["']/,"",s); s=trim(s)
-    if(s!=""){ dnsrs[ndnsrs]=s; ndnsrs++ }
+section=="dns" {                                   # dns block: collect rule-set refs
+  s=$0; sub(/#.*/,"",s)
+  if(s ~ /rule-set:/){
+    sub(/.*rule-set:[ \t]*/,"",s); sub(/["':, \t].*$/,"",s); s=trim(s)
+    if(s!="" && !(s in dnsseen)){ dnsseen[s]=1; dnsrs[ndnsrs]=s; ndnsrs++ }
   }
   next
 }
@@ -84,7 +86,11 @@ END{
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
   for(i=0;i<npol;i++){ p=pols[i]; if(!(p in groups) && !(p in builtin)) emit("FAIL","rule policy `" p "` is not a defined group or builtin") }
   for(i=0;i<nrs;i++){ s=rsrefs[i]; usedprov[s]=1; if(!(s in provs)) emit("FAIL","RULE-SET references undefined provider `" s "`") }
-  for(i=0;i<ndnsrs;i++){ s=dnsrs[i]; usedprov[s]=1; if(!(s in provs)) emit("FAIL","fake-ip-filter references undefined provider `" s "`") }
+  for(i=0;i<ndnsrs;i++){
+    s=dnsrs[i]; usedprov[s]=1
+    if(!(s in provs)) emit("FAIL","DNS rule-set references undefined provider `" s "`")
+    else if(prov_behavior[s]!="domain") emit("FAIL","DNS rule-set `" s "` uses behavior `" prov_behavior[s] "` — use domain-only providers in fake-ip-filter/nameserver-policy")
+  }
   for(k in provs) if(!(k in usedprov)) emit("WARN","rule-provider `" k "` defined but never used in rules")
 
   for(i=0;i<nurl;i++){
