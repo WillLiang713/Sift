@@ -122,5 +122,5 @@ proxy-server-nameserver:
 - 浏览器安全 DNS / DoH 是否关闭。
 - 运行配置中的 `nameserver` 是否仍然是海外 DoH。
 - 客户端是否重新开启了自定义 DNS、追加上游 DNS 或追加默认 DNS。
-- `漏网之鱼` 是否被手动切成 `DIRECT`。
+- `漏网之鱼`（Full / Nano）或 `节点选择`（Core）是否被手动切成 `DIRECT`。
 - 终端设备 DNS 是否仍指向路由器路径，而不是公共 DNS。

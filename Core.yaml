@@ -122,20 +122,6 @@ proxy-groups:
   - 节点选择
   - 自动测速
 
-- name: 漏网之鱼
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
 rule-providers:
   private:
     type: http
@@ -221,4 +207,4 @@ rules:
 
 - RULE-SET,cnip,全球直连
 
-- MATCH,漏网之鱼
+- MATCH,节点选择

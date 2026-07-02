@@ -23,7 +23,7 @@ Project invariants that `mihomo -t` cannot catch:
 - **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
 - **Node-free** — no top-level `proxies:` in any template.
 - **DNS scope** — `Full.yaml` and `Core.yaml` may carry top-level `dns:` blocks; `Nano.yaml` must stay DNS-free. DNS `fake-ip-filter` rule-set refs are integrity-checked.
-- **Canonical groups** — required strategy-group names must be present; Core and Nano must not contain their forbidden Full-only/service groups.
+- **Canonical groups** — required strategy-group names must be present; Core must not contain service/brand UI groups or the separate `漏网之鱼` group, and Nano must not contain its forbidden Full/Core-only groups.
 - **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. `cn` → `cn-lite.list`, a deliberate deviation — informational only).
 
 Toolchain (auto-skipped if not installed): `mihomo -t -f`, `yamllint -d relaxed`, `git diff --check`.
