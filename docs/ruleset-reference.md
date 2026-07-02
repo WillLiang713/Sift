@@ -11,7 +11,7 @@
 
 - 以下 DustinWin URL 使用 GitHub release 下载链接，与官方示例保持一致。jsDelivr 同等链接遵循相同文件名，路径中使用发布分支名。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
-- Mihomo rule-provider 中，DustinWin `mrs` 文件使用表中列出的 `behavior`；DustinWin 和 blackmatrix7 `.list` 文件通常使用 `format: text`。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
+- 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
 ## URL 模板

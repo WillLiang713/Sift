@@ -20,10 +20,10 @@ It `cd`s to the repo root, so it can be invoked from anywhere. Exit `0` = PASS, 
 Project invariants that `mihomo -t` cannot catch:
 
 - **Referential integrity** — every `proxies:` entry and every rule policy resolves to a defined group or a builtin (`DIRECT`/`REJECT`); every `RULE-SET,<x>` resolves to a defined `rule-providers` key. This is the main payoff: it catches dangling references left behind by the frequent group / rule renames in this repo's history.
-- **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`); non-DustinWin sources are flagged for review (→ `[WARN]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
+- **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
 - **Node-free** — no top-level `proxies:` in either template. **DNS** — `Full.yaml` may carry a top-level `dns:` (its `fake-ip-filter` `rule-set:` refs are integrity-checked); `Nano.yaml` must stay DNS-free.
 - **Canonical groups** — all required strategy-group names are present, and `Nano.yaml` does not contain `Full`-only groups (AI / 流媒体 / 游戏平台 / region groups).
-- **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. `cn` → `cn-lite.mrs`, a deliberate deviation — informational only).
+- **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. `cn` → `cn-lite.list`, a deliberate deviation — informational only).
 
 Toolchain (auto-skipped if not installed): `mihomo -t -f`, `yamllint -d relaxed`, `git diff --check`.
 

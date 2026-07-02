@@ -6,7 +6,7 @@
 
 <p align="center">
   <img alt="Core" src="https://img.shields.io/badge/core-compatible-blue">
-  <img alt="Rules" src="https://img.shields.io/badge/rules-MRS-green">
+  <img alt="Rules" src="https://img.shields.io/badge/rules-list-green">
   <img alt="Node Free" src="https://img.shields.io/badge/nodes-not%20included-lightgrey">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
 </p>
@@ -72,10 +72,10 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 ## 规则来源
 
-远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供（MRS）；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，统一用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
+远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）：
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `proxy` · `telegramip` · `cn`（路由直连，映射 `cn-lite.mrs`）· `cn-dns`（DNS 国内解析，映射完整 `cn.mrs`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **Nano**：`private` · `privateip` · `gfw` · `cn`（路由直连，映射 `cn-lite.mrs`）· `cnip`
+- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `media` · `games` · `proxy` · `telegramip` · `cn`（路由直连，映射 `cn-lite.list`）· `cn-dns`（DNS 国内解析，映射完整 `cn.list`）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **Nano**：`private` · `privateip` · `gfw` · `cn`（路由直连，映射 `cn-lite.list`）· `cnip`
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献

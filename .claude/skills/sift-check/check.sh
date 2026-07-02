@@ -88,8 +88,7 @@ END{
   for(i=0;i<nurl;i++){
     u=url_val[i]; lu=tolower(u)
     if(lu ~ /geoip|geosite/) emit("FAIL","provider `" url_key[i] "` URL contains geoip/geosite — triggers ShellCrash geo misdetection: " u)
-    else if(lu !~ /dustinwin/) emit("WARN","provider `" url_key[i] "` URL is not a DustinWin source — verify it is keyword-free and attribution is documented: " u)
-    nn=split(u, pp, "/"); base=pp[nn]; sub(/\.mrs.*$/,"",base)
+    nn=split(u, pp, "/"); base=pp[nn]; sub(/\.(mrs|list).*$/,"",base)
     if(base!="" && base!=url_key[i]) emit("INFO","provider key `" url_key[i] "` maps to file `" base "` (basename != key; OK if intentional, see AGENTS.md)")
   }
 

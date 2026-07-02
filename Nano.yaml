@@ -43,37 +43,37 @@ rule-providers:
   private:
     type: http
     behavior: domain
-    format: mrs
-    path: ./ruleset/dustinwin/private.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
+    format: text
+    path: ./ruleset/dustinwin/private.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.list"
     interval: 86400
   privateip:
     type: http
     behavior: ipcidr
-    format: mrs
-    path: ./ruleset/dustinwin/privateip.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
+    format: text
+    path: ./ruleset/dustinwin/privateip.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.list"
     interval: 86400
   gfw:
     type: http
     behavior: domain
-    format: mrs
-    path: ./ruleset/dustinwin/gfw.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.mrs"
+    format: text
+    path: ./ruleset/dustinwin/gfw.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.list"
     interval: 86400
   cn:
     type: http
     behavior: domain
-    format: mrs
-    path: ./ruleset/dustinwin/cn-lite.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
+    format: text
+    path: ./ruleset/dustinwin/cn-lite.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.list"
     interval: 86400
   cnip:
     type: http
     behavior: ipcidr
-    format: mrs
-    path: ./ruleset/dustinwin/cnip.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.mrs"
+    format: text
+    path: ./ruleset/dustinwin/cnip.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.list"
     interval: 86400
 
 rules:

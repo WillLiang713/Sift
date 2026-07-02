@@ -61,10 +61,6 @@ default-nameserver:
   - 223.5.5.5
   - 119.29.29.29
 
-direct-nameserver:
-  - https://dns.alidns.com/dns-query
-  - https://doh.pub/dns-query
-
 proxy-server-nameserver:
   - https://dns.alidns.com/dns-query
   - https://doh.pub/dns-query
@@ -76,7 +72,6 @@ proxy-server-nameserver:
 | `nameserver-policy` | `google-cn`、`apple-cn`、`microsoft-cn`、`games-cn`、`cn-dns` 等国内直连规则集使用国内 DoH，避免客户端 DNS 查询拿到海外 CDN 结果。 |
 | `nameserver` | 默认解析，使用海外 DoH，泄露测试只会看到海外 DNS。 |
 | `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
-| `direct-nameserver` | 最终直连的域名使用国内 DoH，保留国内 CDN 质量。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
 ## 国内域名为什么仍然直连
@@ -86,7 +81,7 @@ proxy-server-nameserver:
 1. 命中 `dns.fake-ip-filter` 的国内直连规则集时，客户端直接拿到真实 IP；在 OpenWrt/OpenClash 这类路由器环境里，真实中国 IP 可以继续命中本机的 China IP 直连链路，也不会被禁 QUIC 规则当作 `198.18/16` fake-ip 误拒绝。
 2. 未命中 `fake-ip-filter` 的域名仍走 fake-ip 流程：客户端拿到 fake IP，内核再按原始域名匹配 `rules`，命中直连规则后进入 `全球直连`。
 
-因此默认 `nameserver` 仍可以使用海外 DoH；明确国内直连的域名由 `fake-ip-filter` / `nameserver-policy` / `direct-nameserver` 保留国内解析质量。
+因此默认 `nameserver` 仍可以使用海外 DoH；明确国内直连的域名由 `fake-ip-filter` / `nameserver-policy` 保留国内解析质量。
 
 ## 客户端设置
 
@@ -116,7 +111,7 @@ proxy-server-nameserver:
 
 因此测试域名继续使用默认 `nameserver`，也就是海外 DoH。
 
-国内域名命中直连规则后通过 `nameserver-policy` / `direct-nameserver` 使用国内 DoH，这是为了国内访问质量，不会影响海外泄露测试结果。
+国内域名命中直连规则后通过 `nameserver-policy` 使用国内 DoH，这是为了国内访问质量，不会影响海外泄露测试结果。
 
 ## 复发排查
 
