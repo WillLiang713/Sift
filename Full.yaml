@@ -114,6 +114,20 @@ proxy-groups:
   - 手动切换
   - DIRECT
 
+- name: Telegram
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
 - name: 苹果服务
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
@@ -291,12 +305,12 @@ rule-providers:
     path: ./ruleset/dustinwin/ai.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.list"
     interval: 86400
-  media:
+  mediaip:
     type: http
-    behavior: domain
+    behavior: ipcidr
     format: text
-    path: ./ruleset/dustinwin/media.list
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/media.list"
+    path: ./ruleset/dustinwin/mediaip.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/mediaip.list"
     interval: 86400
   games:
     type: http
@@ -304,13 +318,6 @@ rule-providers:
     format: text
     path: ./ruleset/dustinwin/games.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.list"
-    interval: 86400
-  proxy:
-    type: http
-    behavior: domain
-    format: text
-    path: ./ruleset/dustinwin/proxy.list
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.list"
     interval: 86400
   telegramip:
     type: http
@@ -363,15 +370,13 @@ rules:
 
 - RULE-SET,games,游戏平台
 
-- RULE-SET,media,流媒体
+- RULE-SET,mediaip,流媒体
 
 - RULE-SET,onedrive,OneDrive
 
 - RULE-SET,microsoft,微软服务
 
-- RULE-SET,proxy,节点选择
-
-- RULE-SET,telegramip,节点选择
+- RULE-SET,telegramip,Telegram
 
 - RULE-SET,cn,全球直连
 

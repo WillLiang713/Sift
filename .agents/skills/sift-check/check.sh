@@ -10,10 +10,10 @@ cd "$ROOT" || exit 2
 
 # --- Canonical contract -------------------------------------------------------
 # Keep these in sync with AGENTS.md when a strategy group is added/renamed/removed.
-FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
+FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 Telegram 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
 FULL_FORB=""
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 漏网之鱼"
-NANO_FORB="AI 流媒体 游戏平台 香港节点 美国节点 日本节点 新加坡节点 其他节点"
+NANO_FORB="AI 流媒体 游戏平台 Telegram 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 
 # --- Static analyzer (one pass per file) --------------------------------------
 AWK=$(cat <<'AWKEOF'
