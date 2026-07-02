@@ -34,28 +34,25 @@ fake-ip-filter:
 
 nameserver-policy:
   "rule-set:cn":
-    - https://dns.alidns.com/dns-query
-    - https://doh.pub/dns-query
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
 
 nameserver:
-  - https://cloudflare-dns.com/dns-query
-  - https://dns.google/dns-query
-
-default-nameserver:
-  - 223.5.5.5
-  - 119.29.29.29
+  - https://1.1.1.1/dns-query
+  - https://8.8.8.8/dns-query
 
 proxy-server-nameserver:
-  - https://dns.alidns.com/dns-query
-  - https://doh.pub/dns-query
+  - https://223.5.5.5/dns-query
+  - https://1.12.12.12/dns-query
 ```
+
+所有 DoH 上游都写成 IP 形式（`223.5.5.5`=阿里、`1.12.12.12`=doh.pub、`1.1.1.1`=Cloudflare、`8.8.8.8`=Google），因此不再需要 `default-nameserver` 去 bootstrap 解析 DoH 服务器域名。
 
 | 字段 | 用途 |
 | --- | --- |
 | `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
 | `nameserver-policy` | 只让 `cn` 使用国内 DoH；`google-cn`、`apple-cn`、`microsoft-cn`、`games-cn` 等 `*-cn` 路由补充规则不进入 DNS policy。 |
-| `nameserver` | 默认解析，使用海外 DoH，泄露测试只会看到海外 DNS。 |
-| `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
+| `nameserver` | 默认解析，使用海外 DoH（IP 形式），泄露测试只会看到海外 DNS。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
 DNS 侧只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍只在路由侧进入 `全球直连`；Core 的 `全球直连` 目前只保留 `DIRECT` 和 `节点选择`，且 `DIRECT` 排第一。
