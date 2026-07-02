@@ -32,11 +32,6 @@ proxy-groups:
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
   proxies:
   - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
   - 手动切换
   - DIRECT
 
@@ -52,48 +47,6 @@ proxy-groups:
   url: https://cp.cloudflare.com/generate_204
   interval: 300
   tolerance: 50
-
-- name: 香港节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  tolerance: 50
-
-- name: 美国节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/US.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  tolerance: 50
-
-- name: 日本节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka"
-  url: https://cp.cloudflare.com/generate_204
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
-  interval: 300
-  tolerance: 50
-
-- name: 新加坡节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇸🇬|SG|SGP|Singapore|新加坡|狮城"
-  url: https://cp.cloudflare.com/generate_204
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png"
-  interval: 300
-  tolerance: 50
-
-- name: 其他节点
-  type: select
-  include-all: true
-  exclude-filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港|🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka|🇸🇬|SG|SGP|Singapore|新加坡|狮城"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
 
 - name: 全球直连
   type: select

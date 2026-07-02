@@ -16,7 +16,7 @@
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
 | [`Full.yaml`](./Full.yaml) | 17 | 17 | 完整版：AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS，并启用统一延迟与 TCP 并发连接 |
-| [`Core.yaml`](./Core.yaml) | 9 | 10 | 核心白名单版：保留基础节点选择、国内白名单和 DNS；完整 Apple / Microsoft 进入 `全球直连`，且 Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，`DIRECT` 排第一 |
+| [`Core.yaml`](./Core.yaml) | 4 | 10 | 核心白名单版：保留基础节点选择、国内白名单和 DNS；完整 Apple / Microsoft 进入 `全球直连`，且 Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，`DIRECT` 排第一 |
 | [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：局域网直连、GFW 代理、国内直连和兜底分流；不接管 DNS |
 
 ```text
@@ -34,7 +34,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
 - **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive 等独立入口。
-- **Core 白名单分流**：核心模板不保留服务 UI 分组；完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择`，其余流量全部交给 `MATCH,节点选择`。
+- **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择`，其余流量全部交给 `MATCH,节点选择`。
 - **Nano 极简代理**：极简模板只保留 GFW 代理、国内直连和兜底，不提供地区节点或服务分组。
 
 ## 分流顺序
@@ -78,11 +78,11 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 **Full**：`节点选择` · `手动切换` · `自动测速` · `AI` · `流媒体` · `游戏平台` · `Telegram` · `苹果服务` · `微软服务` · `OneDrive` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点` · `全球直连` · `漏网之鱼`
 
-**Core**：`节点选择` · `手动切换` · `自动测速` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点` · `全球直连`
+**Core**：`节点选择` · `手动切换` · `自动测速` · `全球直连`
 
 **Nano**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `漏网之鱼`
 
-> 地区组依赖节点名称中的地区关键词自动归类。建议节点命名包含 `HK`、`日本`、`US` 等标识。
+> Full 的地区组依赖节点名称中的地区关键词自动归类。建议节点命名包含 `HK`、`日本`、`US` 等标识。
 
 ## 规则来源
 
