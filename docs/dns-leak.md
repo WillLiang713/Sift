@@ -1,6 +1,6 @@
 # DNS 泄露说明
 
-本文记录 `Full.yaml` 的 DNS 泄露修复思路。
+本文记录 `Full.yaml` / `Core.yaml` 的 DNS 泄露修复思路。
 
 ## 问题现象
 
@@ -24,7 +24,7 @@ nameserver:
 
 ## 当前分工
 
-`Full.yaml` 按用途拆分 DNS：
+`Full.yaml` / `Core.yaml` 按用途拆分 DNS：
 
 ```yaml
 fake-ip-filter:
@@ -74,6 +74,8 @@ proxy-server-nameserver:
 | `default-nameserver` | 只负责解析 DoH 服务器域名，必须使用纯 IP。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
+`Core.yaml` 使用同一套 DNS 结构，但会把 Full 中的 `rule-set:apple-cn` / `rule-set:microsoft-cn` 替换为完整 `rule-set:apple` / `rule-set:microsoft`，与 Core 的「完整 Apple / Microsoft 直连」规则保持一致。
+
 ## 国内域名为什么仍然直连
 
 国内域名分两条路径：
@@ -85,7 +87,7 @@ proxy-server-nameserver:
 
 ## 客户端设置
 
-配合 `Full.yaml` 使用时，建议：
+配合 `Full.yaml` / `Core.yaml` 使用时，建议：
 
 | 选项 | 建议 |
 | --- | --- |

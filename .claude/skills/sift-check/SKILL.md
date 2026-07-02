@@ -1,11 +1,11 @@
 ---
 name: sift-check
-description: Validate the Sift Mihomo templates (Full.yaml / Nano.yaml) against project invariants — strategy-group & rule-set referential integrity, the ShellCrash geosite/geoip URL constraint, node-free rules (Full may carry a top-level dns:; Nano stays DNS-free), Nano⊆Full scope, and canonical group names. Use when asked to validate / lint / check the config, or before committing template or rule-provider edits.
+description: Validate the Sift Mihomo templates (Full.yaml / Core.yaml / Nano.yaml) against project invariants — strategy-group & rule-set referential integrity, the ShellCrash geosite/geoip URL constraint, node-free rules, DNS allowance per template, canonical group scopes, and optional mihomo/yamllint checks. Use before committing template, rule-provider, or documentation changes.
 ---
 
 # sift-check
 
-Statically validates `Full.yaml` and `Nano.yaml` against the conventions in `AGENTS.md` (including the ShellCrash geo-keyword constraint). Pure bash + awk, no new dependencies; `mihomo -t` and `yamllint` are used only if those binaries are on PATH.
+Statically validates `Full.yaml`, `Core.yaml`, and `Nano.yaml` against the conventions in `AGENTS.md` (including the ShellCrash geo-keyword constraint). Pure bash + awk, no new dependencies; `mihomo -t` and `yamllint` are used only if those binaries are on PATH.
 
 ## Run
 
@@ -19,11 +19,12 @@ It `cd`s to the repo root, so it can be invoked from anywhere. Exit `0` = PASS, 
 
 Project invariants that `mihomo -t` cannot catch:
 
-- **Referential integrity** — every `proxies:` entry and every rule policy resolves to a defined group or a builtin (`DIRECT`/`REJECT`); every `RULE-SET,<x>` resolves to a defined `rule-providers` key. This is the main payoff: it catches dangling references left behind by the frequent group / rule renames in this repo's history.
-- **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`); non-DustinWin sources are flagged for review (→ `[WARN]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
-- **Node-free** — no top-level `proxies:` in either template. **DNS** — `Full.yaml` may carry a top-level `dns:` (its `fake-ip-filter` `rule-set:` refs are integrity-checked); `Nano.yaml` must stay DNS-free.
-- **Canonical groups** — all required strategy-group names are present, and `Nano.yaml` does not contain `Full`-only groups (AI / 流媒体 / 游戏平台 / Telegram / region groups).
-- **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. `cn` → `cn-lite.mrs`, a deliberate deviation — informational only).
+- **Referential integrity** — every `proxies:` entry and every rule policy resolves to a defined group or a builtin (`DIRECT`/`REJECT`); every `RULE-SET,<x>` and DNS `rule-set:<x>` resolves to a defined `rule-providers` key.
+- **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
+- **Node-free** — no top-level `proxies:` in any template.
+- **DNS scope** — `Full.yaml` and `Core.yaml` may carry top-level `dns:` blocks; `Nano.yaml` must stay DNS-free. DNS `fake-ip-filter` rule-set refs are integrity-checked.
+- **Canonical groups** — required strategy-group names must be present; Core and Nano must not contain their forbidden Full-only/service groups.
+- **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. `cn` → `cn-lite.list`, a deliberate deviation — informational only).
 
 Toolchain (auto-skipped if not installed): `mihomo -t -f`, `yamllint -d relaxed`, `git diff --check`.
 
@@ -35,4 +36,4 @@ Toolchain (auto-skipped if not installed): `mihomo -t -f`, `yamllint -d relaxed`
 
 ## Keeping the contract in sync
 
-The canonical **required** / **forbidden** group sets live at the top of `check.sh` (`FULL_REQ`, `NANO_REQ`, `NANO_FORB`). When a strategy group is intentionally added, renamed, or removed, update those lists in the same commit so the checker stays accurate.
+The canonical **required** / **forbidden** group sets live at the top of `check.sh` (`FULL_REQ`, `CORE_REQ`, `CORE_FORB`, `NANO_REQ`, `NANO_FORB`). When a strategy group is intentionally added, renamed, or removed, update those lists in the same commit so the checker stays accurate.

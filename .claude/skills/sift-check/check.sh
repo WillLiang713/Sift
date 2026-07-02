@@ -10,10 +10,12 @@ cd "$ROOT" || exit 2
 
 # --- Canonical contract -------------------------------------------------------
 # Keep these in sync with AGENTS.md when a strategy group is added/renamed/removed.
-FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 Telegram 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
+FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
 FULL_FORB=""
+CORE_REQ="节点选择 手动切换 自动测速 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
+CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive"
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 漏网之鱼"
-NANO_FORB="AI 流媒体 游戏平台 Telegram 香港节点 美国节点 日本节点 新加坡节点 其他节点"
+NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 
 # --- Static analyzer (one pass per file) --------------------------------------
 AWK=$(cat <<'AWKEOF'
@@ -120,12 +122,13 @@ check_file(){
 }
 
 check_file Full.yaml full "$FULL_REQ" "$FULL_FORB" 1
+check_file Core.yaml core "$CORE_REQ" "$CORE_FORB" 1
 check_file Nano.yaml nano "$NANO_REQ" "$NANO_FORB" 0
 
 # --- Optional toolchain -------------------------------------------------------
 printf '\n== toolchain ==\n'
 if command -v mihomo >/dev/null 2>&1; then
-  for f in Full.yaml Nano.yaml; do
+  for f in Full.yaml Core.yaml Nano.yaml; do
     [ -f "$f" ] || continue
     tmp=$(mktemp)
     if mihomo -t -f "$f" >"$tmp" 2>&1; then printf '  [ OK ] mihomo -t %s\n' "$f"
@@ -138,7 +141,7 @@ fi
 
 if command -v yamllint >/dev/null 2>&1; then
   tmp=$(mktemp)
-  if yamllint -d relaxed Full.yaml Nano.yaml >"$tmp" 2>&1; then printf '  [ OK ] yamllint\n'
+  if yamllint -d relaxed Full.yaml Core.yaml Nano.yaml >"$tmp" 2>&1; then printf '  [ OK ] yamllint\n'
   else printf '  [WARN] yamllint findings:\n'; sed 's/^/         /' "$tmp"; warns=$((warns+1)); fi
   rm -f "$tmp"
 else
