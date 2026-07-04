@@ -15,8 +15,8 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`Full.yaml`](./Full.yaml) | 17 | 17 | 完整版：AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS，并启用统一延迟与 TCP 并发连接 |
-| [`Core.yaml`](./Core.yaml) | 4 | 10 | 核心白名单版：保留基础节点选择、国内白名单和 DNS；完整 Apple / Microsoft 进入 `全球直连`，且 Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，`DIRECT` 排第一 |
+| [`Full.yaml`](./Full.yaml) | 17 | 17 | 完整版：AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS、域名嗅探和状态持久化，并启用统一延迟与 TCP 并发连接 |
+| [`Core.yaml`](./Core.yaml) | 4 | 10 | 核心白名单版：保留基础节点选择、国内白名单、DNS、域名嗅探和状态持久化；完整 Apple / Microsoft 进入 `全球直连`，且 Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，`DIRECT` 排第一 |
 | [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：局域网直连、GFW 代理、国内直连和兜底分流；不接管 DNS |
 
 ```text
@@ -29,7 +29,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
 - **运行优化**：Full / Core 默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
+- **状态持久化**：Full / Core 默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
 - **DNS 分模板**：Nano 不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS（`cn` 国内域名返回真实 IP，默认解析走海外 DoH，`cn` 和代理节点解析走国内 DoH），OpenClash 等客户端接管 DNS 时以客户端为准。
+- **域名嗅探**：Full / Core 启用 `sniffer`，从 HTTP Host、TLS SNI 和 QUIC 握手中提取域名，提升 TUN / redir-host / 纯 IP 场景下的规则命中准确率。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。

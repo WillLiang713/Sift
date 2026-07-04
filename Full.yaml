@@ -1,7 +1,11 @@
-# Full：无节点规则、策略组和 DNS。
+# Full：无节点规则、策略组、DNS、嗅探器和状态持久化。
 
 unified-delay: true
 tcp-concurrent: true
+
+profile:
+  store-selected: true
+  store-fake-ip: true
 
 # DNS：fake-ip；默认海外 DoH，国内直连域名返回真实 IP。
 dns:
@@ -25,6 +29,21 @@ dns:
   nameserver:
     - https://1.1.1.1/dns-query
     - https://8.8.8.8/dns-query
+
+# 嗅探器：从 HTTP/TLS/QUIC 流量中提取域名，提升 TUN / redir-host 分流准确率。
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
 
 proxy-groups:
 - name: 节点选择
