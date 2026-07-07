@@ -16,8 +16,8 @@ CORE_REQ="节点选择 手动切换 自动测速 全球直连"
 CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 漏网之鱼"
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 漏网之鱼"
 NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
-# Geodata templates keep the same group contracts but must not define rule-providers
-# or use RULE-SET rules.
+# Geodata templates keep the same group contracts and route with GEOSITE/GEOIP.
+# The only allowed provider is DNS-only fakeip-filter for dns.fake-ip-filter.
 
 # --- Static analyzer (one pass per file) --------------------------------------
 AWK=$(cat <<'AWKEOF'
@@ -41,7 +41,6 @@ BEGIN{
   else if(key=="dns")            section="dns"
   else                           section="other"
   if(key=="proxies") fail_proxies=1
-  if(key=="rule-providers" && geodata=="1") fail_geodata_rp=1
   if((key=="dns" || key=="fake-ip") && allow_dns!="1") fail_dns=1
   in_proxies=0; next
 }
@@ -88,7 +87,7 @@ section=="dns" {                                   # dns block: collect rule-set
 END{
   if(fail_proxies)    emit("FAIL","top-level `proxies:` present — template must stay node-free")
   if(fail_dns)        emit("FAIL","top-level `dns:`/`fake-ip` present — this template must stay DNS-free")
-  if(fail_geodata_rp) emit("FAIL","Geodata template must not define `rule-providers:`")
+  if(geodata=="1") for(k in provs) if(k!="fakeip-filter") emit("FAIL","Geodata template may only define DNS-only provider `fakeip-filter`, not `" k "`")
 
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
   for(i=0;i<npol;i++){ p=pols[i]; if(!(p in groups) && !(p in builtin)) emit("FAIL","rule policy `" p "` is not a defined group or builtin") }

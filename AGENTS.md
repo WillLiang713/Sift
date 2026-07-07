@@ -7,7 +7,7 @@ This repository is a compact Mihomo configuration template project.
 - `Full.yaml` is the full node-free template. It carries top-level Mihomo runtime optimizations (`unified-delay: true`, `tcp-concurrent: true`) plus top-level `profile:` (persisting selected strategy groups and fake-ip mappings), `dns:` (fake-ip + DustinWin `fakeip-filter`, domestic direct rule sets returning real IP, `respect-rules`, domestic DoH policies, and overseas default DoH), and `sniffer:` blocks (HTTP/TLS/QUIC domain sniffing for TUN/redir-host accuracy). It keeps AI, streaming, gaming platform, Telegram, Apple, Microsoft, OneDrive, and region node strategy groups.
 - `Core.yaml` is the core whitelist template. It stays node-free, keeps the same runtime/profile/DNS/sniffer foundation as `Full.yaml`, keeps only the base selector / `全球直连` groups, routes full Apple and full Microsoft rule sets plus domestic whitelist rules to `全球直连`, and Core's `全球直连` contains only `DIRECT` then `节点选择`; all other unmatched traffic falls through directly to `MATCH,节点选择`.
 - `Nano.yaml` is the nano template and should remain node-free and DNS-free; it keeps only `节点选择`, `手动切换`, `自动测速`, `全球直连`, and `漏网之鱼`. All rule sets are from DustinWin.
-- `geodata/` stores the public GEOSITE/GEOIP variants: `geodata/Full.yaml`, `geodata/Core.yaml`, and `geodata/Nano.yaml`. These templates use MetaCubeX `meta-rules-dat`, define `geox-url`, and must remain pure GEOSITE/GEOIP with no `rule-providers` or `RULE-SET` rules.
+- `geodata/` stores the public GEOSITE/GEOIP routing variants: `geodata/Full.yaml`, `geodata/Core.yaml`, and `geodata/Nano.yaml`. These templates use MetaCubeX `meta-rules-dat` and define `geox-url`; their routing `rules` must remain pure `GEOSITE`/`GEOIP` with no routing `RULE-SET`. `geodata/Full.yaml` and `geodata/Core.yaml` may define the single DNS-only `fakeip-filter` provider for `dns.fake-ip-filter`.
 - `demo/` stores example Mihomo YAML files used for reference and manual comparison.
 - `docs/` stores rule-source notes, DNS/fake-ip notes, icon references, and other supporting documentation.
 - `README.md` documents user-facing behavior and must be updated when routing logic, template selection, visible strategy groups, or rule-provider sets change.
@@ -33,13 +33,13 @@ Template-specific usage:
 
 Regardless of source, root-template rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans provider URLs and treats those keywords as a signal that Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra downloads and checks. Do not switch root-template provider URLs to MetaCubeX `meta-rules-dat` paths even when rule content looks equivalent.
 
-The `geodata/` templates are the explicit exception: they intentionally use MetaCubeX `meta-rules-dat` via top-level `geox-url`, and therefore must not define `rule-providers` at all. Keep their rules as `GEOSITE,...` / `GEOIP,...` only. Current public naming is `geodata/Full.yaml`, `geodata/Core.yaml`, and `geodata/Nano.yaml`; avoid adding names that expose `mihomo` unless the user asks.
+The `geodata/` templates are the explicit exception: they intentionally use MetaCubeX `meta-rules-dat` via top-level `geox-url`. Keep routing rules as `GEOSITE,...` / `GEOIP,...` only; the only permitted `rule-providers` entry is the DNS-only `fakeip-filter` provider used by `dns.fake-ip-filter` in geodata Full/Core. Current public naming is `geodata/Full.yaml`, `geodata/Core.yaml`, and `geodata/Nano.yaml`; avoid adding names that expose `mihomo` unless the user asks.
 
 ## Build, Test, and Development Commands
 
 There is no package manager manifest and no generated build step. Use lightweight validation before committing:
 
-- `bash .claude/skills/sift-check/check.sh` (or `/sift-check` in Claude Code) checks project invariants: strategy-group / rule-set referential integrity, the ShellCrash `geosite`/`geoip` URL constraint for root rule-providers, node-free rules, DNS allowance per template, canonical group scopes, geodata purity, and optional `mihomo` / `yamllint` validation when installed.
+- `bash .claude/skills/sift-check/check.sh` (or `/sift-check` in Claude Code) checks project invariants: strategy-group / rule-set referential integrity, the ShellCrash `geosite`/`geoip` URL constraint for root rule-providers, node-free rules, DNS allowance per template, canonical group scopes, geodata routing purity plus the DNS-only fakeip-filter exception, and optional `mihomo` / `yamllint` validation when installed.
 - `mihomo -t -f Full.yaml`, `mihomo -t -f Core.yaml`, `mihomo -t -f Nano.yaml`, and the corresponding `geodata/*.yaml` files validate templates when the Mihomo binary is installed locally.
 - `yamllint Full.yaml Core.yaml Nano.yaml geodata/*.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
 - `git diff --check` catches trailing whitespace and common patch formatting issues.
@@ -66,7 +66,7 @@ In `Full.yaml`, the `其他节点` group is the complement of the region node gr
 
 ## Testing Guidelines
 
-No automated test suite is currently checked in. For configuration edits, validate changed templates with `sift-check`, `mihomo` when available, and manual comparison against `demo/` examples where relevant. When editing geodata templates, additionally check that no `rule-providers:` block or `RULE-SET` rule was introduced.
+No automated test suite is currently checked in. For configuration edits, validate changed templates with `sift-check`, `mihomo` when available, and manual comparison against `demo/` examples where relevant. When editing geodata templates, additionally check that routing rules stay `GEOSITE`/`GEOIP` only and that the only allowed `rule-providers:` entry is DNS-only `fakeip-filter`.
 
 ## Commit & Pull Request Guidelines
 

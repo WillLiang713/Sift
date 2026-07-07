@@ -27,12 +27,12 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Core.yaml
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 ```
 
-`geodata/` 目录提供纯 `GEOSITE` / `GEOIP` 写法，使用 MetaCubeX `meta-rules-dat`，不混用 `rule-providers`：
+`geodata/` 目录提供 `GEOSITE` / `GEOIP` 路由写法，使用 MetaCubeX `meta-rules-dat`；Full/Core 仅为 DNS fake-ip 兼容补充一个 `fakeip-filter` domain provider：
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`geodata/Full.yaml`](./geodata/Full.yaml) | 17 | 0 | Geodata 完整版：保留 Full 的策略组结构，使用 `category-ai-!cn`、`category-games`、`category-entertainment`、Apple / Microsoft / OneDrive 等 geosite 分流；游戏规则放在娱乐大类之前，避免游戏平台被流媒体抢先命中 |
-| [`geodata/Core.yaml`](./geodata/Core.yaml) | 4 | 0 | Geodata 核心白名单版：完整 Apple / Microsoft 与国内白名单进入 `全球直连`，未命中流量直接进入 `节点选择` |
+| [`geodata/Full.yaml`](./geodata/Full.yaml) | 17 | 1 | Geodata 完整版：保留 Full 的策略组结构，路由使用 `category-ai-!cn`、`category-games`、`category-entertainment`、Apple / Microsoft / OneDrive 等 geosite 分流；游戏规则放在娱乐大类之前，避免游戏平台被流媒体抢先命中；DNS 侧额外引用 `fakeip-filter` |
+| [`geodata/Core.yaml`](./geodata/Core.yaml) | 4 | 1 | Geodata 核心白名单版：完整 Apple / Microsoft 与国内白名单进入 `全球直连`，未命中流量直接进入 `节点选择`；DNS 侧额外引用 `fakeip-filter` |
 | [`geodata/Nano.yaml`](./geodata/Nano.yaml) | 5 | 0 | Geodata 极简版：局域网、GFW、国内域名/IP 与兜底分流；不接管 DNS |
 
 ```text
@@ -44,10 +44,10 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 ## 设计要点
 
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
-- **两套规则写法**：根目录模板使用 DustinWin / blackmatrix7 远程 `.list` 规则集；`geodata/` 模板使用 MetaCubeX `GEOSITE` / `GEOIP`，适合希望内置 geodata 统一管理规则的客户端。
+- **两套路由写法**：根目录模板使用 DustinWin / blackmatrix7 远程 `.list` 规则集；`geodata/` 模板的路由规则使用 MetaCubeX `GEOSITE` / `GEOIP`，适合希望内置 geodata 统一管理规则的客户端。
 - **运行优化**：Full / Core 及其 Geodata 版本默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
 - **状态持久化**：Full / Core 及其 Geodata 版本默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
-- **DNS 分模板**：Nano / `geodata/Nano.yaml` 不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS，Geodata 版本使用 `geosite:cn,private` 做国内/私有 DNS policy。
+- **DNS 分模板**：Nano / `geodata/Nano.yaml` 不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS，Geodata 版本用 `rule-set:fakeip-filter` 补充兼容例外，并用 `geosite:cn,private` 做国内/私有 DNS policy。
 - **域名嗅探**：Full / Core 及其 Geodata 版本启用 `sniffer`，从 HTTP Host、TLS SNI 和 QUIC 握手中提取域名，提升 TUN / redir-host / 纯 IP 场景下的规则命中准确率。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，且 `DIRECT` 排第一。
@@ -127,7 +127,7 @@ DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-c
 - **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn-lite`（路由直连）· `cnip`
-- **geodata/**：使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；规则中只使用 `GEOSITE` / `GEOIP`，不定义 `rule-providers`。`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
+- **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献

@@ -57,10 +57,20 @@ proxy-server-nameserver:
 
 DNS 侧只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍只在路由侧进入 `全球直连`；Core 的 `全球直连` 目前只保留 `DIRECT` 和 `节点选择`，且 `DIRECT` 排第一。
 
-`geodata/Full.yaml` / `geodata/Core.yaml` 不定义 `rule-providers`，DNS 侧改用 MetaCubeX geosite 引用表达同类意图：
+`geodata/Full.yaml` / `geodata/Core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；但 MetaCubeX `meta-rules-dat` 当前没有 `geosite:fakeip-filter` 分类，所以 DNS 侧按 Mihomo 官方示例允许的 `rule-set:<name>` 方式额外补充一个 DustinWin domain provider：
 
 ```yaml
+rule-providers:
+  fakeip-filter:
+    type: http
+    behavior: domain
+    format: text
+    interval: 86400
+    path: ./ruleset/dustinwin/fakeip-filter.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
+
 fake-ip-filter:
+  - rule-set:fakeip-filter
   - geosite:private
   - geosite:cn
 nameserver-policy:

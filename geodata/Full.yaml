@@ -7,7 +7,7 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-# Geodata：使用 MetaCubeX geosite / geoip / metadb，避免 rule-providers 混写。
+# Geodata：路由使用 MetaCubeX geosite / geoip / metadb；DNS fake-ip 过滤单独补充 domain provider。
 geox-url:
   geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
   geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
@@ -23,6 +23,7 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
+    - rule-set:fakeip-filter
     - geosite:private
     - geosite:cn
   nameserver-policy:
@@ -46,11 +47,20 @@ sniffer:
   sniff:
     HTTP:
       ports: [80, 8080-8880]
-      override-destination: true
     TLS:
       ports: [443, 8443]
     QUIC:
       ports: [443, 8443]
+
+# DNS 专用 fake-ip 过滤补充：MetaCubeX geosite 当前没有 fakeip-filter 分类。
+rule-providers:
+  fakeip-filter:
+    type: http
+    behavior: domain
+    format: text
+    interval: 86400
+    path: ./ruleset/dustinwin/fakeip-filter.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
 
 proxy-groups:
 - name: 节点选择
