@@ -7,6 +7,7 @@ This repository is a compact Mihomo configuration template project.
 - `Full.yaml` is the full node-free template. It carries top-level Mihomo runtime optimizations (`unified-delay: true`, `tcp-concurrent: true`) plus top-level `profile:` (persisting selected strategy groups and fake-ip mappings), `dns:` (fake-ip + DustinWin `fakeip-filter`, domestic direct rule sets returning real IP, `respect-rules`, domestic DoH policies, and overseas default DoH), and `sniffer:` blocks (HTTP/TLS/QUIC domain sniffing for TUN/redir-host accuracy). It keeps AI, streaming, gaming platform, Telegram, Apple, Microsoft, OneDrive, and region node strategy groups.
 - `Core.yaml` is the core whitelist template. It stays node-free, keeps the same runtime/profile/DNS/sniffer foundation as `Full.yaml`, keeps only the base selector / `全球直连` groups, routes full Apple and full Microsoft rule sets plus domestic whitelist rules to `全球直连`, and Core's `全球直连` contains only `DIRECT` then `节点选择`; all other unmatched traffic falls through directly to `MATCH,节点选择`.
 - `Nano.yaml` is the nano template and should remain node-free and DNS-free; it keeps only `节点选择`, `手动切换`, `自动测速`, `全球直连`, and `漏网之鱼`. All rule sets are from DustinWin.
+- `geodata/` stores the public GEOSITE/GEOIP variants: `geodata/Full.yaml`, `geodata/Core.yaml`, and `geodata/Nano.yaml`. These templates use MetaCubeX `meta-rules-dat`, define `geox-url`, and must remain pure GEOSITE/GEOIP with no `rule-providers` or `RULE-SET` rules.
 - `demo/` stores example Mihomo YAML files used for reference and manual comparison.
 - `docs/` stores rule-source notes, DNS/fake-ip notes, icon references, and other supporting documentation.
 - `README.md` documents user-facing behavior and must be updated when routing logic, template selection, visible strategy groups, or rule-provider sets change.
@@ -30,15 +31,17 @@ Template-specific usage:
 - `Core.yaml`: full `apple` and full `microsoft` route to `全球直连`; Core's `全球直连` contains only `DIRECT` and `节点选择`, with `DIRECT` first. There are no Apple/Microsoft/OneDrive UI strategy groups or region node strategy groups. Do not re-add `apple-cn` / `microsoft-cn` unless the Core design changes back to CN-only brand supplements.
 - `Nano.yaml`: uses only DustinWin `private`, `privateip`, `gfw`, `cn-lite`, and `cnip`.
 
-Regardless of source, rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans provider URLs and treats those keywords as a signal that Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra downloads and checks. Do not switch provider URLs to MetaCubeX `meta-rules-dat` paths even when rule content looks equivalent.
+Regardless of source, root-template rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans provider URLs and treats those keywords as a signal that Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra downloads and checks. Do not switch root-template provider URLs to MetaCubeX `meta-rules-dat` paths even when rule content looks equivalent.
+
+The `geodata/` templates are the explicit exception: they intentionally use MetaCubeX `meta-rules-dat` via top-level `geox-url`, and therefore must not define `rule-providers` at all. Keep their rules as `GEOSITE,...` / `GEOIP,...` only. Current public naming is `geodata/Full.yaml`, `geodata/Core.yaml`, and `geodata/Nano.yaml`; avoid adding names that expose `mihomo` unless the user asks.
 
 ## Build, Test, and Development Commands
 
 There is no package manager manifest and no generated build step. Use lightweight validation before committing:
 
-- `bash .claude/skills/sift-check/check.sh` (or `/sift-check` in Claude Code) checks project invariants: strategy-group / rule-set referential integrity, the ShellCrash `geosite`/`geoip` URL constraint, node-free rules, DNS allowance per template, canonical group scopes, and optional `mihomo` / `yamllint` validation when installed.
-- `mihomo -t -f Full.yaml`, `mihomo -t -f Core.yaml`, and `mihomo -t -f Nano.yaml` validate templates when the Mihomo binary is installed locally.
-- `yamllint Full.yaml Core.yaml Nano.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
+- `bash .claude/skills/sift-check/check.sh` (or `/sift-check` in Claude Code) checks project invariants: strategy-group / rule-set referential integrity, the ShellCrash `geosite`/`geoip` URL constraint for root rule-providers, node-free rules, DNS allowance per template, canonical group scopes, geodata purity, and optional `mihomo` / `yamllint` validation when installed.
+- `mihomo -t -f Full.yaml`, `mihomo -t -f Core.yaml`, `mihomo -t -f Nano.yaml`, and the corresponding `geodata/*.yaml` files validate templates when the Mihomo binary is installed locally.
+- `yamllint Full.yaml Core.yaml Nano.yaml geodata/*.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
 - `git diff --check` catches trailing whitespace and common patch formatting issues.
 
 ## Coding Style & Naming Conventions
@@ -49,7 +52,9 @@ Template scope rules:
 
 - `Full.yaml` may contain the full service/scene groups: `AI`, `流媒体`, `游戏平台`, `Telegram`, `苹果服务`, `微软服务`, `OneDrive`, plus region groups.
 - `Core.yaml` keeps only the base selector groups and `全球直连`, and intentionally removes service/brand UI groups, region node groups, and the separate `漏网之鱼` fallback group. Its special case is full `apple` and full `microsoft` routed to `全球直连`; Core's `全球直连` is `DIRECT` first, then `节点选择`, and final fallback is `MATCH,节点选择`.
-- `Nano.yaml` must stay DNS-free and rule-light: do not add AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
+- `Nano.yaml` and `geodata/Nano.yaml` must stay DNS-free and rule-light: do not add AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
+- `geodata/Full.yaml` mirrors Full's visible groups but uses MetaCubeX geosite categories. Keep game rules (`category-game-platforms-download`, `category-games`) before `category-entertainment`, because the entertainment category overlaps games and would otherwise capture gaming-platform traffic too early.
+- `geodata/Core.yaml` keeps the same 4-group Core contract and routes full `GEOSITE,apple` / `GEOSITE,microsoft` to `全球直连`; final fallback remains `MATCH,节点选择`.
 
 Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Use `cn-lite` for routing-domain fallback and full `cn` only for DNS `nameserver-policy` / `fake-ip-filter` coverage. Deliberate exceptions:
 
@@ -61,7 +66,7 @@ In `Full.yaml`, the `其他节点` group is the complement of the region node gr
 
 ## Testing Guidelines
 
-No automated test suite is currently checked in. For configuration edits, validate changed templates with `sift-check`, `mihomo` when available, and manual comparison against `demo/` examples where relevant.
+No automated test suite is currently checked in. For configuration edits, validate changed templates with `sift-check`, `mihomo` when available, and manual comparison against `demo/` examples where relevant. When editing geodata templates, additionally check that no `rule-providers:` block or `RULE-SET` rule was introduced.
 
 ## Commit & Pull Request Guidelines
 

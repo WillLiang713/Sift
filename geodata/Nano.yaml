@@ -1,0 +1,63 @@
+# Nano Geodata：无节点极简规则和策略组；使用 MetaCubeX GEOSITE/GEOIP，不接管 DNS。
+
+# Geodata：使用 MetaCubeX geosite / geoip / metadb，避免 rule-providers 混写。
+geox-url:
+  geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
+geo-auto-update: true
+geo-update-interval: 24
+
+proxy-groups:
+- name: 节点选择
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+- name: 手动切换
+  type: select
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+
+- name: 自动测速
+  type: url-test
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+- name: 全球直连
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+
+- name: 漏网之鱼
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+rules:
+# 局域网 / 私有地址
+- GEOSITE,private,DIRECT
+- GEOIP,private,DIRECT,no-resolve
+
+# GFW 域名优先进入节点选择
+- GEOSITE,gfw,节点选择
+
+# 国内兜底
+- GEOSITE,cn,全球直连
+- GEOIP,CN,全球直连
+
+# 最终兜底
+- MATCH,漏网之鱼

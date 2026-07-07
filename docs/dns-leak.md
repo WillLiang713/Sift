@@ -57,6 +57,20 @@ proxy-server-nameserver:
 
 DNS 侧只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍只在路由侧进入 `全球直连`；Core 的 `全球直连` 目前只保留 `DIRECT` 和 `节点选择`，且 `DIRECT` 排第一。
 
+`geodata/Full.yaml` / `geodata/Core.yaml` 不定义 `rule-providers`，DNS 侧改用 MetaCubeX geosite 引用表达同类意图：
+
+```yaml
+fake-ip-filter:
+  - geosite:private
+  - geosite:cn
+nameserver-policy:
+  "geosite:cn,private":
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+```
+
+`geodata/Nano.yaml` 与根目录 `Nano.yaml` 一样不接管 DNS。
+
 ## 国内域名为什么仍然直连
 
 国内域名分两条路径：

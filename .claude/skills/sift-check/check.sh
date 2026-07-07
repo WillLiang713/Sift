@@ -16,6 +16,8 @@ CORE_REQ="节点选择 手动切换 自动测速 全球直连"
 CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 漏网之鱼"
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 漏网之鱼"
 NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
+# Geodata templates keep the same group contracts but must not define rule-providers
+# or use RULE-SET rules.
 
 # --- Static analyzer (one pass per file) --------------------------------------
 AWK=$(cat <<'AWKEOF'
@@ -39,6 +41,7 @@ BEGIN{
   else if(key=="dns")            section="dns"
   else                           section="other"
   if(key=="proxies") fail_proxies=1
+  if(key=="rule-providers" && geodata=="1") fail_geodata_rp=1
   if((key=="dns" || key=="fake-ip") && allow_dns!="1") fail_dns=1
   in_proxies=0; next
 }
@@ -64,7 +67,10 @@ section=="rules" {
     m=split(r, f, ","); for(j=1;j<=m;j++) f[j]=trim(f[j])
     pi=m; if(f[m]=="no-resolve" || f[m]=="src") pi=m-1
     if(f[pi]!=""){ pols[npol]=f[pi]; npol++ }
-    if(f[1]=="RULE-SET" && m>=2){ rsrefs[nrs]=f[2]; nrs++ }
+    if(f[1]=="RULE-SET" && m>=2){
+      if(geodata=="1") emit("FAIL","Geodata template must use GEOSITE/GEOIP, not RULE-SET: " r)
+      rsrefs[nrs]=f[2]; nrs++
+    }
     next
   }
   next
@@ -80,8 +86,9 @@ section=="dns" {                                   # dns block: collect rule-set
 }
 
 END{
-  if(fail_proxies) emit("FAIL","top-level `proxies:` present — template must stay node-free")
-  if(fail_dns)     emit("FAIL","top-level `dns:`/`fake-ip` present — this template must stay DNS-free")
+  if(fail_proxies)    emit("FAIL","top-level `proxies:` present — template must stay node-free")
+  if(fail_dns)        emit("FAIL","top-level `dns:`/`fake-ip` present — this template must stay DNS-free")
+  if(fail_geodata_rp) emit("FAIL","Geodata template must not define `rule-providers:`")
 
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
   for(i=0;i<npol;i++){ p=pols[i]; if(!(p in groups) && !(p in builtin)) emit("FAIL","rule policy `" p "` is not a defined group or builtin") }
@@ -109,11 +116,11 @@ AWKEOF
 fails=0; warns=0
 
 check_file(){
-  local file="$1" role="$2" req="$3" forb="$4" allow_dns="$5"
+  local file="$1" role="$2" req="$3" forb="$4" allow_dns="$5" geodata="${6:-0}"
   printf '\n== %s (%s) ==\n' "$file" "$role"
   if [ ! -f "$file" ]; then printf '  [SKIP] not found\n'; return; fi
   local out before="$fails"
-  out=$(awk -v required="$req" -v forbidden="$forb" -v allow_dns="$allow_dns" "$AWK" "$file")
+  out=$(awk -v required="$req" -v forbidden="$forb" -v allow_dns="$allow_dns" -v geodata="$geodata" "$AWK" "$file")
   if [ -z "$out" ]; then printf '  [ OK ] all structural invariants passed\n'; return; fi
   while IFS=$'\t' read -r lvl msg; do
     [ -z "$lvl" ] && continue
@@ -127,14 +134,17 @@ check_file(){
   [ "$fails" -eq "$before" ] && printf '  [ OK ] no structural failures\n'
 }
 
-check_file Full.yaml full "$FULL_REQ" "$FULL_FORB" 1
-check_file Core.yaml core "$CORE_REQ" "$CORE_FORB" 1
-check_file Nano.yaml nano "$NANO_REQ" "$NANO_FORB" 0
+check_file Full.yaml full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file Core.yaml core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file Nano.yaml nano "$NANO_REQ" "$NANO_FORB" 0 0
+check_file geodata/Full.yaml geodata-full "$FULL_REQ" "$FULL_FORB" 1 1
+check_file geodata/Core.yaml geodata-core "$CORE_REQ" "$CORE_FORB" 1 1
+check_file geodata/Nano.yaml geodata-nano "$NANO_REQ" "$NANO_FORB" 0 1
 
 # --- Optional toolchain -------------------------------------------------------
 printf '\n== toolchain ==\n'
 if command -v mihomo >/dev/null 2>&1; then
-  for f in Full.yaml Core.yaml Nano.yaml; do
+  for f in Full.yaml Core.yaml Nano.yaml geodata/Full.yaml geodata/Core.yaml geodata/Nano.yaml; do
     [ -f "$f" ] || continue
     tmp=$(mktemp)
     if mihomo -t -f "$f" >"$tmp" 2>&1; then printf '  [ OK ] mihomo -t %s\n' "$f"
@@ -147,7 +157,7 @@ fi
 
 if command -v yamllint >/dev/null 2>&1; then
   tmp=$(mktemp)
-  if yamllint -d relaxed Full.yaml Core.yaml Nano.yaml >"$tmp" 2>&1; then printf '  [ OK ] yamllint\n'
+  if yamllint -d relaxed Full.yaml Core.yaml Nano.yaml geodata/Full.yaml geodata/Core.yaml geodata/Nano.yaml >"$tmp" 2>&1; then printf '  [ OK ] yamllint\n'
   else printf '  [WARN] yamllint findings:\n'; sed 's/^/         /' "$tmp"; warns=$((warns+1)); fi
   rm -f "$tmp"
 else

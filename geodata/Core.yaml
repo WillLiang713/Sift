@@ -1,0 +1,100 @@
+# Core Geodata：国内白名单 + Apple/Microsoft 完整规则进入全球直连，其余 MATCH；使用 MetaCubeX GEOSITE/GEOIP。
+
+unified-delay: true
+tcp-concurrent: true
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# Geodata：使用 MetaCubeX geosite / geoip / metadb，避免 rule-providers 混写。
+geox-url:
+  geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
+geo-auto-update: true
+geo-update-interval: 24
+
+# DNS：fake-ip；国内/私有域名返回真实 IP，默认海外 DoH。
+dns:
+  enable: true
+  listen: ":53"
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - geosite:private
+    - geosite:cn
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://223.5.5.5/dns-query
+      - https://1.12.12.12/dns-query
+  respect-rules: true
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+# 嗅探器：从 HTTP/TLS/QUIC 流量中提取域名，提升 TUN / redir-host 分流准确率。
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+proxy-groups:
+- name: 节点选择
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+- name: 手动切换
+  type: select
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+
+- name: 自动测速
+  type: url-test
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+- name: 全球直连
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+
+rules:
+# 局域网 / 私有地址
+- GEOSITE,private,DIRECT
+- GEOIP,private,DIRECT,no-resolve
+
+# 中国区 / 国内服务直连补充
+- GEOSITE,google@cn,全球直连
+- GEOSITE,apple,全球直连
+- GEOSITE,microsoft,全球直连
+- GEOSITE,category-games@cn,全球直连
+
+# 国内兜底
+- GEOSITE,cn,全球直连
+- GEOIP,CN,全球直连
+
+# 最终兜底
+- MATCH,节点选择
