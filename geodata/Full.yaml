@@ -275,6 +275,9 @@ rules:
 # IP 型服务
 - GEOIP,telegram,Telegram
 
+# Google / Google Play：避免 googleapis.cn 被 cn 兜底直连
+- GEOSITE,google,节点选择
+
 # 明确非中国域名
 - GEOSITE,geolocation-!cn,节点选择
 

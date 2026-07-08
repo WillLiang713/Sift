@@ -101,6 +101,9 @@ rules:
 - GEOSITE,microsoft,全球直连
 - GEOSITE,category-games@cn,全球直连
 
+# Google / Google Play：避免 googleapis.cn 被 cn 兜底直连
+- GEOSITE,google,节点选择
+
 # 国内兜底
 - GEOSITE,cn,全球直连
 - GEOIP,CN,全球直连

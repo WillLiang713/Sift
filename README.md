@@ -31,8 +31,8 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`geodata/Full.yaml`](./geodata/Full.yaml) | 17 | 1 | Geodata 完整版：保留 Full 的策略组结构，路由使用 `category-ai-!cn`、`category-games`、`category-entertainment`、Apple / Microsoft / OneDrive 等 geosite 分流；游戏规则放在娱乐大类之前，避免游戏平台被流媒体抢先命中；DNS 侧额外引用 `fakeip-filter` |
-| [`geodata/Core.yaml`](./geodata/Core.yaml) | 4 | 1 | Geodata 核心白名单版：完整 Apple / Microsoft 与国内白名单进入 `全球直连`，未命中流量直接进入 `节点选择`；DNS 侧额外引用 `fakeip-filter` |
+| [`geodata/Full.yaml`](./geodata/Full.yaml) | 17 | 1 | Geodata 完整版：保留 Full 的策略组结构，路由使用 `category-ai-!cn`、`category-games`、`category-entertainment`、Google、Apple / Microsoft / OneDrive 等 geosite 分流；游戏规则放在娱乐大类之前，避免游戏平台被流媒体抢先命中；DNS 侧额外引用 `fakeip-filter` |
+| [`geodata/Core.yaml`](./geodata/Core.yaml) | 4 | 1 | Geodata 核心白名单版：完整 Apple / Microsoft 与国内白名单进入 `全球直连`，Google / Google Play 在国内兜底前进入 `节点选择`，未命中流量直接进入 `节点选择`；DNS 侧额外引用 `fakeip-filter` |
 | [`geodata/Nano.yaml`](./geodata/Nano.yaml) | 5 | 0 | Geodata 极简版：局域网、GFW、国内域名/IP 与兜底分流；不接管 DNS |
 
 ```text
@@ -85,9 +85,10 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 5 | 娱乐 / 流媒体大类 | `流媒体` |
 | 6 | OneDrive / Microsoft / Apple 海外服务 | 对应服务组 |
 | 7 | Telegram IP | `Telegram` |
-| 8 | 明确非中国域名 | `节点选择` |
-| 9 | 国内域名 / IP 兜底 | `全球直连` |
-| 10 | 未命中流量 | `漏网之鱼` |
+| 8 | Google / Google Play | `节点选择` |
+| 9 | 明确非中国域名 | `节点选择` |
+| 10 | 国内域名 / IP 兜底 | `全球直连` |
+| 11 | 未命中流量 | `漏网之鱼` |
 
 ### Core
 
@@ -96,6 +97,16 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 1 | 局域网 / 私有地址 | `DIRECT` |
 | 2 | 国内 Google / 游戏 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
 | 3 | 完整 Apple / Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 4 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 5 | 未命中流量 | `节点选择` |
+
+### Geodata / Core
+
+| 优先级 | 规则 | 出口 |
+| --- | --- | --- |
+| 1 | 局域网 / 私有地址 | `DIRECT` |
+| 2 | Apple / Microsoft / 游戏中国区补充 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 3 | Google / Google Play | `节点选择` |
 | 4 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
 | 5 | 未命中流量 | `节点选择` |
 
@@ -127,7 +138,7 @@ DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-c
 - **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn-lite`（路由直连）· `cnip`
-- **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再把 `google@cn` 作为直连补充，避免 Google Play / Android 连通性域名被提前送入直连；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
+- **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再把 `google@cn` 作为直连补充，改用 `GEOSITE,google,节点选择` 放在 `GEOSITE,cn` 前，避免 Google Play / Android 连通性域名被国内兜底送入直连；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献
