@@ -79,7 +79,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 中国区 Google / Apple / Microsoft / 游戏 | `全球直连` |
+| 2 | 中国区 Apple / Microsoft / 游戏 | `全球直连` |
 | 3 | AI 服务 | `AI` |
 | 4 | 游戏平台 / 游戏下载 | `游戏平台` |
 | 5 | 娱乐 / 流媒体大类 | `流媒体` |
@@ -127,7 +127,7 @@ DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-c
 - **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn-lite`（路由直连）· `cnip`
-- **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
+- **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再把 `google@cn` 作为直连补充，避免 Google Play / Android 连通性域名被提前送入直连；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献

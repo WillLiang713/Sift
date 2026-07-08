@@ -55,6 +55,7 @@ Template scope rules:
 - `Nano.yaml` and `geodata/Nano.yaml` must stay DNS-free and rule-light: do not add AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
 - `geodata/Full.yaml` mirrors Full's visible groups but uses MetaCubeX geosite categories. Keep game rules (`category-game-platforms-download`, `category-games`) before `category-entertainment`, because the entertainment category overlaps games and would otherwise capture gaming-platform traffic too early.
 - `geodata/Core.yaml` keeps the same 4-group Core contract and routes full `GEOSITE,apple` / `GEOSITE,microsoft` to `全球直连`; final fallback remains `MATCH,节点选择`.
+- Do not re-add `GEOSITE,google@cn,全球直连` to geodata Full/Core by default: Android / Google Play download and connectivity domains can be captured by that tag and fail when sent direct on domestic networks.
 
 Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Use `cn-lite` for routing-domain fallback and full `cn` only for DNS `nameserver-policy` / `fake-ip-filter` coverage. Deliberate exceptions:
 

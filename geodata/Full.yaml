@@ -257,7 +257,6 @@ rules:
 - GEOIP,private,DIRECT,no-resolve
 
 # 中国区 / 国内服务直连补充
-- GEOSITE,google@cn,全球直连
 - GEOSITE,apple@cn,全球直连
 - GEOSITE,microsoft@cn,全球直连
 - GEOSITE,category-games@cn,全球直连
