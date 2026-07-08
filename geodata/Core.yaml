@@ -98,7 +98,7 @@ rules:
 
 # 中国区 / 国内服务直连补充
 - GEOSITE,apple,全球直连
-- GEOSITE,microsoft,全球直连
+- GEOSITE,microsoft@cn,全球直连
 - GEOSITE,category-games@cn,全球直连
 
 # Google / Google Play：避免 googleapis.cn 被 cn 兜底直连

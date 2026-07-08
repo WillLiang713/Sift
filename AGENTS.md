@@ -17,18 +17,19 @@ This repository is a compact Mihomo configuration template project.
 
 Remote rule sets come from [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) by default and are wired as `format: text` `.list` providers for compatibility; keep their `behavior` as `domain` or `ipcidr` according to the source set.
 
-The exceptions are the overseas Apple/Microsoft/OneDrive sets from [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script), because DustinWin publishes no equivalent complete brand sets. They are wired as `classical`/`text` `.list` providers:
+The exceptions are the complete Google set and the overseas Apple/Microsoft/OneDrive sets from [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script), because DustinWin publishes no equivalent complete brand sets. They are wired as `classical`/`text` `.list` providers:
 
+- `google` ← `rule/Clash/Google/Google.list`
 - `apple` ← `rule/Clash/Apple/Apple.list`
 - `microsoft` ← `rule/Clash/Microsoft/Microsoft.list`
 - `onedrive` ← `rule/Clash/OneDrive/OneDrive.list`
 
-Microsoft and OneDrive require `classical`: their lists include important `DOMAIN-KEYWORD` and `PROCESS-NAME` rules that domain-only formats cannot store. All blackmatrix7 paths used here are free of `geosite`/`geoip`.
+Google, Microsoft, and OneDrive require `classical`: their lists include important keyword, IP, or process rules that domain-only formats cannot store. All blackmatrix7 paths used here are free of `geosite`/`geoip`.
 
 Template-specific usage:
 
-- `Full.yaml`: `apple-cn` / `microsoft-cn` / `games-cn` are domestic direct supplements; full `apple`, `microsoft`, and `onedrive` route to dedicated service groups. Keep `onedrive` before `microsoft`, because OneDrive domains also appear in Microsoft's broad list.
-- `Core.yaml`: full `apple` and full `microsoft` route to `全球直连`; Core's `全球直连` contains only `DIRECT` and `节点选择`, with `DIRECT` first. There are no Apple/Microsoft/OneDrive UI strategy groups or region node strategy groups. Do not re-add `apple-cn` / `microsoft-cn` unless the Core design changes back to CN-only brand supplements.
+- `Full.yaml`: full `google` routes to `节点选择`; `apple-cn` / `microsoft-cn` / `games-cn` are domestic direct supplements; full `apple`, `microsoft`, and `onedrive` route to dedicated service groups. Keep `google` before domestic fallbacks so Google Play / Android domains are not sent direct; keep `onedrive` before `microsoft`, because OneDrive domains also appear in Microsoft's broad list.
+- `Core.yaml`: full `google` routes to `节点选择`, while full `apple` and full `microsoft` route to `全球直连`; Core's `全球直连` contains only `DIRECT` and `节点选择`, with `DIRECT` first. There are no Apple/Microsoft/OneDrive UI strategy groups or region node strategy groups. Do not re-add CN-only Google/Apple/Microsoft brand supplements unless the Core design changes back to CN-only brand supplements.
 - `Nano.yaml`: uses only DustinWin `private`, `privateip`, `gfw`, `cn-lite`, and `cnip`.
 
 Regardless of source, root-template rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans provider URLs and treats those keywords as a signal that Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra downloads and checks. Do not switch root-template provider URLs to MetaCubeX `meta-rules-dat` paths even when rule content looks equivalent.
@@ -54,7 +55,7 @@ Template scope rules:
 - `Core.yaml` keeps only the base selector groups and `全球直连`, and intentionally removes service/brand UI groups, region node groups, and the separate `漏网之鱼` fallback group. Its special case is full `apple` and full `microsoft` routed to `全球直连`; Core's `全球直连` is `DIRECT` first, then `节点选择`, and final fallback is `MATCH,节点选择`.
 - `Nano.yaml` and `geodata/Nano.yaml` must stay DNS-free and rule-light: do not add AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
 - `geodata/Full.yaml` mirrors Full's visible groups but uses MetaCubeX geosite categories. Keep game rules (`category-game-platforms-download`, `category-games`) before `category-entertainment`, because the entertainment category overlaps games and would otherwise capture gaming-platform traffic too early. Keep `GEOSITE,google,节点选择` after the high-priority category/service rules but before `GEOSITE,geolocation-!cn` / `GEOSITE,cn` so Google Play is protected without stealing YouTube/AI from their scenario groups.
-- `geodata/Core.yaml` keeps the same 4-group Core contract and routes full `GEOSITE,apple` / `GEOSITE,microsoft` to `全球直连`; `GEOSITE,google,节点选择` must stay before `GEOSITE,cn,全球直连` so Google Play / `googleapis.cn` traffic is not captured by the domestic fallback; final fallback remains `MATCH,节点选择`.
+- `geodata/Core.yaml` keeps the same 4-group Core contract and routes full `GEOSITE,apple` plus `GEOSITE,microsoft@cn` to `全球直连`; `GEOSITE,google,节点选择` must stay before `GEOSITE,cn,全球直连` so Google Play / `googleapis.cn` traffic is not captured by the domestic fallback; final fallback remains `MATCH,节点选择`.
 - Do not re-add `GEOSITE,google@cn,全球直连` to geodata Full/Core by default: Android / Google Play download and connectivity domains can be captured by that tag and fail when sent direct on domestic networks.
 
 Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Use `cn-lite` for routing-domain fallback and full `cn` only for DNS `nameserver-policy` / `fake-ip-filter` coverage. Deliberate exceptions:

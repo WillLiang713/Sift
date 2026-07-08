@@ -32,7 +32,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
 | [`geodata/Full.yaml`](./geodata/Full.yaml) | 17 | 1 | Geodata 完整版：保留 Full 的策略组结构，路由使用 `category-ai-!cn`、`category-games`、`category-entertainment`、Google、Apple / Microsoft / OneDrive 等 geosite 分流；游戏规则放在娱乐大类之前，避免游戏平台被流媒体抢先命中；DNS 侧额外引用 `fakeip-filter` |
-| [`geodata/Core.yaml`](./geodata/Core.yaml) | 4 | 1 | Geodata 核心白名单版：完整 Apple / Microsoft 与国内白名单进入 `全球直连`，Google / Google Play 在国内兜底前进入 `节点选择`，未命中流量直接进入 `节点选择`；DNS 侧额外引用 `fakeip-filter` |
+| [`geodata/Core.yaml`](./geodata/Core.yaml) | 4 | 1 | Geodata 核心白名单版：完整 Apple、Microsoft 中国区补充与国内白名单进入 `全球直连`，Google / Google Play 在国内兜底前进入 `节点选择`，未命中流量直接进入 `节点选择`；DNS 侧额外引用 `fakeip-filter` |
 | [`geodata/Nano.yaml`](./geodata/Nano.yaml) | 5 | 0 | Geodata 极简版：局域网、GFW、国内域名/IP 与兜底分流；不接管 DNS |
 
 ```text
@@ -63,16 +63,17 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 国内 Google / Apple / Microsoft / 游戏 | `全球直连` |
-| 3 | Apple 海外服务 | `苹果服务` |
-| 4 | AI 服务 | `AI` |
-| 5 | 游戏平台 | `游戏平台` |
-| 6 | 流媒体 IP | `流媒体` |
-| 7 | OneDrive 网盘 | `OneDrive` |
-| 8 | Microsoft 海外服务 | `微软服务` |
-| 9 | Telegram IP | `Telegram` |
-| 10 | 国内域名 / IP 兜底 | `全球直连` |
-| 11 | 未命中流量 | `漏网之鱼` |
+| 2 | Google / Google Play | `节点选择` |
+| 3 | 国内 Apple / Microsoft / 游戏 | `全球直连` |
+| 4 | Apple 海外服务 | `苹果服务` |
+| 5 | AI 服务 | `AI` |
+| 6 | 游戏平台 | `游戏平台` |
+| 7 | 流媒体 IP | `流媒体` |
+| 8 | OneDrive 网盘 | `OneDrive` |
+| 9 | Microsoft 海外服务 | `微软服务` |
+| 10 | Telegram IP | `Telegram` |
+| 11 | 国内域名 / IP 兜底 | `全球直连` |
+| 12 | 未命中流量 | `漏网之鱼` |
 
 ### Geodata / Full
 
@@ -95,17 +96,18 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 国内 Google / 游戏 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
-| 3 | 完整 Apple / Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
-| 4 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
-| 5 | 未命中流量 | `节点选择` |
+| 2 | Google / Google Play | `节点选择` |
+| 3 | 国内游戏 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 4 | 完整 Apple / Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 5 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 6 | 未命中流量 | `节点选择` |
 
 ### Geodata / Core
 
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | Apple / Microsoft / 游戏中国区补充 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 2 | 完整 Apple / Microsoft 中国区 / 游戏中国区补充 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
 | 3 | Google / Google Play | `节点选择` |
 | 4 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
 | 5 | 未命中流量 | `节点选择` |
@@ -131,12 +133,12 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 
 ## 规则来源
 
-根目录模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword）。
+根目录模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；完整 Google 以及海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应完整集，路径均不含 `geosite`/`geoip`）：`google` = `rule/Clash/Google/Google.list`；`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（google / microsoft / onedrive 必须 classical 才能保住 keyword / IP / process 规则）。
 
-DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析。blackmatrix7 的完整 Apple / Microsoft / OneDrive classical 规则只用于路由分流，避免其中的 `PROCESS-NAME` 等规则类型进入 DNS 过滤。
+DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析。blackmatrix7 的完整 Google / Apple / Microsoft / OneDrive classical 规则只用于路由分流，避免其中的 `PROCESS-NAME` 等规则类型进入 DNS 过滤。
 
-- **Full**：`private` · `privateip` · `google-cn` · `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **Core**：`private` · `privateip` · `google-cn` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **Full**：`private` · `privateip` · `google`（blackmatrix7）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **Core**：`private` · `privateip` · `google`（blackmatrix7，完整 Google 规则，进入 `节点选择`）· `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn-lite`（路由直连）· `cnip`
 - **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再把 `google@cn` 作为直连补充，改用 `GEOSITE,google,节点选择` 放在 `GEOSITE,cn` 前，避免 Google Play / Android 连通性域名被国内兜底送入直连；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标

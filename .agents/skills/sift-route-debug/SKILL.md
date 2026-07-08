@@ -34,7 +34,7 @@ Use this skill when a Sift domain or IP route needs attribution: "why did this g
 
 Common Sift cases to call out:
 
-- `cn-lite`, `google-cn`, `apple-cn`, `microsoft-cn`, and `games-cn` are early direct-domain rules in root templates.
+- `google` is an early proxy rule in root templates; `cn-lite`, `apple-cn`, `microsoft-cn`, and `games-cn` are direct-domain rules.
 - `GEOSITE,cn` and `GEOIP,CN` are direct fallbacks in geodata templates.
 - Core intentionally routes full Apple and Microsoft rules to `全球直连`.
 - A domain that has no domain-rule match can still route by IP at runtime if DNS resolution produces an IP matched by an IP rule.
