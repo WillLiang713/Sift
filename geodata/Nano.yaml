@@ -52,8 +52,8 @@ rules:
 - GEOSITE,private,DIRECT
 - GEOIP,private,DIRECT,no-resolve
 
-# GFW 域名优先进入节点选择
-- GEOSITE,gfw,节点选择
+# 明确非中国域名进入节点选择
+- GEOSITE,geolocation-!cn,节点选择
 
 # 国内兜底
 - GEOSITE,cn,全球直连

@@ -19,7 +19,7 @@
 | --- | ---: | ---: | --- |
 | [`Full.yaml`](./Full.yaml) | 17 | 17 | 完整版：AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS、域名嗅探和状态持久化，并启用统一延迟与 TCP 并发连接 |
 | [`Core.yaml`](./Core.yaml) | 4 | 10 | 核心白名单版：保留基础节点选择、国内白名单、DNS、域名嗅探和状态持久化；完整 Apple / Microsoft 进入 `全球直连`，且 Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，`DIRECT` 排第一 |
-| [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：局域网直连、GFW 代理、国内直连和兜底分流；不接管 DNS |
+| [`Nano.yaml`](./Nano.yaml) | 5 | 5 | 极简版：局域网直连、明确非中国域名、国内直连和兜底分流；不接管 DNS |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/Full.yaml
@@ -33,7 +33,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/Nano.yaml
 | --- | ---: | ---: | --- |
 | [`geodata/Full.yaml`](./geodata/Full.yaml) | 17 | 1 | Geodata 完整版：保留 Full 的策略组结构，路由使用 `category-ai-!cn`、`category-games`、`category-entertainment`、Google、Apple / Microsoft / OneDrive 等 geosite 分流；游戏规则放在娱乐大类之前，避免游戏平台被流媒体抢先命中；DNS 侧额外引用 `fakeip-filter` |
 | [`geodata/Core.yaml`](./geodata/Core.yaml) | 4 | 1 | Geodata 核心白名单版：完整 Apple、Microsoft 中国区补充与国内白名单进入 `全球直连`，Google / Google Play 在国内兜底前进入 `节点选择`，未命中流量直接进入 `节点选择`；DNS 侧额外引用 `fakeip-filter` |
-| [`geodata/Nano.yaml`](./geodata/Nano.yaml) | 5 | 0 | Geodata 极简版：局域网、GFW、国内域名/IP 与兜底分流；不接管 DNS |
+| [`geodata/Nano.yaml`](./geodata/Nano.yaml) | 5 | 0 | Geodata 极简版：局域网、明确非中国域名、国内域名/IP 与兜底分流；不接管 DNS |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Full.yaml
@@ -54,7 +54,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
 - **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive 等独立入口。Geodata Full 中游戏规则优先级高于 `category-entertainment`，避免游戏域名被娱乐/流媒体大类提前接走；GitHub 先于 Microsoft 单独进入 `节点选择`，避免被官方 Microsoft 大类带入直连。
 - **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择`，其余流量全部交给 `MATCH,节点选择`。
-- **Nano 极简代理**：极简模板只保留 GFW 代理、国内直连和兜底，不提供地区节点或服务分组。
+- **Nano 极简代理**：Nano 使用 `proxy`，Geodata Nano 使用 `geolocation-!cn`，代理明确非中国域名；二者都保留国内直连和兜底，不提供地区节点或服务分组。
 
 ## 分流顺序
 
@@ -121,7 +121,16 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | GFW 代理规则命中 | `节点选择` |
+| 2 | 明确非中国域名 | `节点选择` |
+| 3 | 国内域名 / IP 兜底 | `全球直连` |
+| 4 | 未命中流量 | `漏网之鱼` |
+
+### Geodata / Nano
+
+| 优先级 | 规则 | 出口 |
+| --- | --- | --- |
+| 1 | 局域网 / 私有地址 | `DIRECT` |
+| 2 | 明确非中国域名 | `节点选择` |
 | 3 | 国内域名 / IP 兜底 | `全球直连` |
 | 4 | 未命中流量 | `漏网之鱼` |
 
@@ -143,7 +152,7 @@ DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-c
 
 - **Full**：`private` · `privateip` · `google`（blackmatrix7）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Core**：`private` · `privateip` · `google`（blackmatrix7，完整 Google 规则，进入 `节点选择`）· `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **Nano**：`private` · `privateip` · `gfw` · `cn-lite`（路由直连）· `cnip`
+- **Nano**：`private` · `privateip` · `proxy` · `cn-lite`（路由直连）· `cnip`
 - **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再把 `google@cn` 作为直连补充，改用 `GEOSITE,google,节点选择` 放在 `GEOSITE,cn` 前，避免 Google Play / Android 连通性域名被国内兜底送入直连；`GEOSITE,github,节点选择` 放在高优先级位置，避免官方 Microsoft / 场景大类中的 GitHub / Copilot 相关域名被提前接走；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
