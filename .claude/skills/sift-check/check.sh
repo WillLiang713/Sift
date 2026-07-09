@@ -133,17 +133,32 @@ check_file(){
   [ "$fails" -eq "$before" ] && printf '  [ OK ] no structural failures\n'
 }
 
-check_file Full.yaml full "$FULL_REQ" "$FULL_FORB" 1 0
-check_file Core.yaml core "$CORE_REQ" "$CORE_FORB" 1 0
-check_file Nano.yaml nano "$NANO_REQ" "$NANO_FORB" 0 0
-check_file geodata/Full.yaml geodata-full "$FULL_REQ" "$FULL_FORB" 1 1
-check_file geodata/Core.yaml geodata-core "$CORE_REQ" "$CORE_FORB" 1 1
-check_file geodata/Nano.yaml geodata-nano "$NANO_REQ" "$NANO_FORB" 0 1
+TEMPLATES=(
+  rules/dustinwin-full.yaml
+  rules/dustinwin-core.yaml
+  rules/dustinwin-nano.yaml
+  rules/metacubex-full.yaml
+  rules/metacubex-core.yaml
+  rules/metacubex-nano.yaml
+  rules/acl4ssr-full.yaml
+  rules/acl4ssr-core.yaml
+  rules/acl4ssr-nano.yaml
+)
+
+check_file rules/dustinwin-full.yaml dustinwin-full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file rules/dustinwin-core.yaml dustinwin-core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file rules/dustinwin-nano.yaml dustinwin-nano "$NANO_REQ" "$NANO_FORB" 0 0
+check_file rules/metacubex-full.yaml metacubex-full "$FULL_REQ" "$FULL_FORB" 1 1
+check_file rules/metacubex-core.yaml metacubex-core "$CORE_REQ" "$CORE_FORB" 1 1
+check_file rules/metacubex-nano.yaml metacubex-nano "$NANO_REQ" "$NANO_FORB" 0 1
+check_file rules/acl4ssr-full.yaml acl4ssr-full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file rules/acl4ssr-core.yaml acl4ssr-core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file rules/acl4ssr-nano.yaml acl4ssr-nano "$NANO_REQ" "$NANO_FORB" 0 0
 
 # --- Optional toolchain -------------------------------------------------------
 printf '\n== toolchain ==\n'
 if command -v mihomo >/dev/null 2>&1; then
-  for f in Full.yaml Core.yaml Nano.yaml geodata/Full.yaml geodata/Core.yaml geodata/Nano.yaml; do
+  for f in "${TEMPLATES[@]}"; do
     [ -f "$f" ] || continue
     tmp=$(mktemp)
     if mihomo -t -f "$f" >"$tmp" 2>&1; then printf '  [ OK ] mihomo -t %s\n' "$f"
@@ -156,7 +171,7 @@ fi
 
 if command -v yamllint >/dev/null 2>&1; then
   tmp=$(mktemp)
-  if yamllint -d relaxed Full.yaml Core.yaml Nano.yaml geodata/Full.yaml geodata/Core.yaml geodata/Nano.yaml >"$tmp" 2>&1; then printf '  [ OK ] yamllint\n'
+  if yamllint -d relaxed "${TEMPLATES[@]}" >"$tmp" 2>&1; then printf '  [ OK ] yamllint\n'
   else printf '  [WARN] yamllint findings:\n'; sed 's/^/         /' "$tmp"; warns=$((warns+1)); fi
   rm -f "$tmp"
 else

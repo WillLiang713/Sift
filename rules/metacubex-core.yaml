@@ -90,6 +90,7 @@ proxy-groups:
   proxies:
   - DIRECT
   - 节点选择
+  - 自动测速
 
 rules:
 # 局域网 / 私有地址
@@ -100,12 +101,9 @@ rules:
 - GEOSITE,github,节点选择
 
 # 中国区 / 国内服务直连补充
-- GEOSITE,apple,全球直连
 - GEOSITE,category-games@cn,全球直连
+- GEOSITE,apple,全球直连
 - GEOSITE,microsoft,全球直连
-
-# Google / Google Play：避免 googleapis.cn 被 cn 兜底直连
-- GEOSITE,google,节点选择
 
 # 国内兜底
 - GEOSITE,cn,全球直连

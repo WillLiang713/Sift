@@ -1,0 +1,171 @@
+# ACL4SSR / Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连，其余 MATCH；含 DNS、嗅探器和状态持久化。
+
+unified-delay: true
+tcp-concurrent: true
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# DNS：fake-ip；默认海外 DoH，国内直连域名返回真实 IP。
+dns:
+  enable: true
+  listen: ":53"
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - rule-set:fakeip-filter
+    - rule-set:private
+    - rule-set:cn
+  nameserver-policy:
+    "rule-set:cn":
+      - https://223.5.5.5/dns-query
+      - https://1.12.12.12/dns-query
+  respect-rules: true
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+# 嗅探器：从 HTTP/TLS/QUIC 流量中提取域名，提升 TUN / redir-host 分流准确率。
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+proxy-groups:
+- name: 节点选择
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+- name: 手动切换
+  type: select
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+
+- name: 自动测速
+  type: url-test
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+- name: 全球直连
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+
+rule-providers:
+  LocalAreaNetwork:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/LocalAreaNetwork.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+    interval: 86400
+  ChinaDomain:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ChinaDomain.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
+    interval: 86400
+  ChinaIp:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ChinaIp.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list"
+    interval: 86400
+  ChinaIpV6:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ChinaIpV6.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIpV6.list"
+    interval: 86400
+  GoogleCN:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/GoogleCN.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
+    interval: 86400
+  SteamCN:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/SteamCN.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list"
+    interval: 86400
+  Apple:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/Apple.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
+    interval: 86400
+  Microsoft:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/Microsoft.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
+    interval: 86400
+  fakeip-filter:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/fakeip-filter.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
+    interval: 86400
+  private:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/private.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.list"
+    interval: 86400
+  cn:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/cn.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn.list"
+    interval: 86400
+
+rules:
+- RULE-SET,LocalAreaNetwork,DIRECT
+
+- RULE-SET,GoogleCN,全球直连
+- RULE-SET,SteamCN,全球直连
+
+- RULE-SET,Apple,全球直连
+- RULE-SET,Microsoft,全球直连
+
+- RULE-SET,ChinaDomain,全球直连
+
+- RULE-SET,ChinaIp,全球直连
+- RULE-SET,ChinaIpV6,全球直连
+- GEOIP,CN,全球直连
+
+- MATCH,节点选择

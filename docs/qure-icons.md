@@ -33,7 +33,7 @@ https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/{子目录}/{图�
 
 ## Sift 项目当前使用的图标
 
-以下为 `Full.yaml`、`Core.yaml` 和 `Nano.yaml` 中已引用的图标：
+以下为 `rules/*.yaml` 中已引用的图标：
 
 | 图标名 | CDN 路径 | 对应策略组 |
 |--------|----------|-----------|

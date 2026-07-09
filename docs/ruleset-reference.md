@@ -6,12 +6,15 @@
 
 - DustinWin/ruleset_geodata README 及发布分支：main `89f3c5602c9d`、mihomo-ruleset `7cc3bbfcd94a`、mihomo-geodata `08216f25ad2e`、sing-box-ruleset `916c9b9cc4e6`。
 - blackmatrix7/ios_rule_script 仓库目录：master `7d423fca37e6`、release `1aa69f3eeef2`。
+- ACL4SSR/ACL4SSR Clash 目录，确认时间：2026-07-09。
 
 说明：
 
 - 以下 DustinWin URL 使用 GitHub release 下载链接，与官方示例保持一致。jsDelivr 同等链接遵循相同文件名，路径中使用发布分支名。
+- `rules/dustinwin-full.yaml` 额外使用 DustinWin/domain-list-custom 的 `trackerslist.list`，内容为 Clash `DOMAIN,...` 规则行，接入时使用 `classical` / `text`。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
+- `rules/acl4ssr-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
 ## URL 模板
@@ -25,6 +28,34 @@
 | blackmatrix7 master raw | `https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/{path}` |
 | blackmatrix7 release raw | `https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/release/{path}` |
 | blackmatrix7 jsDelivr | `https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/{path}` |
+| ACL4SSR Clash text | `https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/{name}.list` |
+| ACL4SSR Ruleset text | `https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/{name}.list` |
+
+## ACL4SSR Rule Sets
+
+`rules/acl4ssr-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 的 `.list` 文件包含 `DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`、`IP-CIDR`、`IP-CIDR6`、`no-resolve` 等 Clash 规则行，因此路由 provider 统一使用 `behavior: classical` 与 `format: text`。DNS rule-set 不引用这些 classical 列表，而是与 DustinWin 模板对齐，统一引用 DustinWin `fakeip-filter` / `private` / `cn` 作为 domain-only provider。
+
+ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全球直连`，作为国内 IP 的最后兜底；它放在 `MATCH` 前，不影响更高优先级的服务和场景规则。
+
+| Key | 用途 | Mihomo 行为 | 文件 | 备注 |
+| --- | --- | --- | --- | --- |
+| `LocalAreaNetwork` | 局域网 / 私有地址路由 | `classical` / `text` | `Clash/LocalAreaNetwork.list` | Full/Core/Nano 高优先级直连。 |
+| `ChinaDomain` | 国内域名路由兜底 | `classical` / `text` | `Clash/ChinaDomain.list` | 含域名规则，也可能含少量 IP 规则；仅用于路由。 |
+| `ChinaIp` | 国内 IP 路由兜底 | `classical` / `text` | `Clash/ChinaIp.list` | 规则行自带 `no-resolve`。 |
+| `ChinaIpV6` | 国内 IPv6 路由兜底 | `classical` / `text` | `Clash/ChinaIpV6.list` | 规则行自带 `no-resolve`。 |
+| `GoogleCN` | 中国区 Google 服务 | `classical` / `text` | `Clash/GoogleCN.list` | Full/Core 在服务规则前进入 `全球直连`。 |
+| `SteamCN` | 中国区 Steam 服务 | `classical` / `text` | `Clash/Ruleset/SteamCN.list` | Full/Core 在游戏规则前进入 `全球直连`。 |
+| `ProxyLite` | 明确代理域名 | `classical` / `text` | `Clash/ProxyLite.list` | Nano 的代理主入口，Full 中位于场景/服务规则之后。 |
+| `Apple` | Apple 服务 | `classical` / `text` | `Clash/Apple.list` | Full 进入 `苹果服务`，Core 进入 `全球直连`。 |
+| `Microsoft` | Microsoft 服务 | `classical` / `text` | `Clash/Microsoft.list` | Full 进入 `微软服务`，Core 进入 `全球直连`。 |
+| `OneDrive` | OneDrive | `classical` / `text` | `Clash/OneDrive.list` | Full 中放在 Microsoft 前。 |
+| `AI` | AI 平台 | `classical` / `text` | `Clash/Ruleset/AI.list` | Full 进入 `AI`。 |
+| `Steam` / `Epic` / `Origin` / `Sony` / `Xbox` / `Nintendo` | 游戏平台 | `classical` / `text` | `Clash/Ruleset/Steam.list` / `Clash/Ruleset/Epic.list` / `Clash/Ruleset/Origin.list` / `Clash/Ruleset/Sony.list` / `Clash/Xbox.list` / `Clash/Ruleset/Nintendo.list` | Full 进入 `游戏平台`。 |
+| `ProxyMedia` | 流媒体 | `classical` / `text` | `Clash/ProxyMedia.list` | Full 进入 `流媒体`。 |
+| `Telegram` | Telegram | `classical` / `text` | `Clash/Telegram.list` | Full 进入 `Telegram`。 |
+| `fakeip-filter` | DNS fake-ip 兼容例外 | `domain` / `text` | DustinWin `mihomo-ruleset/fakeip-filter.list` | Full/Core DNS 使用，与 DustinWin / MetaCubeX 模板对齐。 |
+| `private` | DNS fake-ip 私有域名例外 | `domain` / `text` | DustinWin `mihomo-ruleset/private.list` | Full/Core DNS 使用，与 DustinWin 模板对齐。 |
+| `cn` | DNS 国内域名真实解析 | `domain` / `text` | DustinWin `mihomo-ruleset/cn.list` | Full/Core DNS 使用，同时作为 `nameserver-policy` 入口。 |
 
 ## DustinWin Rule Sets
 

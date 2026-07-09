@@ -1,0 +1,291 @@
+# Full Geodata：无节点规则、策略组、DNS、嗅探器和状态持久化；使用 MetaCubeX GEOSITE/GEOIP。
+
+unified-delay: true
+tcp-concurrent: true
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# Geodata：路由使用 MetaCubeX geosite / geoip / metadb；DNS fake-ip 过滤单独补充 domain provider。
+geox-url:
+  geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
+geo-auto-update: true
+geo-update-interval: 24
+
+# DNS：fake-ip；国内/私有域名返回真实 IP，默认海外 DoH。
+dns:
+  enable: true
+  listen: ":53"
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - rule-set:fakeip-filter
+    - geosite:private
+    - geosite:cn
+  nameserver-policy:
+    "geosite:cn,private":
+      - https://223.5.5.5/dns-query
+      - https://1.12.12.12/dns-query
+  respect-rules: true
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+# 嗅探器：从 HTTP/TLS/QUIC 流量中提取域名，提升 TUN / redir-host 分流准确率。
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+# DNS 专用 fake-ip 过滤补充：MetaCubeX geosite 当前没有 fakeip-filter 分类。
+rule-providers:
+  fakeip-filter:
+    type: http
+    behavior: domain
+    format: text
+    interval: 86400
+    path: ./ruleset/dustinwin/fakeip-filter.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
+
+proxy-groups:
+- name: 节点选择
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+  proxies:
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+- name: 手动切换
+  type: select
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+
+- name: 自动测速
+  type: url-test
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+- name: AI
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+- name: 流媒体
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+- name: 游戏平台
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+- name: Telegram
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+- name: 苹果服务
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+
+- name: 微软服务
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+
+- name: OneDrive
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/OneDrive.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+- name: 香港节点
+  type: url-test
+  include-all: true
+  filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+- name: 美国节点
+  type: url-test
+  include-all: true
+  filter: "(?i)🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/US.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+- name: 日本节点
+  type: url-test
+  include-all: true
+  filter: "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka"
+  url: https://cp.cloudflare.com/generate_204
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
+  interval: 300
+  tolerance: 50
+
+- name: 新加坡节点
+  type: url-test
+  include-all: true
+  filter: "(?i)🇸🇬|SG|SGP|Singapore|新加坡|狮城"
+  url: https://cp.cloudflare.com/generate_204
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png"
+  interval: 300
+  tolerance: 50
+
+- name: 其他节点
+  type: select
+  include-all: true
+  exclude-filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港|🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka|🇸🇬|SG|SGP|Singapore|新加坡|狮城"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
+
+- name: 全球直连
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+
+- name: 漏网之鱼
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
+rules:
+# 局域网 / 私有地址
+- GEOSITE,private,DIRECT
+- GEOIP,private,DIRECT,no-resolve
+
+# GitHub / Copilot：高优先级走节点，避免被 Microsoft / 场景大类抢先命中
+- GEOSITE,github,节点选择
+
+# 中国区 / 国内服务直连补充
+- GEOSITE,apple@cn,全球直连
+- GEOSITE,microsoft@cn,全球直连
+- GEOSITE,category-games@cn,全球直连
+
+# Apple 全品牌服务
+- GEOSITE,apple,苹果服务
+
+# 高优先级场景分流：游戏必须早于 category-entertainment，避免被娱乐大类抢先命中。
+- GEOSITE,category-ai-!cn,AI
+- GEOSITE,category-game-platforms-download,游戏平台
+- GEOSITE,category-games,游戏平台
+- GEOSITE,category-entertainment,流媒体
+
+# 特殊品牌服务：OneDrive 先于 Microsoft，避免被微软大类抢先命中。
+- GEOSITE,onedrive,OneDrive
+- GEOSITE,microsoft,微软服务
+
+# IP 型服务
+- GEOIP,telegram,Telegram
+
+# 明确非中国域名
+- GEOSITE,geolocation-!cn,节点选择
+
+# 国内兜底
+- GEOSITE,cn,全球直连
+- GEOIP,CN,全球直连
+
+# 最终兜底
+- MATCH,漏网之鱼

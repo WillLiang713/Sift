@@ -1,0 +1,90 @@
+# ACL4SSR / Nano：无节点极简规则和策略组。
+
+proxy-groups:
+- name: 节点选择
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+- name: 手动切换
+  type: select
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+
+- name: 自动测速
+  type: url-test
+  include-all: true
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  tolerance: 50
+
+- name: 全球直连
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+
+- name: 漏网之鱼
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+rule-providers:
+  LocalAreaNetwork:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/LocalAreaNetwork.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+    interval: 86400
+  ProxyLite:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ProxyLite.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyLite.list"
+    interval: 86400
+  ChinaDomain:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ChinaDomain.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
+    interval: 86400
+  ChinaIp:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ChinaIp.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list"
+    interval: 86400
+  ChinaIpV6:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ChinaIpV6.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIpV6.list"
+    interval: 86400
+
+rules:
+- RULE-SET,LocalAreaNetwork,DIRECT
+
+- RULE-SET,ProxyLite,节点选择
+
+- RULE-SET,ChinaDomain,全球直连
+
+- RULE-SET,ChinaIp,全球直连
+- RULE-SET,ChinaIpV6,全球直连
+- GEOIP,CN,全球直连
+
+- MATCH,漏网之鱼
