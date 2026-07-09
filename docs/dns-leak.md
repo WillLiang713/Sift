@@ -24,7 +24,7 @@ nameserver:
 
 ## 当前分工
 
-`rules/dustinwin-full.yaml` / `rules/dustinwin-core.yaml` 按用途拆分 DNS，并且 DNS 侧只引用 `cn` 这个完整国内 DNS 入口。`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析：
+`rules/DustinWin-full.yaml` / `rules/DustinWin-core.yaml` 按用途拆分 DNS，并且 DNS 侧只引用 `cn` 这个完整国内 DNS 入口。`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析：
 
 ```yaml
 fake-ip-filter:
@@ -57,7 +57,7 @@ proxy-server-nameserver:
 
 DNS 侧只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍只在路由侧进入 `全球直连`；Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
 
-`rules/metacubex-full.yaml` / `rules/metacubex-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；但 MetaCubeX `meta-rules-dat` 当前没有 `geosite:fakeip-filter` 分类，所以 DNS 侧按 Mihomo 官方示例允许的 `rule-set:<name>` 方式额外补充一个 DustinWin domain provider：
+`rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；但 MetaCubeX `meta-rules-dat` 当前没有 `geosite:fakeip-filter` 分类，所以 DNS 侧按 Mihomo 官方示例允许的 `rule-set:<name>` 方式额外补充一个 DustinWin domain provider：
 
 ```yaml
 rule-providers:
@@ -79,7 +79,7 @@ nameserver-policy:
     - https://1.12.12.12/dns-query
 ```
 
-`rules/metacubex-nano.yaml` 与 `rules/dustinwin-nano.yaml` 一样不接管 DNS。
+`rules/MetaCubeX-nano.yaml` 与 `rules/DustinWin-nano.yaml` 一样不接管 DNS。
 
 ## 国内域名为什么仍然直连
 

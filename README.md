@@ -17,32 +17,32 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`rules/dustinwin-full.yaml`](./rules/dustinwin-full.yaml) | 17 | 17 | DustinWin 规则集完整版：AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS、域名嗅探和状态持久化 |
-| [`rules/dustinwin-core.yaml`](./rules/dustinwin-core.yaml) | 4 | 9 | DustinWin 规则集核心白名单版：保留基础节点选择、国内白名单、DNS、域名嗅探和状态持久化；完整 Apple / Microsoft 进入 `全球直连` |
-| [`rules/dustinwin-nano.yaml`](./rules/dustinwin-nano.yaml) | 5 | 5 | DustinWin 规则集极简版：局域网直连、明确非中国域名、国内直连和兜底分流；不接管 DNS |
-| [`rules/metacubex-full.yaml`](./rules/metacubex-full.yaml) | 17 | 1 | MetaCubeX Geodata 完整版：保留 Full 的策略组结构，使用 `GEOSITE` / `GEOIP` 分流；DNS 侧额外引用 `fakeip-filter` |
-| [`rules/metacubex-core.yaml`](./rules/metacubex-core.yaml) | 4 | 1 | MetaCubeX Geodata 核心白名单版：完整 Apple、Microsoft 中国区补充与国内白名单进入 `全球直连`；DNS 侧额外引用 `fakeip-filter` |
-| [`rules/metacubex-nano.yaml`](./rules/metacubex-nano.yaml) | 5 | 0 | MetaCubeX Geodata 极简版：局域网、明确非中国域名、国内域名/IP 与兜底分流；不接管 DNS |
-| [`rules/acl4ssr-full.yaml`](./rules/acl4ssr-full.yaml) | 17 | 22 | ACL4SSR 规则集完整版：保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS、域名嗅探和状态持久化 |
-| [`rules/acl4ssr-core.yaml`](./rules/acl4ssr-core.yaml) | 4 | 11 | ACL4SSR 规则集核心白名单版：GoogleCN / SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连` |
-| [`rules/acl4ssr-nano.yaml`](./rules/acl4ssr-nano.yaml) | 5 | 5 | ACL4SSR 规则集极简版：局域网直连、`ProxyLite` 代理、国内直连和兜底分流；不接管 DNS |
+| [`rules/DustinWin-full.yaml`](./rules/DustinWin-full.yaml) | 17 | 17 | DustinWin 规则集完整版：AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS、域名嗅探和状态持久化 |
+| [`rules/DustinWin-core.yaml`](./rules/DustinWin-core.yaml) | 4 | 9 | DustinWin 规则集核心白名单版：保留基础节点选择、国内白名单、DNS、域名嗅探和状态持久化；完整 Apple / Microsoft 进入 `全球直连` |
+| [`rules/DustinWin-nano.yaml`](./rules/DustinWin-nano.yaml) | 5 | 5 | DustinWin 规则集极简版：局域网直连、明确非中国域名、国内直连和兜底分流；不接管 DNS |
+| [`rules/MetaCubeX-full.yaml`](./rules/MetaCubeX-full.yaml) | 17 | 1 | MetaCubeX Geodata 完整版：保留 Full 的策略组结构，使用 `GEOSITE` / `GEOIP` 分流；DNS 侧额外引用 `fakeip-filter` |
+| [`rules/MetaCubeX-core.yaml`](./rules/MetaCubeX-core.yaml) | 4 | 1 | MetaCubeX Geodata 核心白名单版：完整 Apple、Microsoft 中国区补充与国内白名单进入 `全球直连`；DNS 侧额外引用 `fakeip-filter` |
+| [`rules/MetaCubeX-nano.yaml`](./rules/MetaCubeX-nano.yaml) | 5 | 0 | MetaCubeX Geodata 极简版：局域网、明确非中国域名、国内域名/IP 与兜底分流；不接管 DNS |
+| [`rules/ACL4SSR-full.yaml`](./rules/ACL4SSR-full.yaml) | 17 | 22 | ACL4SSR 规则集完整版：保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS、域名嗅探和状态持久化 |
+| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 4 | 11 | ACL4SSR 规则集核心白名单版：GoogleCN / SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连` |
+| [`rules/ACL4SSR-nano.yaml`](./rules/ACL4SSR-nano.yaml) | 5 | 5 | ACL4SSR 规则集极简版：局域网直连、`ProxyLite` 代理、国内直连和兜底分流；不接管 DNS |
 
 ```text
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/dustinwin-full.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/dustinwin-core.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/dustinwin-nano.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/metacubex-full.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/metacubex-core.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/metacubex-nano.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/acl4ssr-full.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/acl4ssr-core.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/acl4ssr-nano.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/DustinWin-full.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/DustinWin-core.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/DustinWin-nano.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/MetaCubeX-full.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/MetaCubeX-core.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/MetaCubeX-nano.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-full.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-core.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 ```
 
 ## 设计要点
 
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
-- **三类规则来源**：`dustinwin-*` 使用 DustinWin / blackmatrix7 远程 `.list` 规则集；`metacubex-*` 使用 MetaCubeX `GEOSITE` / `GEOIP`；`acl4ssr-*` 使用 ACL4SSR Clash `.list` 路由规则，DNS 侧与 DustinWin 模板共用 domain provider。
+- **三类规则来源**：`DustinWin-*` 使用 DustinWin / blackmatrix7 远程 `.list` 规则集；`MetaCubeX-*` 使用 MetaCubeX `GEOSITE` / `GEOIP`；`ACL4SSR-*` 使用 ACL4SSR Clash `.list` 路由规则，DNS 侧与 DustinWin 模板共用 domain provider。
 - **运行优化**：Full / Core 及其 Geodata 版本默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
 - **状态持久化**：Full / Core 及其 MetaCubeX / ACL4SSR 版本默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
 - **DNS 分模板**：所有 Nano 模板不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS。DustinWin 与 ACL4SSR 版本统一使用 DustinWin `fakeip-filter` / `private` / `cn` 做 DNS rule-set；MetaCubeX 版本使用同一 `fakeip-filter`，并用 `geosite:private` / `geosite:cn` 做私有/国内 DNS 规则。
@@ -178,15 +178,15 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/acl4ssr-nano.yaml
 
 ## 规则来源
 
-`dustinwin-*` 模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；Full 的 BT Tracker 补充取自 [DustinWin/domain-list-custom](https://github.com/DustinWin/domain-list-custom)，使用 classical/text 的 `.list`；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应完整集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword / IP / process 规则）。
+`DustinWin-*` 模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；Full 的 BT Tracker 补充取自 [DustinWin/domain-list-custom](https://github.com/DustinWin/domain-list-custom)，使用 classical/text 的 `.list`；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应完整集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword / IP / process 规则）。
 
 DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析。blackmatrix7 的完整 Apple / Microsoft / OneDrive classical 规则只用于路由分流，避免其中的 `PROCESS-NAME` 等规则类型进入 DNS 过滤。
 
-- **dustinwin-full**：`private` · `privateip` · `trackerslist`（BT Tracker）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **dustinwin-core**：`private` · `privateip` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **dustinwin-nano**：`private` · `privateip` · `proxy` · `cn-lite`（路由直连）· `cnip`
-- **metacubex-***：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再添加 Google 专门分流，相关域名交给明确非中国域名、国内兜底或最终兜底处理；`GEOSITE,github,节点选择` 放在高优先级位置，避免官方 Microsoft / 场景大类中的 GitHub / Copilot 相关域名被提前接走；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
-- **acl4ssr-***：路由使用 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) 的 Clash `.list` 文件，并以 `classical`/`text` 接入；Full/Core 的 DNS 侧与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`，避免把含 `IP-CIDR` / `no-resolve` 的 ACL4SSR classical 列表放进 DNS rule-set。Full 包含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `AI` · `Steam` · `Epic` · `Origin` · `Sony` · `Xbox` · `Nintendo` · `ProxyMedia` · `OneDrive` · `Microsoft` · `Telegram` · `ProxyLite` · `fakeip-filter` · `private` · `cn`；Core 包含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `Microsoft` · `fakeip-filter` · `private` · `cn`；Nano 包含 `LocalAreaNetwork` · `ProxyLite` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6`。
+- **DustinWin-full**：`private` · `privateip` · `trackerslist`（BT Tracker）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **DustinWin-core**：`private` · `privateip` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **DustinWin-nano**：`private` · `privateip` · `proxy` · `cn-lite`（路由直连）· `cnip`
+- **MetaCubeX-***：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再添加 Google 专门分流，相关域名交给明确非中国域名、国内兜底或最终兜底处理；`GEOSITE,github,节点选择` 放在高优先级位置，避免官方 Microsoft / 场景大类中的 GitHub / Copilot 相关域名被提前接走；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
+- **ACL4SSR-***：路由使用 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) 的 Clash `.list` 文件，并以 `classical`/`text` 接入；Full/Core 的 DNS 侧与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`，避免把含 `IP-CIDR` / `no-resolve` 的 ACL4SSR classical 列表放进 DNS rule-set。Full 包含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `AI` · `Steam` · `Epic` · `Origin` · `Sony` · `Xbox` · `Nintendo` · `ProxyMedia` · `OneDrive` · `Microsoft` · `Telegram` · `ProxyLite` · `fakeip-filter` · `private` · `cn`；Core 包含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `Microsoft` · `fakeip-filter` · `private` · `cn`；Nano 包含 `LocalAreaNetwork` · `ProxyLite` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6`。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献

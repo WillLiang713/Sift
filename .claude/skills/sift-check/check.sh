@@ -134,26 +134,26 @@ check_file(){
 }
 
 TEMPLATES=(
-  rules/dustinwin-full.yaml
-  rules/dustinwin-core.yaml
-  rules/dustinwin-nano.yaml
-  rules/metacubex-full.yaml
-  rules/metacubex-core.yaml
-  rules/metacubex-nano.yaml
-  rules/acl4ssr-full.yaml
-  rules/acl4ssr-core.yaml
-  rules/acl4ssr-nano.yaml
+  rules/DustinWin-full.yaml
+  rules/DustinWin-core.yaml
+  rules/DustinWin-nano.yaml
+  rules/MetaCubeX-full.yaml
+  rules/MetaCubeX-core.yaml
+  rules/MetaCubeX-nano.yaml
+  rules/ACL4SSR-full.yaml
+  rules/ACL4SSR-core.yaml
+  rules/ACL4SSR-nano.yaml
 )
 
-check_file rules/dustinwin-full.yaml dustinwin-full "$FULL_REQ" "$FULL_FORB" 1 0
-check_file rules/dustinwin-core.yaml dustinwin-core "$CORE_REQ" "$CORE_FORB" 1 0
-check_file rules/dustinwin-nano.yaml dustinwin-nano "$NANO_REQ" "$NANO_FORB" 0 0
-check_file rules/metacubex-full.yaml metacubex-full "$FULL_REQ" "$FULL_FORB" 1 1
-check_file rules/metacubex-core.yaml metacubex-core "$CORE_REQ" "$CORE_FORB" 1 1
-check_file rules/metacubex-nano.yaml metacubex-nano "$NANO_REQ" "$NANO_FORB" 0 1
-check_file rules/acl4ssr-full.yaml acl4ssr-full "$FULL_REQ" "$FULL_FORB" 1 0
-check_file rules/acl4ssr-core.yaml acl4ssr-core "$CORE_REQ" "$CORE_FORB" 1 0
-check_file rules/acl4ssr-nano.yaml acl4ssr-nano "$NANO_REQ" "$NANO_FORB" 0 0
+check_file rules/DustinWin-full.yaml DustinWin-full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file rules/DustinWin-core.yaml DustinWin-core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file rules/DustinWin-nano.yaml DustinWin-nano "$NANO_REQ" "$NANO_FORB" 0 0
+check_file rules/MetaCubeX-full.yaml MetaCubeX-full "$FULL_REQ" "$FULL_FORB" 1 1
+check_file rules/MetaCubeX-core.yaml MetaCubeX-core "$CORE_REQ" "$CORE_FORB" 1 1
+check_file rules/MetaCubeX-nano.yaml MetaCubeX-nano "$NANO_REQ" "$NANO_FORB" 0 1
+check_file rules/ACL4SSR-full.yaml ACL4SSR-full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file rules/ACL4SSR-core.yaml ACL4SSR-core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file rules/ACL4SSR-nano.yaml ACL4SSR-nano "$NANO_REQ" "$NANO_FORB" 0 0
 
 # --- Optional toolchain -------------------------------------------------------
 printf '\n== toolchain ==\n'
