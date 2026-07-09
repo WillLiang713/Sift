@@ -256,6 +256,9 @@ rules:
 - GEOSITE,private,DIRECT
 - GEOIP,private,DIRECT,no-resolve
 
+# GitHub / Copilot：高优先级走节点，避免被 Microsoft / 场景大类抢先命中
+- GEOSITE,github,节点选择
+
 # 中国区 / 国内服务直连补充
 - GEOSITE,apple@cn,全球直连
 - GEOSITE,microsoft@cn,全球直连
@@ -269,7 +272,7 @@ rules:
 
 # 特殊品牌服务：OneDrive 先于 Microsoft，避免被微软大类抢先命中。
 - GEOSITE,onedrive,OneDrive
-- GEOSITE,microsoft,微软服务
+- GEOSITE,microsoft,全球直连
 - GEOSITE,apple,苹果服务
 
 # IP 型服务

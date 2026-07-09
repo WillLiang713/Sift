@@ -96,10 +96,13 @@ rules:
 - GEOSITE,private,DIRECT
 - GEOIP,private,DIRECT,no-resolve
 
+# GitHub / Copilot：高优先级走节点，避免被 Microsoft 大类抢先直连
+- GEOSITE,github,节点选择
+
 # 中国区 / 国内服务直连补充
 - GEOSITE,apple,全球直连
-- GEOSITE,microsoft@cn,全球直连
 - GEOSITE,category-games@cn,全球直连
+- GEOSITE,microsoft,全球直连
 
 # Google / Google Play：避免 googleapis.cn 被 cn 兜底直连
 - GEOSITE,google,节点选择

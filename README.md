@@ -52,7 +52,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 只保留 `DIRECT` 与 `节点选择`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
-- **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive 等独立入口。Geodata Full 中游戏规则优先级高于 `category-entertainment`，避免游戏域名被娱乐/流媒体大类提前接走。
+- **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive 等独立入口。Geodata Full 中游戏规则优先级高于 `category-entertainment`，避免游戏域名被娱乐/流媒体大类提前接走；GitHub 先于 Microsoft 单独进入 `节点选择`，避免被官方 Microsoft 大类带入直连。
 - **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择`，其余流量全部交给 `MATCH,节点选择`。
 - **Nano 极简代理**：极简模板只保留 GFW 代理、国内直连和兜底，不提供地区节点或服务分组。
 
@@ -80,16 +80,18 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 中国区 Apple / Microsoft / 游戏 | `全球直连` |
-| 3 | AI 服务 | `AI` |
-| 4 | 游戏平台 / 游戏下载 | `游戏平台` |
-| 5 | 娱乐 / 流媒体大类 | `流媒体` |
-| 6 | OneDrive / Microsoft / Apple 海外服务 | 对应服务组 |
-| 7 | Telegram IP | `Telegram` |
-| 8 | Google / Google Play | `节点选择` |
-| 9 | 明确非中国域名 | `节点选择` |
-| 10 | 国内域名 / IP 兜底 | `全球直连` |
-| 11 | 未命中流量 | `漏网之鱼` |
+| 2 | GitHub / Copilot | `节点选择` |
+| 3 | 中国区 Apple / Microsoft / 游戏 | `全球直连` |
+| 4 | AI 服务 | `AI` |
+| 5 | 游戏平台 / 游戏下载 | `游戏平台` |
+| 6 | 娱乐 / 流媒体大类 | `流媒体` |
+| 7 | OneDrive / Apple 海外服务 | 对应服务组 |
+| 8 | Microsoft 海外服务 | `全球直连` |
+| 9 | Telegram IP | `Telegram` |
+| 10 | Google / Google Play | `节点选择` |
+| 11 | 明确非中国域名 | `节点选择` |
+| 12 | 国内域名 / IP 兜底 | `全球直连` |
+| 13 | 未命中流量 | `漏网之鱼` |
 
 ### Core
 
@@ -107,10 +109,12 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/geodata/Nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 完整 Apple / Microsoft 中国区 / 游戏中国区补充 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
-| 3 | Google / Google Play | `节点选择` |
-| 4 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
-| 5 | 未命中流量 | `节点选择` |
+| 2 | GitHub / Copilot | `节点选择` |
+| 3 | 完整 Apple / 游戏中国区补充 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 4 | 完整 Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 5 | Google / Google Play | `节点选择` |
+| 6 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择`） |
+| 7 | 未命中流量 | `节点选择` |
 
 ### Nano
 
@@ -140,7 +144,7 @@ DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-c
 - **Full**：`private` · `privateip` · `google`（blackmatrix7）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Core**：`private` · `privateip` · `google`（blackmatrix7，完整 Google 规则，进入 `节点选择`）· `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **Nano**：`private` · `privateip` · `gfw` · `cn-lite`（路由直连）· `cnip`
-- **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再把 `google@cn` 作为直连补充，改用 `GEOSITE,google,节点选择` 放在 `GEOSITE,cn` 前，避免 Google Play / Android 连通性域名被国内兜底送入直连；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
+- **geodata/**：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；不再把 `google@cn` 作为直连补充，改用 `GEOSITE,google,节点选择` 放在 `GEOSITE,cn` 前，避免 Google Play / Android 连通性域名被国内兜底送入直连；`GEOSITE,github,节点选择` 放在高优先级位置，避免官方 Microsoft / 场景大类中的 GitHub / Copilot 相关域名被提前接走；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`，保留常规域名解析后的 IP 分流行为。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献
