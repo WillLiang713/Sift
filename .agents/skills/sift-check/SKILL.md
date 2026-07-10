@@ -13,6 +13,8 @@ Statically validates the templates in `rules/` against the conventions in `AGENT
 bash .claude/skills/sift-check/check.sh
 ```
 
+`.agents/skills/sift-check/check.sh` is a compatibility entry point that delegates to the canonical `.claude` implementation.
+
 It `cd`s to the repo root, so it can be invoked from anywhere. Exit `0` = PASS, `1` = at least one `[FAIL]`.
 
 ## What it checks
