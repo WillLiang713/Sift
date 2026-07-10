@@ -105,6 +105,9 @@ rules:
 - GEOSITE,apple,全球直连
 - GEOSITE,microsoft,全球直连
 
+# 明确非中国域名优先走节点，避免 googleapis.cn 等域名被 cn 的 .cn 泛规则误直连
+- GEOSITE,geolocation-!cn,节点选择
+
 # 国内兜底
 - GEOSITE,cn,全球直连
 - GEOIP,CN,全球直连

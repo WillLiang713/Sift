@@ -131,6 +131,13 @@ rule-providers:
     path: ./ruleset/acl4ssr/Microsoft.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
     interval: 86400
+  ProxyLite:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ProxyLite.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyLite.list"
+    interval: 86400
   fakeip-filter:
     type: http
     behavior: domain
@@ -161,6 +168,8 @@ rules:
 
 - RULE-SET,Apple,全球直连
 - RULE-SET,Microsoft,全球直连
+
+- RULE-SET,ProxyLite,节点选择
 
 - RULE-SET,ChinaDomain,全球直连
 

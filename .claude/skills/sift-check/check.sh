@@ -155,6 +155,38 @@ check_file rules/ACL4SSR-full.yaml ACL4SSR-full "$FULL_REQ" "$FULL_FORB" 1 0
 check_file rules/ACL4SSR-core.yaml ACL4SSR-core "$CORE_REQ" "$CORE_FORB" 1 0
 check_file rules/ACL4SSR-nano.yaml ACL4SSR-nano "$NANO_REQ" "$NANO_FORB" 0 0
 
+# ACL4SSR ChinaDomain contains DOMAIN-SUFFIX,cn. ProxyLite must take precedence
+# so googleapis.cn and other explicit proxy exceptions are not sent direct.
+for f in rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml rules/ACL4SSR-nano.yaml; do
+  proxy_line=$(awk '/^- RULE-SET,ProxyLite,节点选择/{ print NR; exit }' "$f")
+  china_line=$(awk '/^- RULE-SET,ChinaDomain,全球直连/{ print NR; exit }' "$f")
+  if [ -z "$proxy_line" ] || [ -z "$china_line" ]; then
+    printf '  [FAIL] %s must route ProxyLite and ChinaDomain\n' "$f"
+    fails=$((fails+1))
+  elif [ "$proxy_line" -lt "$china_line" ]; then
+    printf '  [ OK ] %s routes ProxyLite before ChinaDomain\n' "$f"
+  else
+    printf '  [FAIL] %s must route ProxyLite before ChinaDomain\n' "$f"
+    fails=$((fails+1))
+  fi
+done
+
+# MetaCubeX geolocation-!cn can overlap the broad CN TLD set. It must take
+# precedence so googleapis.cn and similar global-service domains use nodes.
+for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml rules/MetaCubeX-nano.yaml; do
+  noncn_line=$(awk '/^- GEOSITE,geolocation-!cn,节点选择/{ print NR; exit }' "$f")
+  cn_line=$(awk '/^- GEOSITE,cn,全球直连/{ print NR; exit }' "$f")
+  if [ -z "$noncn_line" ] || [ -z "$cn_line" ]; then
+    printf '  [FAIL] %s must route geolocation-!cn and cn\n' "$f"
+    fails=$((fails+1))
+  elif [ "$noncn_line" -lt "$cn_line" ]; then
+    printf '  [ OK ] %s routes geolocation-!cn before cn\n' "$f"
+  else
+    printf '  [FAIL] %s must route geolocation-!cn before cn\n' "$f"
+    fails=$((fails+1))
+  fi
+done
+
 # --- Optional toolchain -------------------------------------------------------
 printf '\n== toolchain ==\n'
 if command -v mihomo >/dev/null 2>&1; then

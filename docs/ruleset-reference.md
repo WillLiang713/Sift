@@ -15,6 +15,7 @@
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
 - `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。
+- `rules/MetaCubeX-core.yaml` 将 `GEOSITE,geolocation-!cn` 放在 `GEOSITE,cn` 前；两者可能同时覆盖 `googleapis.cn` 等 `.cn` 域名，明确非中国分类必须优先，避免 Google 全球服务误直连。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
 ## URL 模板
@@ -45,7 +46,7 @@ ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全�
 | `ChinaIpV6` | 国内 IPv6 路由兜底 | `classical` / `text` | `Clash/ChinaIpV6.list` | 规则行自带 `no-resolve`。 |
 | `GoogleCN` | 中国区 Google 服务 | `classical` / `text` | `Clash/GoogleCN.list` | Full/Core 在服务规则前进入 `全球直连`。 |
 | `SteamCN` | 中国区 Steam 服务 | `classical` / `text` | `Clash/Ruleset/SteamCN.list` | Full/Core 在游戏规则前进入 `全球直连`。 |
-| `ProxyLite` | 明确代理域名 | `classical` / `text` | `Clash/ProxyLite.list` | Nano 的代理主入口，Full 中位于场景/服务规则之后。 |
+| `ProxyLite` | 明确代理域名 | `classical` / `text` | `Clash/ProxyLite.list` | Nano 的代理主入口；Full/Core 中位于场景或直连服务规则之后、`ChinaDomain` 之前，避免 `googleapis.cn` 等域名被 `.cn` 泛规则误直连。 |
 | `Apple` | Apple 服务 | `classical` / `text` | `Clash/Apple.list` | Full 进入 `苹果服务`，Core 进入 `全球直连`。 |
 | `Microsoft` | Microsoft 服务 | `classical` / `text` | `Clash/Microsoft.list` | Full 进入 `微软服务`，Core 进入 `全球直连`。 |
 | `OneDrive` | OneDrive | `classical` / `text` | `Clash/OneDrive.list` | Full 中放在 Microsoft 前。 |

@@ -21,10 +21,10 @@
 | [`rules/DustinWin-core.yaml`](./rules/DustinWin-core.yaml) | 4 | 9 | DustinWin 规则集核心白名单版：保留基础节点选择、国内白名单、DNS、域名嗅探和状态持久化；完整 Apple / Microsoft 进入 `全球直连` |
 | [`rules/DustinWin-nano.yaml`](./rules/DustinWin-nano.yaml) | 5 | 5 | DustinWin 规则集极简版：局域网直连、明确非中国域名、国内直连和兜底分流；不接管 DNS |
 | [`rules/MetaCubeX-full.yaml`](./rules/MetaCubeX-full.yaml) | 17 | 1 | MetaCubeX Geodata 完整版：保留 Full 的策略组结构，使用 `GEOSITE` / `GEOIP` 分流；DNS 侧额外引用 `fakeip-filter` |
-| [`rules/MetaCubeX-core.yaml`](./rules/MetaCubeX-core.yaml) | 4 | 1 | MetaCubeX Geodata 核心白名单版：完整 Apple、Microsoft 中国区补充与国内白名单进入 `全球直连`；DNS 侧额外引用 `fakeip-filter` |
+| [`rules/MetaCubeX-core.yaml`](./rules/MetaCubeX-core.yaml) | 4 | 1 | MetaCubeX Geodata 核心白名单版：完整 Apple、Microsoft 与国内白名单进入 `全球直连`；`geolocation-!cn` 优先接管明确非中国域名，避免 `.cn` 泛分类误直连；DNS 侧额外引用 `fakeip-filter` |
 | [`rules/MetaCubeX-nano.yaml`](./rules/MetaCubeX-nano.yaml) | 5 | 0 | MetaCubeX Geodata 极简版：局域网、明确非中国域名、国内域名/IP 与兜底分流；不接管 DNS |
 | [`rules/ACL4SSR-full.yaml`](./rules/ACL4SSR-full.yaml) | 17 | 22 | ACL4SSR 规则集完整版：保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点；内置 fake-ip 分流 DNS、域名嗅探和状态持久化 |
-| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 4 | 11 | ACL4SSR 规则集核心白名单版：GoogleCN / SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连` |
+| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 4 | 12 | ACL4SSR 规则集核心白名单版：GoogleCN / SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连`；`ProxyLite` 优先接管明确需要节点的域名，避免 `.cn` 泛规则误直连 |
 | [`rules/ACL4SSR-nano.yaml`](./rules/ACL4SSR-nano.yaml) | 5 | 5 | ACL4SSR 规则集极简版：局域网直连、`ProxyLite` 代理、国内直连和兜底分流；不接管 DNS |
 
 ```text
@@ -51,7 +51,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 与 `自动测速`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
 - **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive 等独立入口。Geodata Full 中游戏规则优先级高于 `category-entertainment`，避免游戏域名被娱乐/流媒体大类提前接走；GitHub 先于 Microsoft 单独进入 `节点选择`，避免被官方 Microsoft 大类带入直连。
-- **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择` 或 `自动测速`，其余流量全部交给 `MATCH,节点选择`。
+- **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择` 或 `自动测速`，其余流量全部交给 `MATCH,节点选择`。ACL4SSR Core 在 `ChinaDomain` 前保留 `ProxyLite`；MetaCubeX Core 在 `GEOSITE,cn` 前保留 `GEOSITE,geolocation-!cn`，防止 `googleapis.cn` 等上游明确非中国域名被宽泛的 `.cn` 分类提前送去直连。
 - **Nano 极简代理**：Nano 使用 `proxy`，Geodata Nano 使用 `geolocation-!cn`，ACL4SSR Nano 使用 `ProxyLite`，代理明确非中国域名；三者都保留国内直连和兜底，不提供地区节点或服务分组。
 
 ## 分流顺序
