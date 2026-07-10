@@ -54,6 +54,13 @@ rule-providers:
     path: ./ruleset/dustinwin/privateip.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.list"
     interval: 86400
+  google:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/blackmatrix7/google.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Google/Google.list"
+    interval: 86400
   proxy:
     type: http
     behavior: domain
@@ -79,6 +86,8 @@ rule-providers:
 rules:
 - RULE-SET,private,DIRECT
 - RULE-SET,privateip,DIRECT,no-resolve
+
+- RULE-SET,google,节点选择
 
 - RULE-SET,proxy,节点选择
 

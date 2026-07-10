@@ -155,6 +155,22 @@ check_file rules/ACL4SSR-full.yaml ACL4SSR-full "$FULL_REQ" "$FULL_FORB" 1 0
 check_file rules/ACL4SSR-core.yaml ACL4SSR-core "$CORE_REQ" "$CORE_FORB" 1 0
 check_file rules/ACL4SSR-nano.yaml ACL4SSR-nano "$NANO_REQ" "$NANO_FORB" 0 0
 
+# DustinWin's complete Google provider contains global .cn exceptions such as
+# googleapis.cn. It must take precedence over cn-lite's broad +.cn entry.
+for f in rules/DustinWin-full.yaml rules/DustinWin-core.yaml rules/DustinWin-nano.yaml; do
+  google_line=$(awk '/^- RULE-SET,google,节点选择/{ print NR; exit }' "$f")
+  cn_line=$(awk '/^- RULE-SET,cn-lite,全球直连/{ print NR; exit }' "$f")
+  if [ -z "$google_line" ] || [ -z "$cn_line" ]; then
+    printf '  [FAIL] %s must route google and cn-lite\n' "$f"
+    fails=$((fails+1))
+  elif [ "$google_line" -lt "$cn_line" ]; then
+    printf '  [ OK ] %s routes google before cn-lite\n' "$f"
+  else
+    printf '  [FAIL] %s must route google before cn-lite\n' "$f"
+    fails=$((fails+1))
+  fi
+done
+
 # ACL4SSR ChinaDomain contains DOMAIN-SUFFIX,cn. ProxyLite must take precedence
 # so googleapis.cn and other explicit proxy exceptions are not sent direct.
 for f in rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml rules/ACL4SSR-nano.yaml; do

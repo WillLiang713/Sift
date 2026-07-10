@@ -14,6 +14,7 @@
 - `rules/DustinWin-full.yaml` 额外使用 DustinWin/domain-list-custom 的 `trackerslist.list`，内容为 Clash `DOMAIN,...` 规则行，接入时使用 `classical` / `text`。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
+- `rules/DustinWin-*.yaml` 使用 blackmatrix7 完整 `Google.list` 作为高优先级代理 provider，放在 `cn-lite` 前，避免 `googleapis.cn` 等 Google 全球服务被宽泛的 `+.cn` 规则误直连。
 - `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。
 - `rules/MetaCubeX-core.yaml` 将 `GEOSITE,geolocation-!cn` 放在 `GEOSITE,cn` 前；两者可能同时覆盖 `googleapis.cn` 等 `.cn` 域名，明确非中国分类必须优先，避免 Google 全球服务误直连。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。

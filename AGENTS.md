@@ -4,9 +4,9 @@
 
 This repository is a compact Mihomo configuration template project.
 
-- `rules/DustinWin-full.yaml` is the full node-free DustinWin-based template. It carries top-level Mihomo runtime optimizations (`unified-delay: true`, `tcp-concurrent: true`) plus top-level `profile:` (persisting selected strategy groups and fake-ip mappings), `dns:` (fake-ip + DustinWin `fakeip-filter`, domestic direct rule sets returning real IP, `respect-rules`, domestic DoH policies, and overseas default DoH), and `sniffer:` blocks (HTTP/TLS/QUIC domain sniffing for TUN/redir-host accuracy). It keeps AI, streaming, gaming platform, Telegram, Apple, Microsoft, OneDrive, and region node strategy groups.
-- `rules/DustinWin-core.yaml` is the core whitelist DustinWin-based template. It stays node-free, keeps the same runtime/profile/DNS/sniffer foundation as the full template, keeps only the base selector / `全球直连` groups, routes full Apple and full Microsoft rule sets plus domestic whitelist rules to `全球直连`, and Core's `全球直连` contains `DIRECT`, `节点选择`, and `自动测速` with `DIRECT` first; all other unmatched traffic falls through directly to `MATCH,节点选择`.
-- `rules/DustinWin-nano.yaml` is the nano DustinWin-based template and should remain node-free and DNS-free; it keeps only `节点选择`, `手动切换`, `自动测速`, `全球直连`, and `漏网之鱼`.
+- `rules/DustinWin-full.yaml` is the full node-free DustinWin-based template. It carries top-level Mihomo runtime optimizations (`unified-delay: true`, `tcp-concurrent: true`) plus top-level `profile:` (persisting selected strategy groups and fake-ip mappings), `dns:` (fake-ip + DustinWin `fakeip-filter`, domestic direct rule sets returning real IP, `respect-rules`, domestic DoH policies, and overseas default DoH), and `sniffer:` blocks (HTTP/TLS/QUIC domain sniffing for TUN/redir-host accuracy). It routes the complete blackmatrix7 Google set to `节点选择` before domestic rules and keeps AI, streaming, gaming platform, Telegram, Apple, Microsoft, OneDrive, and region node strategy groups.
+- `rules/DustinWin-core.yaml` is the core whitelist DustinWin-based template. It stays node-free, keeps the same runtime/profile/DNS/sniffer foundation as the full template, keeps only the base selector / `全球直连` groups, routes the complete blackmatrix7 Google set to `节点选择`, routes full Apple and full Microsoft rule sets plus domestic whitelist rules to `全球直连`, and Core's `全球直连` contains `DIRECT`, `节点选择`, and `自动测速` with `DIRECT` first; all other unmatched traffic falls through directly to `MATCH,节点选择`.
+- `rules/DustinWin-nano.yaml` is the nano DustinWin-based template and should remain node-free and DNS-free; it keeps only `节点选择`, `手动切换`, `自动测速`, `全球直连`, and `漏网之鱼`, with the complete blackmatrix7 Google set routed before the generic proxy and domestic fallbacks.
 - `rules/MetaCubeX-*.yaml` stores the public GEOSITE/GEOIP routing variants. These templates use MetaCubeX `meta-rules-dat` and define `geox-url`; their routing `rules` must remain pure `GEOSITE`/`GEOIP` with no routing `RULE-SET`. `rules/MetaCubeX-full.yaml` and `rules/MetaCubeX-core.yaml` may define the single DNS-only `fakeip-filter` provider for `dns.fake-ip-filter`.
 - `rules/ACL4SSR-*.yaml` stores the ACL4SSR Clash `.list` variants. Full/Core align DNS rule-set providers with DustinWin templates by using DustinWin `fakeip-filter`, `private`, and `cn`; ACL4SSR classical lists stay routing-only. Keep `ProxyLite` before `ChinaDomain` in all ACL4SSR variants that define both, because `ChinaDomain` contains the broad `DOMAIN-SUFFIX,cn` rule while `ProxyLite` explicitly classifies exceptions such as `googleapis.cn` for `节点选择`.
 - `demo/` stores example Mihomo YAML files used for reference and manual comparison.
@@ -20,19 +20,20 @@ Remote rule sets come from [DustinWin/ruleset_geodata](https://github.com/Dustin
 
 `rules/DustinWin-full.yaml` also uses `trackerslist` from [DustinWin/domain-list-custom](https://github.com/DustinWin/domain-list-custom) as a BT tracker direct supplement. It is a Clash rule-line `.list`, so keep it as `behavior: classical` and `format: text`.
 
-The exceptions are the overseas Apple/Microsoft/OneDrive sets from [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script), because DustinWin publishes no equivalent complete brand sets. They are wired as `classical`/`text` `.list` providers:
+The exceptions are the complete Google/Apple/Microsoft/OneDrive sets from [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script), because DustinWin publishes no equivalent complete brand sets. They are wired as `classical`/`text` `.list` providers:
 
+- `google` ← `rule/Clash/Google/Google.list`
 - `apple` ← `rule/Clash/Apple/Apple.list`
 - `microsoft` ← `rule/Clash/Microsoft/Microsoft.list`
 - `onedrive` ← `rule/Clash/OneDrive/OneDrive.list`
 
-Microsoft and OneDrive require `classical`: their lists include important keyword, IP, or process rules that domain-only formats cannot store. All blackmatrix7 paths used here are free of `geosite`/`geoip`.
+Google, Microsoft, and OneDrive require `classical`: their lists include important keyword, IP, or process rules that domain-only formats cannot store. All blackmatrix7 paths used here are free of `geosite`/`geoip`.
 
 Template-specific usage:
 
-- `rules/DustinWin-full.yaml`: `apple-cn` / `microsoft-cn` / `games-cn` are domestic direct supplements; full `apple`, `microsoft`, and `onedrive` route to dedicated service groups. Keep `onedrive` before `microsoft`, because OneDrive domains also appear in Microsoft's broad list.
-- `rules/DustinWin-core.yaml`: full `apple` and full `microsoft` route to `全球直连`; Core's `全球直连` contains `DIRECT`, `节点选择`, and `自动测速`, with `DIRECT` first. There are no Apple/Microsoft/OneDrive UI strategy groups or region node strategy groups. Do not re-add CN-only Google/Apple/Microsoft brand supplements unless the Core design changes back to CN-only brand supplements.
-- `rules/DustinWin-nano.yaml`: uses only DustinWin `private`, `privateip`, `gfw`, `cn-lite`, and `cnip`.
+- `rules/DustinWin-full.yaml`: full `google` routes to `节点选择` before all domestic domain rules; `apple-cn` / `microsoft-cn` / `games-cn` are domestic direct supplements; full `apple`, `microsoft`, and `onedrive` route to dedicated service groups. Keep `onedrive` before `microsoft`, because OneDrive domains also appear in Microsoft's broad list.
+- `rules/DustinWin-core.yaml`: full `google` routes to `节点选择` before full `apple` / `microsoft` and domestic rules; full `apple` and full `microsoft` route to `全球直连`. Core's `全球直连` contains `DIRECT`, `节点选择`, and `自动测速`, with `DIRECT` first. There are no Google/Apple/Microsoft/OneDrive UI strategy groups or region node strategy groups. Do not re-add CN-only Google/Apple/Microsoft brand supplements unless the Core design changes back to CN-only brand supplements.
+- `rules/DustinWin-nano.yaml`: uses DustinWin `private`, `privateip`, `proxy`, `cn-lite`, and `cnip`, plus the complete blackmatrix7 `google` provider before `proxy` and `cn-lite`.
 
 Regardless of source, root-template rule-provider URLs must avoid the substrings `geosite` and `geoip` anywhere in their paths. ShellCrash scans provider URLs and treats those keywords as a signal that Geo databases (`geoip.metadb` / `geosite.dat`) are required, which triggers extra downloads and checks. Do not switch root-template provider URLs to MetaCubeX `meta-rules-dat` paths even when rule content looks equivalent.
 
@@ -55,14 +56,14 @@ Template scope rules:
 
 - Full templates may contain the full service/scene groups: `AI`, `流媒体`, `游戏平台`, `Telegram`, `苹果服务`, `微软服务`, `OneDrive`, plus region groups.
 - Core templates keep only the base selector groups and `全球直连`, and intentionally remove service/brand UI groups, region node groups, and the separate `漏网之鱼` fallback group. Their special case is full `apple` and full `microsoft` routed to `全球直连`; Core's `全球直连` is `DIRECT` first, then `节点选择` and `自动测速`, and final fallback is `MATCH,节点选择`.
-- Nano templates must stay DNS-free and rule-light: do not add AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
+- Nano templates must stay DNS-free and rule-light: the complete Google routing provider is allowed as a high-priority proxy exception, but do not add Google UI groups, AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
 - `rules/MetaCubeX-full.yaml` mirrors Full's visible groups but uses MetaCubeX geosite categories. Keep `GEOSITE,github,节点选择` immediately after private rules because MetaCubeX's Microsoft and scenario categories include GitHub / Copilot-related domains that should keep using the proxy path. Route full `GEOSITE,apple` to `苹果服务` before entertainment scenarios; `apple@cn` remains a domestic direct supplement. Keep game rules (`category-game-platforms-download`, `category-games`) before `category-entertainment`, because the entertainment category overlaps games and would otherwise capture gaming-platform traffic too early. Route full `GEOSITE,microsoft` to `微软服务`; `microsoft@cn` remains a domestic direct supplement. Do not add dedicated Google rules unless the MetaCubeX routing design changes.
 - `rules/MetaCubeX-core.yaml` keeps the same 4-group Core contract and routes full `GEOSITE,apple` and full `GEOSITE,microsoft` to `全球直连`; `GEOSITE,github,节点选择` must stay immediately after private rules. Keep `GEOSITE,geolocation-!cn,节点选择` after the explicit Core direct-service rules and before `GEOSITE,cn,全球直连`, because categories such as Google can contain `.cn` domains that also match the broad CN TLD set. Final fallback remains `MATCH,节点选择`. Do not add dedicated Google rules unless the MetaCubeX routing design changes.
 - Do not re-add `GEOSITE,google@cn,全球直连` to geodata Full/Core by default: Android / Google Play download and connectivity domains can be captured by that tag and fail when sent direct on domestic networks.
 
 Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Use `cn-lite` for routing-domain fallback and full `cn` only for DNS `nameserver-policy` / `fake-ip-filter` coverage. Deliberate exceptions:
 
-- blackmatrix7 service keys (`apple`, `microsoft`, `onedrive`) map to capitalized upstream paths.
+- blackmatrix7 service keys (`google`, `apple`, `microsoft`, `onedrive`) map to capitalized upstream paths.
 
 Do not replace the routing `cn-lite` provider with full `cn.list`; the full set can over-direct domains that should fall through to proxy. For overlapping rules, place the more specific or higher-intent rule first.
 
