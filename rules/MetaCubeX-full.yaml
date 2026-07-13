@@ -1,5 +1,6 @@
 # Full Geodata：无节点规则、策略组、DNS、嗅探器和状态持久化；使用 MetaCubeX GEOSITE/GEOIP。
 
+ipv6: false
 unified-delay: true
 tcp-concurrent: true
 
@@ -15,7 +16,7 @@ geox-url:
 geo-auto-update: true
 geo-update-interval: 24
 
-# DNS：fake-ip；国内/私有域名返回真实 IP，默认海外 DoH。
+# DNS：fake-ip；丢弃 AAAA，国内/私有域名返回真实 IP，默认海外 DoH。
 dns:
   enable: true
   ipv6: false

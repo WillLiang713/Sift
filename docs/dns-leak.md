@@ -106,11 +106,27 @@ nameserver-policy:
 | Fake-IP Range | `198.18.0.1/16` |
 | Fake-IP 持久化 | 开启 |
 | Fake-IP-Filter 覆写 | 关闭 |
-| IPv6 DNS 解析 | 未主动使用 IPv6 时关闭 |
+| IPv6 总开关 | 未主动使用 IPv6 时关闭 |
+| IPv6 DNS 解析 | 关闭 |
 
 如果使用 Nano 模板或 OpenClash 自己覆写 DNS，模板不会提供 `dns.fake-ip-filter`；需要在客户端的 fake-ip-filter 自定义里同步追加国内直连规则集。
 
 改完 DNS 后，清理 DNS/Fake-IP 缓存并重启客户端。
+
+## IPv6 防泄露
+
+`dns.ipv6: false` 只会让 Mihomo 对 AAAA 查询返回空结果，不会阻断已经缓存、由浏览器安全 DNS 获取或由其他解析器获取的 IPv6 地址。若系统或透明代理链路仍允许 IPv6，这些连接可能绕过只接管 IPv4 的 TUN/TProxy 路径并暴露运营商 IPv6。
+
+因此 Full / Core 模板同时保留两个开关：
+
+```yaml
+ipv6: false
+
+dns:
+  ipv6: false
+```
+
+顶层 `ipv6: false` 负责阻断 Mihomo 的 IPv6 连接，`dns.ipv6: false` 负责丢弃 AAAA 回应；二者不能相互替代。修改后应清理系统、浏览器和 Mihomo 的 DNS/Fake-IP 缓存，关闭可能绕过本地 DNS 的浏览器安全 DNS，并重启客户端。
 
 ## 绕过大陆为什么仍然干净
 

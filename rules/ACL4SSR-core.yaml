@@ -1,5 +1,6 @@
 # ACL4SSR / Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连，其余 MATCH；含 DNS、嗅探器和状态持久化。
 
+ipv6: false
 unified-delay: true
 tcp-concurrent: true
 
@@ -7,7 +8,7 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-# DNS：fake-ip；默认海外 DoH，国内直连域名返回真实 IP。
+# DNS：fake-ip；丢弃 AAAA，默认海外 DoH，国内直连域名返回真实 IP。
 dns:
   enable: true
   ipv6: false
