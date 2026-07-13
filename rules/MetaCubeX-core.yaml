@@ -18,6 +18,7 @@ geo-update-interval: 24
 # DNS：fake-ip；国内/私有域名返回真实 IP，默认海外 DoH。
 dns:
   enable: true
+  ipv6: false
   listen: ":53"
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
