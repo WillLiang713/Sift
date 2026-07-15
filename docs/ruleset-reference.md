@@ -14,9 +14,9 @@
 - `rules/DustinWin-full.yaml` 额外使用 DustinWin/domain-list-custom 的 `trackerslist.list`，内容为 Clash `DOMAIN,...` 规则行，接入时使用 `classical` / `text`。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
-- `rules/DustinWin-*.yaml` 使用 blackmatrix7 完整 `Google.list` 作为高优先级代理 provider，放在 `cn-lite` 前，避免 `googleapis.cn` 等 Google 全球服务被宽泛的 `+.cn` 规则误直连。
+- `rules/DustinWin-*.yaml` 使用 DustinWin `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
 - `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。
-- `rules/MetaCubeX-core.yaml` 将 `GEOSITE,geolocation-!cn` 放在 `GEOSITE,cn` 前；两者可能同时覆盖 `googleapis.cn` 等 `.cn` 域名，明确非中国分类必须优先，避免 Google 全球服务误直连。
+- `rules/MetaCubeX-*.yaml`：Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
 ## URL 模板
@@ -53,7 +53,8 @@ ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全�
 | `OneDrive` | OneDrive | `classical` / `text` | `Clash/OneDrive.list` | Full 中放在 Microsoft 前。 |
 | `AI` | AI 平台 | `classical` / `text` | `Clash/Ruleset/AI.list` | Full 进入 `AI`。 |
 | `Steam` / `Epic` / `Origin` / `Sony` / `Xbox` / `Nintendo` | 游戏平台 | `classical` / `text` | `Clash/Ruleset/Steam.list` / `Clash/Ruleset/Epic.list` / `Clash/Ruleset/Origin.list` / `Clash/Ruleset/Sony.list` / `Clash/Xbox.list` / `Clash/Ruleset/Nintendo.list` | Full 进入 `游戏平台`。 |
-| `ProxyMedia` | 流媒体 | `classical` / `text` | `Clash/ProxyMedia.list` | Full 进入 `流媒体`。 |
+| `ProxyMedia` | 流媒体聚合包 | `classical` / `text` | `Clash/ProxyMedia.list` | 上游聚合媒体列表（含 `challenges.cloudflare.com` 等）；Sift ACL4SSR Full **不再引用**，改用下方分服务包。 |
+| `YouTube` / `Netflix` / `NetflixIP` / `DisneyPlus` / `Spotify` / `TikTok` | 主流流媒体 | `classical` / `text` | `Ruleset/YouTube.list` 等；`Netflix.list` 在 `Clash/` 根目录 | ACL4SSR Full 进入 `流媒体`；均在 `Google` / `ProxyLite` 前。 |
 | `Telegram` | Telegram | `classical` / `text` | `Clash/Telegram.list` | Full 进入 `Telegram`。 |
 | `fakeip-filter` | DNS fake-ip 兼容例外 | `domain` / `text` | DustinWin `mihomo-ruleset/fakeip-filter.list` | Full/Core DNS 使用，与 DustinWin / MetaCubeX 模板对齐。 |
 | `private` | DNS fake-ip 私有域名例外 | `domain` / `text` | DustinWin `mihomo-ruleset/private.list` | Full/Core DNS 使用，与 DustinWin 模板对齐。 |

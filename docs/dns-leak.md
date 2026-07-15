@@ -51,7 +51,7 @@ proxy-server-nameserver:
 | 字段 | 用途 |
 | --- | --- |
 | `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
-| `nameserver-policy` | 只让 `cn` 使用国内 DoH；`apple-cn`、`microsoft-cn`、`games-cn` 等 `*-cn` 路由补充规则不进入 DNS policy。完整 `google` 路由规则进入 `节点选择`，不作为国内 DNS policy 条件。 |
+| `nameserver-policy` | 只让 `cn` 使用国内 DoH；`apple-cn`、`microsoft-cn`、`games-cn` 等 `*-cn` 路由补充规则不进入 DNS policy。路由侧的 `proxy`（明确非中国域名）进入 `节点选择`，不作为国内 DNS policy 条件。 |
 | `nameserver` | 默认解析，使用海外 DoH（IP 形式），泄露测试只会看到海外 DNS。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 

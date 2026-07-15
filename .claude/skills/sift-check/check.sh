@@ -10,12 +10,12 @@ cd "$ROOT" || exit 2
 
 # --- Canonical contract -------------------------------------------------------
 # Keep these in sync with AGENTS.md when a strategy group is added/renamed/removed.
-FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
+FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
 FULL_FORB=""
 CORE_REQ="节点选择 手动切换 自动测速 全球直连"
-CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 漏网之鱼"
+CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 漏网之鱼"
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 漏网之鱼"
-NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
+NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 # Geodata templates keep the same group contracts and route with GEOSITE/GEOIP.
 # The only allowed provider is DNS-only fakeip-filter for dns.fake-ip-filter.
 
@@ -163,18 +163,19 @@ check_file rules/ACL4SSR-full.yaml ACL4SSR-full "$FULL_REQ" "$FULL_FORB" 1 0
 check_file rules/ACL4SSR-core.yaml ACL4SSR-core "$CORE_REQ" "$CORE_FORB" 1 0
 check_file rules/ACL4SSR-nano.yaml ACL4SSR-nano "$NANO_REQ" "$NANO_FORB" 0 0
 
-# DustinWin's complete Google provider contains global .cn exceptions such as
-# googleapis.cn. It must take precedence over cn-lite's broad +.cn entry.
+# DustinWin proxy (geolocation-!cn + gfwlist) covers global .cn exceptions such as
+# googleapis.cn. It must take precedence over cn-lite's broad +.cn entry, matching
+# MetaCubeX geolocation-!cn / ACL4SSR ProxyLite placement.
 for f in rules/DustinWin-full.yaml rules/DustinWin-core.yaml rules/DustinWin-nano.yaml; do
-  google_line=$(awk '/^- RULE-SET,google,节点选择/{ print NR; exit }' "$f")
+  proxy_line=$(awk '/^- RULE-SET,proxy,节点选择/{ print NR; exit }' "$f")
   cn_line=$(awk '/^- RULE-SET,cn-lite,全球直连/{ print NR; exit }' "$f")
-  if [ -z "$google_line" ] || [ -z "$cn_line" ]; then
-    printf '  [FAIL] %s must route google and cn-lite\n' "$f"
+  if [ -z "$proxy_line" ] || [ -z "$cn_line" ]; then
+    printf '  [FAIL] %s must route proxy and cn-lite\n' "$f"
     fails=$((fails+1))
-  elif [ "$google_line" -lt "$cn_line" ]; then
-    printf '  [ OK ] %s routes google before cn-lite\n' "$f"
+  elif [ "$proxy_line" -lt "$cn_line" ]; then
+    printf '  [ OK ] %s routes proxy before cn-lite\n' "$f"
   else
-    printf '  [FAIL] %s must route google before cn-lite\n' "$f"
+    printf '  [FAIL] %s must route proxy before cn-lite\n' "$f"
     fails=$((fails+1))
   fi
 done
@@ -195,8 +196,10 @@ for f in rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml rules/ACL4SSR-nano.yaml
   fi
 done
 
-# MetaCubeX geolocation-!cn can overlap the broad CN TLD set. It must take
-# precedence so googleapis.cn and similar global-service domains use nodes.
+# MetaCubeX geolocation-!cn must precede cn. Google routing covers googleapis.cn /
+# gstatic.cn (in cn/tld-cn but not geolocation-!cn):
+# - Full: GEOSITE,google,谷歌服务 before geolocation-!cn and cn (UI strategy group)
+# - Core/Nano: GEOSITE,google,节点选择 between geolocation-!cn and cn (routing-only)
 for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml rules/MetaCubeX-nano.yaml; do
   noncn_line=$(awk '/^- GEOSITE,geolocation-!cn,节点选择/{ print NR; exit }' "$f")
   cn_line=$(awk '/^- GEOSITE,cn,全球直连/{ print NR; exit }' "$f")
@@ -209,6 +212,33 @@ for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml rules/MetaCubeX-nan
     printf '  [FAIL] %s must route geolocation-!cn before cn\n' "$f"
     fails=$((fails+1))
   fi
+  case "$f" in
+    *MetaCubeX-full.yaml)
+      google_line=$(awk '/^- GEOSITE,google,谷歌服务/{ print NR; exit }' "$f")
+      if [ -z "$google_line" ] || [ -z "$cn_line" ] || [ -z "$noncn_line" ]; then
+        printf '  [FAIL] %s must route GEOSITE,google,谷歌服务 before cn\n' "$f"
+        fails=$((fails+1))
+      elif [ "$google_line" -lt "$noncn_line" ] && [ "$google_line" -lt "$cn_line" ]; then
+        printf '  [ OK ] %s routes google (谷歌服务) before geolocation-!cn and cn\n' "$f"
+      else
+        printf '  [FAIL] %s must route google (谷歌服务) before geolocation-!cn and cn\n' "$f"
+        fails=$((fails+1))
+      fi
+      ;;
+    *)
+      google_line=$(awk '/^- GEOSITE,google,节点选择/{ print NR; exit }' "$f")
+      if [ -z "$google_line" ]; then
+        printf '  [FAIL] %s must route google before cn (googleapis.cn exception)\n' "$f"
+        fails=$((fails+1))
+      elif [ -n "$noncn_line" ] && [ -n "$cn_line" ] \
+        && [ "$noncn_line" -lt "$google_line" ] && [ "$google_line" -lt "$cn_line" ]; then
+        printf '  [ OK ] %s routes google between geolocation-!cn and cn\n' "$f"
+      else
+        printf '  [FAIL] %s must route google between geolocation-!cn and cn\n' "$f"
+        fails=$((fails+1))
+      fi
+      ;;
+  esac
 done
 
 # --- Optional toolchain -------------------------------------------------------

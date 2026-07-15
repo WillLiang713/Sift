@@ -91,13 +91,6 @@ rule-providers:
     path: ./ruleset/dustinwin/privateip.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.list"
     interval: 86400
-  google:
-    type: http
-    behavior: classical
-    format: text
-    path: ./ruleset/blackmatrix7/google.list
-    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Google/Google.list"
-    interval: 86400
   apple:
     type: http
     behavior: classical
@@ -118,6 +111,13 @@ rule-providers:
     format: text
     path: ./ruleset/dustinwin/games-cn.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.list"
+    interval: 86400
+  proxy:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/proxy.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.list"
     interval: 86400
   cn-lite:
     type: http
@@ -152,11 +152,12 @@ rules:
 - RULE-SET,private,DIRECT
 - RULE-SET,privateip,DIRECT,no-resolve
 
-- RULE-SET,google,节点选择
-
 - RULE-SET,apple,全球直连
 - RULE-SET,microsoft,全球直连
 - RULE-SET,games-cn,全球直连
+
+# 明确非中国域名进入节点选择（对齐 MetaCubeX geolocation-!cn；须在 cn-lite 前）
+- RULE-SET,proxy,节点选择
 
 - RULE-SET,cn-lite,全球直连
 

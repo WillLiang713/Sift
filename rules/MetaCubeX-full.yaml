@@ -161,6 +161,20 @@ proxy-groups:
   - 其他节点
   - 手动切换
 
+- name: 谷歌服务
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google.png"
+  proxies:
+  - 节点选择
+  - 自动测速
+  - 香港节点
+  - 美国节点
+  - 日本节点
+  - 新加坡节点
+  - 其他节点
+  - 手动切换
+  - DIRECT
+
 - name: 微软服务
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png"
@@ -281,6 +295,10 @@ rules:
 
 # IP 型服务
 - GEOIP,telegram,Telegram
+
+# Google 全品牌（含 googleapis.cn / gstatic.cn 等 .cn 全球服务）；放在 geolocation-!cn 前，避免被通用非中国层抢走
+# 流媒体等场景组更靠前，YouTube 等仍优先进 流媒体
+- GEOSITE,google,谷歌服务
 
 # 明确非中国域名
 - GEOSITE,geolocation-!cn,节点选择
