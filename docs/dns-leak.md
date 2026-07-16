@@ -18,13 +18,13 @@ nameserver:
   - https://doh.pub/dns-query
 ```
 
-`respect-rules: true` 只表示 DNS 上游连接也遵守分流规则。它不会把国内 DNS 上游变成海外 DNS 上游。
+`respect-rules: true` 让 DNS 查询按最终分流结果选择解析路径。模板配合 `direct-nameserver`：实际直连的域名使用国内 DoH，代理域名使用默认海外 DoH；`nameserver-policy` 仍可按域名强制指定国内 DoH。
 
-因此，只要默认解析器是国内 DNS，泄露测试就可能看到国内 DNS。
+因此，对实际直连的测试域名，DNS 泄露测试可能看到国内 DNS；对代理域名，则应看到默认海外 DNS。
 
 ## 当前分工
 
-`rules/DustinWin-full.yaml` / `rules/DustinWin-core.yaml` 按用途拆分 DNS，并且 DNS 侧只引用 `cn` 这个完整国内 DNS 入口。`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析：
+Full/Core 模板按用途拆分 DNS。静态 DNS policy 只引用 `cn` 这个完整国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合静态 DNS policy。实际直连流量则由 `respect-rules` 与 `direct-nameserver` 使用国内 DoH：
 
 ```yaml
 fake-ip-filter:
@@ -36,6 +36,11 @@ nameserver-policy:
   "rule-set:cn":
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
+
+respect-rules: true
+direct-nameserver:
+  - https://223.5.5.5/dns-query
+  - https://1.12.12.12/dns-query
 
 nameserver:
   - https://1.1.1.1/dns-query
@@ -51,11 +56,12 @@ proxy-server-nameserver:
 | 字段 | 用途 |
 | --- | --- |
 | `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
-| `nameserver-policy` | 只让 `cn` 使用国内 DoH；`apple-cn`、`microsoft-cn`、`games-cn` 等 `*-cn` 路由补充规则不进入 DNS policy。路由侧的 `proxy`（明确非中国域名）进入 `节点选择`，不作为国内 DNS policy 条件。 |
-| `nameserver` | 默认解析，使用海外 DoH（IP 形式），泄露测试只会看到海外 DNS。 |
+| `nameserver-policy` | 只让 `cn` 静态使用国内 DoH；`apple-cn`、`microsoft-cn`、`games-cn` 等 `*-cn` 路由补充规则不进入 DNS policy。路由侧的 `proxy`（明确非中国域名）进入 `节点选择`，不作为国内 DNS policy 条件。 |
+| `direct-nameserver` | 在 `respect-rules` 下，实际命中 `DIRECT` 的 DNS 查询使用国内 DoH；因此 Apple/Microsoft 默认直连时可获得国内 DNS 调度，手动切到节点后不再使用此路径。 |
+| `nameserver` | 默认解析，使用海外 DoH（IP 形式），供代理路径与未命中直连路径使用。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
-DNS 侧只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍只在路由侧进入 `全球直连`；Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
+DNS 静态规则只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时，`direct-nameserver` 据此使用国内 DoH。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
 
 `rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；但 MetaCubeX `meta-rules-dat` 当前没有 `geosite:fakeip-filter` 分类，所以 DNS 侧按 Mihomo 官方示例允许的 `rule-set:<name>` 方式额外补充一个 DustinWin domain provider：
 
@@ -88,7 +94,7 @@ nameserver-policy:
 1. 命中 `dns.fake-ip-filter` 的国内直连规则集时，客户端直接拿到真实 IP；在 OpenWrt/OpenClash 这类路由器环境里，真实中国 IP 可以继续命中本机的 China IP 直连链路，也不会被禁 QUIC 规则当作 `198.18/16` fake-ip 误拒绝。
 2. 未命中 `fake-ip-filter` 的域名仍走 fake-ip 流程：客户端拿到 fake IP，内核再按原始域名匹配 `rules`，命中直连规则后进入 `全球直连`。
 
-因此默认 `nameserver` 仍可以使用海外 DoH；明确国内直连的域名由 `fake-ip-filter` / `nameserver-policy` 保留国内解析质量。
+因此默认 `nameserver` 仍可以使用海外 DoH；静态国内域名由 `fake-ip-filter` / `nameserver-policy` 保留国内解析质量，其他实际直连域名由 `direct-nameserver` 使用国内 DoH。
 
 ## 客户端设置
 
@@ -132,9 +138,9 @@ dns:
 
 泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 `cn` 或路由侧的 `cn-lite`。
 
-因此测试域名继续使用默认 `nameserver`，也就是海外 DoH。
+因此代理测试域名继续使用默认 `nameserver`，也就是海外 DoH。
 
-国内域名命中直连规则后通过 `nameserver-policy` 使用国内 DoH，这是为了国内访问质量，不会影响海外泄露测试结果。
+国内域名命中静态 policy 后使用国内 DoH；其他命中直连规则的域名也会通过 `direct-nameserver` 使用国内 DoH。两者都是为了直连访问质量，不会影响代理域名的海外 DNS 测试结果。
 
 ## 复发排查
 

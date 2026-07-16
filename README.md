@@ -45,7 +45,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 - **三类规则来源**：`DustinWin-*` 使用 DustinWin / blackmatrix7 远程 `.list` 规则集；`MetaCubeX-*` 使用 MetaCubeX `GEOSITE` / `GEOIP`；`ACL4SSR-*` 使用 ACL4SSR Clash `.list` 路由规则，DNS 侧与 DustinWin 模板共用 domain provider。
 - **运行优化**：Full / Core 及其 Geodata 版本默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
 - **状态持久化**：Full / Core 及其 MetaCubeX / ACL4SSR 版本默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
-- **DNS 分模板**：所有 Nano 模板不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS。DustinWin 与 ACL4SSR 版本统一使用 DustinWin `fakeip-filter` / `private` / `cn` 做 DNS rule-set；MetaCubeX 版本使用同一 `fakeip-filter`，并用 `geosite:private` / `geosite:cn` 做私有/国内 DNS 规则。
+- **DNS 分模板**：所有 Nano 模板不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS。国内/私有域名由 policy 使用国内 DoH；启用 `respect-rules` + `direct-nameserver` 后，其他实际直连流量也使用国内 DoH，代理流量默认使用海外 DoH。DustinWin 与 ACL4SSR 版本统一使用 DustinWin `fakeip-filter` / `private` / `cn` 做 DNS rule-set；MetaCubeX 版本使用同一 `fakeip-filter`，并用 `geosite:private` / `geosite:cn` 做私有/国内 DNS 规则。
 - **域名嗅探**：Full / Core 及其 MetaCubeX / ACL4SSR 版本启用 `sniffer`，从 HTTP Host、TLS SNI 和 QUIC 握手中提取域名，提升 TUN / redir-host / 纯 IP 场景下的规则命中准确率。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 与 `自动测速`，且 `DIRECT` 排第一。
@@ -189,7 +189,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 
 `DustinWin-*` 模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，统一使用 `format: text` 的 `.list` 以提高客户端兼容性；Full 的 BT Tracker 补充取自 [DustinWin/domain-list-custom](https://github.com/DustinWin/domain-list-custom)，使用 classical/text 的 `.list`；海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应完整集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword / IP / process 规则）。明确非中国域名使用 DustinWin `proxy`（`geolocation-!cn` + gfwlist），位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被 `+.cn` 误直连。
 
-DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合国内 DNS 解析。blackmatrix7 的完整 Apple / Microsoft / OneDrive classical 规则只用于路由分流，避免其中的 `PROCESS-NAME` 等规则类型进入 DNS 过滤。
+DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合静态 DNS policy 解析。`respect-rules` 配合 `direct-nameserver` 会让实际直连流量使用国内 DoH，策略组改为代理后则回到默认海外 DoH。blackmatrix7 的完整 Apple / Microsoft / OneDrive classical 规则不进入 DNS 过滤或静态 policy，避免其中的 `PROCESS-NAME` 等非域名规则类型造成误用。
 
 - **DustinWin-full**：`private` · `privateip` · `trackerslist`（BT Tracker）· `google`（blackmatrix7，进入 `谷歌服务`）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **DustinWin-core**：`private` · `privateip` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）

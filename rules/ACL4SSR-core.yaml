@@ -8,7 +8,7 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-# DNS：fake-ip；丢弃 AAAA，默认海外 DoH，国内直连域名返回真实 IP。
+# DNS：fake-ip；丢弃 AAAA；国内域名按 policy 解析，其他直连流量使用国内 DoH，代理流量默认海外 DoH。
 dns:
   enable: true
   ipv6: false
@@ -25,6 +25,9 @@ dns:
       - https://223.5.5.5/dns-query
       - https://1.12.12.12/dns-query
   respect-rules: true
+  direct-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
