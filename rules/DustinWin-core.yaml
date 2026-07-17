@@ -1,4 +1,4 @@
-# Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连，其余 MATCH；含 DNS、嗅探器和状态持久化。
+# Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连；OneDrive 在 Microsoft 前进入节点选择；其余 MATCH；含 DNS、嗅探器和状态持久化。
 
 ipv6: false
 unified-delay: true
@@ -101,6 +101,13 @@ rule-providers:
     path: ./ruleset/blackmatrix7/apple.list
     url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Apple/Apple.list"
     interval: 86400
+  onedrive:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/blackmatrix7/onedrive.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OneDrive/OneDrive.list"
+    interval: 86400
   microsoft:
     type: http
     behavior: classical
@@ -156,6 +163,8 @@ rules:
 - RULE-SET,privateip,DIRECT,no-resolve
 
 - RULE-SET,apple,全球直连
+# OneDrive 须在 microsoft 前进入节点选择，避免被微软大类抢先直连
+- RULE-SET,onedrive,节点选择
 - RULE-SET,microsoft,全球直连
 - RULE-SET,games-cn,全球直连
 

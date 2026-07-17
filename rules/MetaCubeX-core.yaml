@@ -1,4 +1,4 @@
-# Core Geodata：国内白名单 + Apple/Microsoft 完整规则进入全球直连，其余 MATCH；使用 MetaCubeX GEOSITE/GEOIP。
+# Core Geodata：国内白名单 + Apple/Microsoft 完整规则进入全球直连；OneDrive 在 Microsoft 前进入节点选择；其余 MATCH；使用 MetaCubeX GEOSITE/GEOIP。
 
 ipv6: false
 unified-delay: true
@@ -108,6 +108,8 @@ rules:
 # 中国区 / 国内服务直连补充
 - GEOSITE,category-games@cn,全球直连
 - GEOSITE,apple,全球直连
+# OneDrive 须在 microsoft 前进入节点选择，避免被微软大类抢先直连
+- GEOSITE,onedrive,节点选择
 - GEOSITE,microsoft,全球直连
 
 # 明确非中国域名优先走节点

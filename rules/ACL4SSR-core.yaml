@@ -1,4 +1,4 @@
-# ACL4SSR / Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连，其余 MATCH；含 DNS、嗅探器和状态持久化。
+# ACL4SSR / Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连；OneDrive 在 Microsoft 前进入节点选择；其余 MATCH；含 DNS、嗅探器和状态持久化。
 
 ipv6: false
 unified-delay: true
@@ -129,6 +129,13 @@ rule-providers:
     path: ./ruleset/acl4ssr/Apple.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
     interval: 86400
+  OneDrive:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/OneDrive.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/OneDrive.list"
+    interval: 86400
   Microsoft:
     type: http
     behavior: classical
@@ -172,6 +179,8 @@ rules:
 - RULE-SET,SteamCN,全球直连
 
 - RULE-SET,Apple,全球直连
+# OneDrive 须在 Microsoft 前进入节点选择，避免被微软大类抢先直连
+- RULE-SET,OneDrive,节点选择
 - RULE-SET,Microsoft,全球直连
 
 - RULE-SET,ProxyLite,节点选择

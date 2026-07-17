@@ -51,7 +51,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 与 `自动测速`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
 - **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、**谷歌服务**、Microsoft、OneDrive 等独立入口。DustinWin Full 用 blackmatrix7 完整 Google 进入 `谷歌服务`，再在其后用 `proxy` 接管其余明确非中国域名；MetaCubeX Full 用 `GEOSITE,google → 谷歌服务`（位于 `geolocation-!cn` 前）；ACL4SSR Full 用 blackmatrix7 Google 进入 `谷歌服务`，流媒体改为 ACL 分服务列表（YouTube、Netflix+IP、DisneyPlus、Spotify、TikTok），不再使用聚合包 `ProxyMedia`（避免 `challenges.cloudflare.com` 等非内容域绑进流媒体）。Geodata Full 中游戏规则优先级高于 `category-entertainment`；GitHub 先于 Microsoft 单独进入 `节点选择`。
-- **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；DustinWin Core 的完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择` 或 `自动测速`，并在 `cn-lite` 前用 `proxy` 接管明确非中国域名，其余流量全部交给 `MATCH,节点选择`。ACL4SSR Core 在 `ChinaDomain` 前保留 `ProxyLite`；MetaCubeX Core 在 `GEOSITE,cn` 前保留 `geolocation-!cn` 与路由专用 `google`（无 Google UI 组），避免 `googleapis.cn` 等被宽泛的 `cn` 分类误直连。
+- **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；DustinWin Core 的完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择` 或 `自动测速`，并在 `cn-lite` 前用 `proxy` 接管明确非中国域名，其余流量全部交给 `MATCH,节点选择`。三家 Core 均在 Microsoft 整包直连前将 OneDrive 单独导入 `节点选择`（无 OneDrive UI 组；商店/Xbox 等仍可随 Microsoft 直连，避免网盘与大下载绑死同一策略）。ACL4SSR Core 在 `ChinaDomain` 前保留 `ProxyLite`；MetaCubeX Core 在 `GEOSITE,cn` 前保留 `geolocation-!cn` 与路由专用 `google`（无 Google UI 组），避免 `googleapis.cn` 等被宽泛的 `cn` 分类误直连。
 - **Nano 极简代理**：DustinWin Nano 使用 `proxy`，Geodata Nano 使用 `geolocation-!cn` + `google` 路由例外，ACL4SSR Nano 使用 `ProxyLite`，代理明确非中国域名；三者都保留国内直连和兜底，不提供地区节点或服务分组。
 
 ## 分流顺序
@@ -117,11 +117,13 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 完整 Apple / Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 3 | 国内游戏 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 4 | 明确非中国域名（`proxy`） | `节点选择` |
-| 5 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 6 | 未命中流量 | `节点选择` |
+| 2 | 完整 Apple | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 3 | OneDrive | `节点选择`（须在 Microsoft 前） |
+| 4 | 完整 Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 5 | 国内游戏 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 6 | 明确非中国域名（`proxy`） | `节点选择` |
+| 7 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 8 | 未命中流量 | `节点选择` |
 
 ### MetaCubeX / Core
 
@@ -130,11 +132,12 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 | 1 | 局域网 / 私有地址 | `DIRECT` |
 | 2 | GitHub / Copilot | `节点选择` |
 | 3 | 游戏中国区补充 / 完整 Apple | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 4 | 完整 Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 5 | 明确非中国域名 | `节点选择` |
-| 6 | Google 路由例外（`.cn` 全球服务） | `节点选择` |
-| 7 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 8 | 未命中流量 | `节点选择` |
+| 4 | OneDrive | `节点选择`（须在 Microsoft 前） |
+| 5 | 完整 Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 6 | 明确非中国域名 | `节点选择` |
+| 7 | Google 路由例外（`.cn` 全球服务） | `节点选择` |
+| 8 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 9 | 未命中流量 | `节点选择` |
 
 ### ACL4SSR / Core
 
@@ -142,10 +145,12 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
 | 2 | 中国区 Google / Steam | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 3 | 完整 Apple / Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 4 | ProxyLite 明确代理域名 | `节点选择` |
-| 5 | 国内域名 / IPv4 / IPv6 / GEOIP CN 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 6 | 未命中流量 | `节点选择` |
+| 3 | 完整 Apple | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 4 | OneDrive | `节点选择`（须在 Microsoft 前） |
+| 5 | 完整 Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 6 | ProxyLite 明确代理域名 | `节点选择` |
+| 7 | 国内域名 / IPv4 / IPv6 / GEOIP CN 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 8 | 未命中流量 | `节点选择` |
 
 ### DustinWin / Nano
 
@@ -192,10 +197,10 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合静态 DNS policy 解析。`respect-rules` 配合 `direct-nameserver` 会让实际直连流量使用国内 DoH，策略组改为代理后则回到默认海外 DoH。blackmatrix7 的完整 Apple / Microsoft / OneDrive classical 规则不进入 DNS 过滤或静态 policy，避免其中的 `PROCESS-NAME` 等非域名规则类型造成误用。
 
 - **DustinWin-full**：`private` · `privateip` · `trackerslist`（BT Tracker）· `google`（blackmatrix7，进入 `谷歌服务`）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
-- **DustinWin-core**：`private` · `privateip` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
+- **DustinWin-core**：`private` · `privateip` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `onedrive`（blackmatrix7，进入 `节点选择`，须在 `microsoft` 前）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **DustinWin-nano**：`private` · `privateip` · `proxy` · `cn-lite`（路由直连）· `cnip`
-- **MetaCubeX-***：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 前）；Core/Nano 用 `GEOSITE,google,节点选择` 夹在 `geolocation-!cn` 与 `cn` 之间，覆盖 `googleapis.cn` / `gstatic.cn`；`GEOSITE,github,节点选择` 放在高优先级位置；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`。
-- **ACL4SSR-***：路由使用 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) 的 Clash `.list` 文件，并以 `classical`/`text` 接入；Full/Core 的 DNS 侧与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。Full 流媒体使用 ACL 分服务包 `YouTube` · `Netflix` · `NetflixIP` · `DisneyPlus` · `Spotify` · `TikTok`（不再使用 `ProxyMedia`）；`Google`（blackmatrix7）进入 `谷歌服务`；另含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `AI` · `Steam` · `Epic` · `Origin` · `Sony` · `Xbox` · `Nintendo` · `OneDrive` · `Microsoft` · `Telegram` · `ProxyLite` · `fakeip-filter` · `private` · `cn`。Core 包含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `Microsoft` · `fakeip-filter` · `private` · `cn`；Nano 包含 `LocalAreaNetwork` · `ProxyLite` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6`。
+- **MetaCubeX-***：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 前）；Core/Nano 用 `GEOSITE,google,节点选择` 夹在 `geolocation-!cn` 与 `cn` 之间，覆盖 `googleapis.cn` / `gstatic.cn`；`GEOSITE,github,节点选择` 放在高优先级位置；Core 在 `GEOSITE,microsoft` 前将 `GEOSITE,onedrive` 导入 `节点选择`（无 OneDrive UI 组）；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`。
+- **ACL4SSR-***：路由使用 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) 的 Clash `.list` 文件，并以 `classical`/`text` 接入；Full/Core 的 DNS 侧与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。Full 流媒体使用 ACL 分服务包 `YouTube` · `Netflix` · `NetflixIP` · `DisneyPlus` · `Spotify` · `TikTok`（不再使用 `ProxyMedia`）；`Google`（blackmatrix7）进入 `谷歌服务`；另含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `AI` · `Steam` · `Epic` · `Origin` · `Sony` · `Xbox` · `Nintendo` · `OneDrive` · `Microsoft` · `Telegram` · `ProxyLite` · `fakeip-filter` · `private` · `cn`。Core 包含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `GoogleCN` · `SteamCN` · `Apple` · `OneDrive`（进入 `节点选择`，须在 `Microsoft` 前）· `Microsoft` · `fakeip-filter` · `private` · `cn`；Nano 包含 `LocalAreaNetwork` · `ProxyLite` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6`。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献

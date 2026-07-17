@@ -61,7 +61,7 @@ proxy-server-nameserver:
 | `nameserver` | 默认解析，使用海外 DoH（IP 形式），供代理路径与未命中直连路径使用。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
-DNS 静态规则只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时，`direct-nameserver` 据此使用国内 DoH。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
+DNS 静态规则只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft` / `rule-set:onedrive`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时，`direct-nameserver` 据此使用国内 DoH。Core 路由侧将 `onedrive` 放在 `microsoft` 前进入 `节点选择`（无 OneDrive UI 组）。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
 
 `rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；但 MetaCubeX `meta-rules-dat` 当前没有 `geosite:fakeip-filter` 分类，所以 DNS 侧按 Mihomo 官方示例允许的 `rule-set:<name>` 方式额外补充一个 DustinWin domain provider：
 
