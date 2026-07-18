@@ -281,13 +281,6 @@ rule-providers:
     path: ./ruleset/acl4ssr/ChinaIpV6.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIpV6.list"
     interval: 86400
-  GoogleCN:
-    type: http
-    behavior: classical
-    format: text
-    path: ./ruleset/acl4ssr/GoogleCN.list
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
-    interval: 86400
   Google:
     type: http
     behavior: classical
@@ -454,7 +447,6 @@ rule-providers:
 rules:
 - RULE-SET,LocalAreaNetwork,DIRECT
 
-- RULE-SET,GoogleCN,全球直连
 - RULE-SET,SteamCN,全球直连
 
 - RULE-SET,Apple,苹果服务
@@ -482,7 +474,7 @@ rules:
 
 - RULE-SET,Telegram,Telegram
 
-# Google 全品牌进入谷歌服务（GoogleCN 已先直连可直部分；须在 ChinaDomain / ProxyLite 前）
+# Google 全品牌进入谷歌服务（须在 ChinaDomain / ProxyLite 前）
 - RULE-SET,Google,谷歌服务
 
 - RULE-SET,ProxyLite,节点选择

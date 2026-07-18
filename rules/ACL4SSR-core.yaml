@@ -108,13 +108,6 @@ rule-providers:
     path: ./ruleset/acl4ssr/ChinaIpV6.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIpV6.list"
     interval: 86400
-  GoogleCN:
-    type: http
-    behavior: classical
-    format: text
-    path: ./ruleset/acl4ssr/GoogleCN.list
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
-    interval: 86400
   SteamCN:
     type: http
     behavior: classical
@@ -175,7 +168,6 @@ rule-providers:
 rules:
 - RULE-SET,LocalAreaNetwork,DIRECT
 
-- RULE-SET,GoogleCN,全球直连
 - RULE-SET,SteamCN,全球直连
 
 - RULE-SET,Apple,全球直连
