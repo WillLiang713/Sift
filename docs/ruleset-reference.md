@@ -15,7 +15,7 @@
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
 - `rules/DustinWin-*.yaml` 使用 DustinWin `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
-- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。
+- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，使用 DustinWin `fakeip-filter` / `private` 作为 real-IP 兼容例外，`cn` 仅用于国内 `nameserver-policy`。
 - `rules/MetaCubeX-*.yaml`：Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
@@ -35,7 +35,7 @@
 
 ## ACL4SSR Rule Sets
 
-`rules/ACL4SSR-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 的 `.list` 文件包含 `DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`、`IP-CIDR`、`IP-CIDR6`、`no-resolve` 等 Clash 规则行，因此路由 provider 统一使用 `behavior: classical` 与 `format: text`。DNS rule-set 不引用这些 classical 列表，而是与 DustinWin 模板对齐，统一引用 DustinWin `fakeip-filter` / `private` / `cn` 作为 domain-only provider。
+`rules/ACL4SSR-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 的 `.list` 文件包含 `DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`、`IP-CIDR`、`IP-CIDR6`、`no-resolve` 等 Clash 规则行，因此路由 provider 统一使用 `behavior: classical` 与 `format: text`。DNS rule-set 不引用这些 classical 列表，而是与 DustinWin 模板对齐：`fakeip-filter` / `private` 作为 domain-only real-IP 例外，`cn` 仅作为国内 `nameserver-policy` 入口。
 
 ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全球直连`，作为国内 IP 的最后兜底；它放在 `MATCH` 前，不影响更高优先级的服务和场景规则。
 
@@ -58,7 +58,7 @@ ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全�
 | `Telegram` | Telegram | `classical` / `text` | `Clash/Telegram.list` | Full 进入 `Telegram`。 |
 | `fakeip-filter` | DNS fake-ip 兼容例外 | `domain` / `text` | DustinWin `mihomo-ruleset/fakeip-filter.list` | Full/Core DNS 使用，与 DustinWin / MetaCubeX 模板对齐。 |
 | `private` | DNS fake-ip 私有域名例外 | `domain` / `text` | DustinWin `mihomo-ruleset/private.list` | Full/Core DNS 使用，与 DustinWin 模板对齐。 |
-| `cn` | DNS 国内域名真实解析 | `domain` / `text` | DustinWin `mihomo-ruleset/cn.list` | Full/Core DNS 使用，同时作为 `nameserver-policy` 入口。 |
+| `cn` | DNS 国内解析 policy | `domain` / `text` | DustinWin `mihomo-ruleset/cn.list` | Full/Core 仅作为 `nameserver-policy` 入口；国内域名默认仍返回 fake-ip。 |
 
 ## DustinWin Rule Sets
 
