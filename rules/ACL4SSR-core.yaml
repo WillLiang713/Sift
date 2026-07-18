@@ -1,6 +1,6 @@
 # ACL4SSR / Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连；OneDrive 在 Microsoft 前进入节点选择；其余 MATCH；含 DNS、嗅探器和状态持久化。
 
-ipv6: false
+ipv6: true
 unified-delay: true
 tcp-concurrent: true
 
@@ -8,10 +8,10 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-# DNS：fake-ip；丢弃 AAAA；国内域名按 policy 解析，其他直连流量使用国内 DoH，代理流量默认海外 DoH。
+# DNS：fake-ip；解析 AAAA；国内域名按 policy 解析，其他直连流量使用国内 DoH，代理流量默认海外 DoH。
 dns:
   enable: true
-  ipv6: false
+  ipv6: true
   listen: ":53"
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16

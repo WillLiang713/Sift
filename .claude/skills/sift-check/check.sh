@@ -30,7 +30,7 @@ BEGIN{
   split(forbidden, fb, " "); for(i in fb) if(fb[i]!="") forbset[fb[i]]=1
   section=""; g=""; in_proxies=0; pk=""
   np=0; npol=0; nrs=0; nurl=0; ndnsrs=0
-  top_ipv6_false=0; dns_ipv6_false=0
+  top_ipv6_true=0; dns_ipv6_true=0
 }
 { sub(/\r$/,"") }                                  # normalize CRLF
 
@@ -38,7 +38,7 @@ BEGIN{
   key=$0; sub(/:.*/,"",key)
   if(key=="ipv6"){
     v=$0; sub(/^[^:]*:[ \t]*/,"",v); v=trim(v)
-    if(v=="false") top_ipv6_false=1
+    if(v=="true") top_ipv6_true=1
   }
   if(key=="proxy-groups")        section="pg"
   else if(key=="rule-providers") section="rp"
@@ -81,7 +81,7 @@ section=="rules" {
 }
 
 section=="dns" {                                   # dns block: collect rule-set refs
-  if($0 ~ /^  ipv6:[ \t]*false([ \t]*#.*)?$/) dns_ipv6_false=1
+  if($0 ~ /^  ipv6:[ \t]*true([ \t]*#.*)?$/) dns_ipv6_true=1
   s=$0; sub(/#.*/,"",s)
   if(s ~ /rule-set:/){
     sub(/.*rule-set:[ \t]*/,"",s); sub(/["':, \t].*$/,"",s); s=trim(s)
@@ -93,8 +93,8 @@ section=="dns" {                                   # dns block: collect rule-set
 END{
   if(fail_proxies)    emit("FAIL","top-level `proxies:` present — template must stay node-free")
   if(fail_dns)        emit("FAIL","top-level `dns:`/`fake-ip` present — this template must stay DNS-free")
-  if(allow_dns=="1" && !top_ipv6_false) emit("FAIL","DNS template must set top-level `ipv6: false` to block IPv6 connections")
-  if(allow_dns=="1" && !dns_ipv6_false) emit("FAIL","DNS template must set `dns.ipv6: false` to return empty AAAA answers")
+  if(allow_dns=="1" && !top_ipv6_true) emit("FAIL","DNS template must set top-level `ipv6: true` to allow IPv6 connections")
+  if(allow_dns=="1" && !dns_ipv6_true) emit("FAIL","DNS template must set `dns.ipv6: true` to return AAAA answers")
   if(geodata=="1") for(k in provs) if(k!="fakeip-filter") emit("FAIL","Geodata template may only define DNS-only provider `fakeip-filter`, not `" k "`")
 
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
