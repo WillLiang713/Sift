@@ -39,15 +39,13 @@
 
 ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全球直连`，作为国内 IP 的最后兜底；它放在 `MATCH` 前，不影响更高优先级的服务和场景规则。
 
-仓库内的 `rulesets/google-play-cn.list` 将 [v2fly/domain-list-community `google-play`](https://github.com/v2fly/domain-list-community/blob/master/data/google-play) 标记为 `@cn` 的北京（`2x3`）、上海（`ni5`）、广州（`j5o`）下载节点转换为 Mihomo classical `DOMAIN-REGEX`；上游采用 [MIT License](https://github.com/v2fly/domain-list-community/blob/master/LICENSE)。三套 ACL4SSR 模板都在 Google / `ProxyLite` 前将其导入 `全球直连`，其他 Google Play 控制和海外下载域名继续代理。
-
 | Key | 用途 | Mihomo 行为 | 文件 | 备注 |
 | --- | --- | --- | --- | --- |
 | `LocalAreaNetwork` | 局域网 / 私有地址路由 | `classical` / `text` | `Clash/LocalAreaNetwork.list` | Full/Core/Nano 高优先级直连。 |
-| `google-play-cn` | Google Play 国内下载 CDN | `classical` / `text` | Sift `rulesets/google-play-cn.list` | Full/Core/Nano 在 Google / `ProxyLite` 前进入 `全球直连`；匹配 `2x3` / `ni5` / `j5o` 节点。 |
 | `ChinaDomain` | 国内域名路由兜底 | `classical` / `text` | `Clash/ChinaDomain.list` | 含域名规则，也可能含少量 IP 规则；仅用于路由。 |
 | `ChinaIp` | 国内 IP 路由兜底 | `classical` / `text` | `Clash/ChinaIp.list` | 规则行自带 `no-resolve`。 |
 | `ChinaIpV6` | 国内 IPv6 路由兜底 | `classical` / `text` | `Clash/ChinaIpV6.list` | 规则行自带 `no-resolve`。 |
+| `GoogleCN` | 中国区 Google 服务 | `classical` / `text` | `Clash/GoogleCN.list` | Full/Core 在服务规则前进入 `全球直连`。 |
 | `SteamCN` | 中国区 Steam 服务 | `classical` / `text` | `Clash/Ruleset/SteamCN.list` | Full/Core 在游戏规则前进入 `全球直连`。 |
 | `ProxyLite` | 明确代理域名 | `classical` / `text` | `Clash/ProxyLite.list` | Nano 的代理主入口；Full/Core 中位于场景或直连服务规则之后、`ChinaDomain` 之前，避免 `googleapis.cn` 等域名被 `.cn` 泛规则误直连。 |
 | `Apple` | Apple 服务 | `classical` / `text` | `Clash/Apple.list` | Full 进入 `苹果服务`，Core 进入 `全球直连`。 |

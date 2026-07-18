@@ -46,9 +46,6 @@ DEFAULT_DOMAINS: List[str] = [
     "googleapis.cn",
     "gstatic.cn",
     "www.google.com",
-    "mtalk.google.com",
-    "dl.google.com",
-    "rr4---sn-j5o7dn7e.xn--ngstr-lra8j.com",
     "play.googleapis.com",
     "www.youtube.com",
     "scholar.google.com",
@@ -114,11 +111,8 @@ def default_expectations() -> List[Expectation]:
     exp.append(("googleapis.cn", ["DW-f", "MC-f", "AC-f"], {"谷歌服务"}, "FAIL"))
     exp.append(("googleapis.cn", ["DW-c", "DW-n", "MC-c", "MC-n", "AC-c", "AC-n"], {"节点选择"}, "FAIL"))
 
-    for google_service in ("www.google.com", "mtalk.google.com", "dl.google.com"):
-        exp.append((google_service, FULLS, {"谷歌服务"}, "FAIL"))
-        exp.append((google_service, CORES + NANOS, {"节点选择"}, "FAIL"))
-
-    exp.append(("rr4---sn-j5o7dn7e.xn--ngstr-lra8j.com", ["AC-f", "AC-c", "AC-n"], {"全球直连"}, "FAIL"))
+    exp.append(("www.google.com", FULLS, {"谷歌服务"}, "FAIL"))
+    exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.youtube.com", ["MC-f", "AC-f"], {"流媒体"}, "FAIL"))
     # DustinWin Full streaming is IP-heavy (mediaip); YouTube domain often hits proxy.

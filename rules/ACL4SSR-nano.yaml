@@ -47,13 +47,6 @@ rule-providers:
     path: ./ruleset/acl4ssr/LocalAreaNetwork.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
     interval: 86400
-  google-play-cn:
-    type: http
-    behavior: classical
-    format: text
-    path: ./rulesets/google-play-cn.list
-    url: "https://raw.githubusercontent.com/WillLiang713/Sift/main/rulesets/google-play-cn.list"
-    interval: 86400
   ProxyLite:
     type: http
     behavior: classical
@@ -85,9 +78,6 @@ rule-providers:
 
 rules:
 - RULE-SET,LocalAreaNetwork,DIRECT
-
-# Google Play 国内下载 CDN（北京 2x3、上海 ni5、广州 j5o）
-- RULE-SET,google-play-cn,全球直连
 
 - RULE-SET,ProxyLite,节点选择
 
