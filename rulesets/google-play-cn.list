@@ -1,0 +1,4 @@
+# Google Play mainland CDN nodes (Beijing 2x3, Shanghai ni5, Guangzhou j5o)
+# Source logic: v2fly/domain-list-community data/google-play @cn (MIT License)
+# https://github.com/v2fly/domain-list-community/blob/master/data/google-play
+DOMAIN-REGEX,^r+[0-9]+(---|\.)sn-(2x3|ni5|j5o)\w{5}\.xn--ngstr-lra8j\.com$

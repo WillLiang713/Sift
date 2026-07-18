@@ -23,9 +23,9 @@
 | [`rules/MetaCubeX-full.yaml`](./rules/MetaCubeX-full.yaml) | 18 | 1 | MetaCubeX Geodata 完整版：含 `谷歌服务`；使用 `GEOSITE` / `GEOIP` 分流；`google` 在 `geolocation-!cn` / `cn` 前；DNS 侧额外引用 `fakeip-filter` |
 | [`rules/MetaCubeX-core.yaml`](./rules/MetaCubeX-core.yaml) | 4 | 1 | MetaCubeX Geodata 核心白名单版：完整 Apple、Microsoft 与国内白名单进入 `全球直连`；`geolocation-!cn` + `google` 路由例外优先于 `cn`；DNS 侧额外引用 `fakeip-filter` |
 | [`rules/MetaCubeX-nano.yaml`](./rules/MetaCubeX-nano.yaml) | 5 | 0 | MetaCubeX Geodata 极简版：局域网、明确非中国域名、`google` 路由例外、国内域名/IP 与兜底分流；不接管 DNS |
-| [`rules/ACL4SSR-full.yaml`](./rules/ACL4SSR-full.yaml) | 18 | 27 | ACL4SSR 规则集完整版：含 `谷歌服务`；流媒体用 ACL 分服务包（YouTube/Netflix/Disney+/Spotify/TikTok，非 ProxyMedia）；保留 AI、游戏、Telegram、Apple、Microsoft、OneDrive、地区节点及 DNS/嗅探 |
-| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 4 | 11 | ACL4SSR 规则集核心白名单版：SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连`；Google 服务通过 `ProxyLite` 或最终兜底进入 `节点选择`，避免 Google Play 控制及下载域名误直连 |
-| [`rules/ACL4SSR-nano.yaml`](./rules/ACL4SSR-nano.yaml) | 5 | 5 | ACL4SSR 规则集极简版：局域网直连、`ProxyLite` 代理、国内直连和兜底分流；不接管 DNS |
+| [`rules/ACL4SSR-full.yaml`](./rules/ACL4SSR-full.yaml) | 18 | 28 | ACL4SSR 规则集完整版：含 `谷歌服务`；国内 Google Play CDN 精确直连，其他 Google 服务仍按场景代理；流媒体用 ACL 分服务包（YouTube/Netflix/Disney+/Spotify/TikTok，非 ProxyMedia） |
+| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 4 | 12 | ACL4SSR 规则集核心白名单版：国内 Google Play CDN、SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连`；其他 Google 服务通过 `ProxyLite` 或最终兜底进入 `节点选择` |
+| [`rules/ACL4SSR-nano.yaml`](./rules/ACL4SSR-nano.yaml) | 5 | 6 | ACL4SSR 规则集极简版：国内 Google Play CDN 精确直连，`ProxyLite` 代理其余明确代理域名；保留国内直连和兜底分流，不接管 DNS |
 
 ```text
 https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/DustinWin-full.yaml
@@ -99,7 +99,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 中国区 Google / Steam | `全球直连` |
+| 2 | 国内 Google Play CDN / Steam | `全球直连` |
 | 3 | Apple 服务 | `苹果服务` |
 | 4 | AI 服务 | `AI` |
 | 5 | Steam / Epic / Origin / Sony / Xbox / Nintendo | `游戏平台` |
@@ -144,7 +144,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | 中国区 Google / Steam | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
+| 2 | 国内 Google Play CDN / Steam | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
 | 3 | 完整 Apple | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
 | 4 | OneDrive | `节点选择`（须在 Microsoft 前） |
 | 5 | 完整 Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
@@ -176,9 +176,10 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
 | 1 | 局域网 / 私有地址 | `DIRECT` |
-| 2 | ProxyLite 明确代理域名 | `节点选择` |
-| 3 | 国内域名 / IP 兜底 | `全球直连` |
-| 4 | 未命中流量 | `漏网之鱼` |
+| 2 | 国内 Google Play CDN | `全球直连` |
+| 3 | ProxyLite 明确代理域名 | `节点选择` |
+| 4 | 国内域名 / IP 兜底 | `全球直连` |
+| 5 | 未命中流量 | `漏网之鱼` |
 
 ## 策略组
 
@@ -200,7 +201,7 @@ DNS 的 `fake-ip-filter` / `nameserver-policy` 只引用国内 DNS 入口；`*-c
 - **DustinWin-core**：`private` · `privateip` · `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `onedrive`（blackmatrix7，进入 `节点选择`，须在 `microsoft` 前）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cn`（DNS 国内解析）· `cnip` · `fakeip-filter`（仅供 `dns.fake-ip-filter`）
 - **DustinWin-nano**：`private` · `privateip` · `proxy` · `cn-lite`（路由直连）· `cnip`
 - **MetaCubeX-***：路由使用 [MetaCubeX/meta-rules-dat](https://github.com/MetaCubeX/meta-rules-dat) 的 `geoip.dat`、`geosite.dat`、`geoip.metadb`；`rules` 中只使用 `GEOSITE` / `GEOIP`，不使用 `RULE-SET`。Full/Core 仅为 `dns.fake-ip-filter` 定义 `fakeip-filter`（DustinWin，DNS-only）；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 前）；Core/Nano 用 `GEOSITE,google,节点选择` 夹在 `geolocation-!cn` 与 `cn` 之间，覆盖 `googleapis.cn` / `gstatic.cn`；`GEOSITE,github,节点选择` 放在高优先级位置；Core 在 `GEOSITE,microsoft` 前将 `GEOSITE,onedrive` 导入 `节点选择`（无 OneDrive UI 组）；`GEOIP,CN` 与 `GEOIP,telegram` 不追加 `no-resolve`。
-- **ACL4SSR-***：路由使用 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) 的 Clash `.list` 文件，并以 `classical`/`text` 接入；Full/Core 的 DNS 侧与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。Full 流媒体使用 ACL 分服务包 `YouTube` · `Netflix` · `NetflixIP` · `DisneyPlus` · `Spotify` · `TikTok`（不再使用 `ProxyMedia`）；`Google`（blackmatrix7）进入 `谷歌服务`；另含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `SteamCN` · `Apple` · `AI` · `Steam` · `Epic` · `Origin` · `Sony` · `Xbox` · `Nintendo` · `OneDrive` · `Microsoft` · `Telegram` · `ProxyLite` · `fakeip-filter` · `private` · `cn`。Core 包含 `LocalAreaNetwork` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `SteamCN` · `Apple` · `OneDrive`（进入 `节点选择`，须在 `Microsoft` 前）· `Microsoft` · `ProxyLite` · `fakeip-filter` · `private` · `cn`；Nano 包含 `LocalAreaNetwork` · `ProxyLite` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6`。
+- **ACL4SSR-***：路由使用 [ACL4SSR/ACL4SSR](https://github.com/ACL4SSR/ACL4SSR) 的 Clash `.list` 文件，并以 `classical`/`text` 接入；额外复用 v2fly `google-play` 的 `@cn` 逻辑维护仓库内 `google-play-cn` classical 规则，使北京（`2x3`）、上海（`ni5`）、广州（`j5o`）Google Play CDN 在 Google / `ProxyLite` 前进入 `全球直连`。Full/Core 的 DNS 侧与 DustinWin 模板对齐，统一使用 DustinWin `fakeip-filter` / `private` / `cn`。Full 流媒体使用 ACL 分服务包 `YouTube` · `Netflix` · `NetflixIP` · `DisneyPlus` · `Spotify` · `TikTok`（不再使用 `ProxyMedia`）；`Google`（blackmatrix7）进入 `谷歌服务`；另含 `LocalAreaNetwork` · `google-play-cn` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `SteamCN` · `Apple` · `AI` · `Steam` · `Epic` · `Origin` · `Sony` · `Xbox` · `Nintendo` · `OneDrive` · `Microsoft` · `Telegram` · `ProxyLite` · `fakeip-filter` · `private` · `cn`。Core 包含 `LocalAreaNetwork` · `google-play-cn` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6` · `SteamCN` · `Apple` · `OneDrive`（进入 `节点选择`，须在 `Microsoft` 前）· `Microsoft` · `ProxyLite` · `fakeip-filter` · `private` · `cn`；Nano 包含 `LocalAreaNetwork` · `google-play-cn` · `ProxyLite` · `ChinaDomain` · `ChinaIp` · `ChinaIpV6`。
 - [Koolson/Qure](https://github.com/Koolson/Qure)：策略组图标
 
 ## 贡献
