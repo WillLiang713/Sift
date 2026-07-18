@@ -61,7 +61,7 @@ Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = a
 3. FAIL = product contract broken (fix before commit). WARN = known design variance (report, usually do not block).
 4. Optionally run `bash .claude/skills/sift-check/check.sh` (or `.agents/skills/sift-check/check.sh`) for structural invariants alongside the route matrix.
 5. Domain matrix is **domain-first-match only**:
-   - ACL4SSR templates that mix `RULE-SET` + trailing `GEOIP,CN` use a domain-only walk (GEOIP skipped).
+   - Any `GEOIP` rules are skipped for domain probes.
    - Providers with `behavior: ipcidr` are skipped for domain probes (runtime may still match after DNS).
 
 ## Matrix labels
@@ -74,7 +74,7 @@ Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = a
 
 ## Built-in probes (default)
 
-Private, Google / `.cn` Google APIs, YouTube, CF challenge, AI, Netflix/Disney+/Spotify/TikTok/Twitch/Hulu, Apple/Microsoft/OneDrive, GitHub/social, domestic CN sites. See `DEFAULT_DOMAINS` in `scripts/matrix_route.py`.
+Private, advertising (`doubleclick` / `googlesyndication`), Google / `.cn` Google APIs, YouTube, CF challenge, AI, Netflix/Disney+/Spotify/TikTok/Twitch/Hulu, Apple/Microsoft/OneDrive, GitHub/social, domestic CN sites. See `DEFAULT_DOMAINS` in `scripts/matrix_route.py`.
 
 ## Built-in expectations (contract highlights)
 
@@ -82,6 +82,7 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 
 | Area | Contract (summary) |
 | --- | --- |
+| Advertising | `ad.doubleclick.net` / `pagead2.googlesyndication.com` → `广告拦截` on all nine templates |
 | Full Google | `www.google.com` / `googleapis.cn` → `谷歌服务` on DW/MC/AC Full |
 | Core/Nano Google | → `节点选择` (not broad CN direct for `googleapis.cn`) |
 | CF challenge | `challenges.cloudflare.com` → `节点选择` or `漏网之鱼`, **never** `流媒体` |

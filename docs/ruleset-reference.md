@@ -14,9 +14,9 @@
 - `rules/DustinWin-full.yaml` 额外使用 DustinWin/domain-list-custom 的 `trackerslist.list`，内容为 Clash `DOMAIN,...` 规则行，接入时使用 `classical` / `text`。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
-- `rules/DustinWin-*.yaml` 使用 DustinWin `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
-- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，使用 DustinWin `fakeip-filter` / `private` 作为 real-IP 兼容例外，`cn` 仅用于国内 `nameserver-policy`。
-- `rules/MetaCubeX-*.yaml`：Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。
+- `rules/DustinWin-*.yaml` 使用 DustinWin `ads` 进入可切换的 `广告拦截`，并使用 `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
+- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；三档模板均使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD` 广告拦截；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，使用 DustinWin `fakeip-filter` / `private` 作为 real-IP 兼容例外，`cn` 仅用于国内 `nameserver-policy`。
+- `rules/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
 ## URL 模板
@@ -37,11 +37,16 @@
 
 `rules/ACL4SSR-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 的 `.list` 文件包含 `DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`、`IP-CIDR`、`IP-CIDR6`、`no-resolve` 等 Clash 规则行，因此路由 provider 统一使用 `behavior: classical` 与 `format: text`。DNS rule-set 不引用这些 classical 列表，而是与 DustinWin 模板对齐：`fakeip-filter` / `private` 作为 domain-only real-IP 例外，`cn` 仅作为国内 `nameserver-policy` 入口。
 
-ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全球直连`，作为国内 IP 的最后兜底；它放在 `MATCH` 前，不影响更高优先级的服务和场景规则。
+ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜底，不再追加内置 `GEOIP,CN`；未被上游 provider 收录的 IP 将继续进入模板最终 `MATCH`。
+
+三档 ACL4SSR 模板均在局域网规则后依次放置 `UnBan,DIRECT`、`BanAD,广告拦截` 与 `BanProgramAD,广告拦截`。`广告拦截` 默认选择 `REJECT`，误伤时可临时切换为 `DIRECT` 或 `节点选择`。
 
 | Key | 用途 | Mihomo 行为 | 文件 | 备注 |
 | --- | --- | --- | --- | --- |
 | `LocalAreaNetwork` | 局域网 / 私有地址路由 | `classical` / `text` | `Clash/LocalAreaNetwork.list` | Full/Core/Nano 高优先级直连。 |
+| `UnBan` | 广告误伤放行 | `classical` / `text` | `Clash/UnBan.list` | Full/Core/Nano 在广告规则前直连。 |
+| `BanAD` | 常规广告拦截 | `classical` / `text` | `Clash/BanAD.list` | Full/Core/Nano 进入 `广告拦截`。 |
+| `BanProgramAD` | 应用内广告补充 | `classical` / `text` | `Clash/BanProgramAD.list` | Full/Core/Nano 进入 `广告拦截`。 |
 | `ChinaDomain` | 国内域名路由兜底 | `classical` / `text` | `Clash/ChinaDomain.list` | 含域名规则，也可能含少量 IP 规则；仅用于路由。 |
 | `ChinaIp` | 国内 IP 路由兜底 | `classical` / `text` | `Clash/ChinaIp.list` | 规则行自带 `no-resolve`。 |
 | `ChinaIpV6` | 国内 IPv6 路由兜底 | `classical` / `text` | `Clash/ChinaIpV6.list` | 规则行自带 `no-resolve`。 |
@@ -66,7 +71,7 @@ ACL4SSR Full/Core/Nano 都在 `ChinaIp` 与 `ChinaIpV6` 后追加 `GEOIP,CN,全�
 | --- | --- | --- | --- | --- | --- |
 | `fakeip-filter` | fakeip 过滤 | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter.json>) | DustinWin fake_ip_filter；完整 fake-ip/realip 过滤域名；配置时通常与 fakeip-filter-lite 二选一。 |
 | `fakeip-filter-lite` | fakeip 过滤（精简版） | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter-lite.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter-lite.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter-lite.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/fakeip-filter-lite.json>) | DustinWin fake_ip_filter 精简；仅保留主要域名；配置 tag 可继续命名为 fakeip-filter。 |
-| `ads` | 广告域名 | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ads.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ads.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/ads.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/ads.json>) | anti-AD；广告拦截域名。 |
+| `ads` | 广告域名 | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ads.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ads.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/ads.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/ads.json>) | anti-AD；DustinWin Full/Core/Nano 进入 `广告拦截`。 |
 | `private` | 私有网络（域名） | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/private.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/private.json>) | v2fly private + blackmatrix7 Lan；私有/局域网域名及主流 Dashboard 域名。 |
 | `trackerslist` | Trackerslist | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/trackerslist.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/trackerslist.json>) | XIU2 + ngosang trackerslist；BT Tracker 域名，通常用于 realip。 |
 | `applications` | 直连软件 | `classical` | [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/applications.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/applications.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/applications.json>) | blackmatrix7 Download + Loyalsoldier applications；Mihomo 仅发布 text/list；适合 classical provider。 |

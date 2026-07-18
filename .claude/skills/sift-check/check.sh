@@ -10,11 +10,11 @@ cd "$ROOT" || exit 2
 
 # --- Canonical contract -------------------------------------------------------
 # Keep these in sync with AGENTS.md when a strategy group is added/renamed/removed.
-FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 漏网之鱼"
+FULL_REQ="节点选择 手动切换 自动测速 AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 全球直连 广告拦截 漏网之鱼"
 FULL_FORB=""
-CORE_REQ="节点选择 手动切换 自动测速 全球直连"
+CORE_REQ="节点选择 手动切换 自动测速 全球直连 广告拦截"
 CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点 漏网之鱼"
-NANO_REQ="节点选择 手动切换 自动测速 全球直连 漏网之鱼"
+NANO_REQ="节点选择 手动切换 自动测速 全球直连 广告拦截 漏网之鱼"
 NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 # Geodata templates keep the same group contracts and route with GEOSITE/GEOIP.
 # The only allowed provider is DNS-only fakeip-filter for dns.fake-ip-filter.
@@ -193,6 +193,12 @@ for f in rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml rules/ACL4SSR-nano.yaml
   else
     printf '  [FAIL] %s must route ProxyLite before ChinaDomain\n' "$f"
     fails=$((fails+1))
+  fi
+  if grep -q '^- GEOIP,CN,' "$f"; then
+    printf '  [FAIL] %s must use ChinaIp/ChinaIpV6 without trailing GEOIP,CN\n' "$f"
+    fails=$((fails+1))
+  else
+    printf '  [ OK ] %s has no trailing GEOIP,CN fallback\n' "$f"
   fi
 done
 

@@ -78,6 +78,14 @@ proxy-groups:
   - 节点选择
   - 自动测速
 
+- name: 广告拦截
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+  proxies:
+  - REJECT
+  - DIRECT
+  - 节点选择
+
 rule-providers:
   LocalAreaNetwork:
     type: http
@@ -85,6 +93,27 @@ rule-providers:
     format: text
     path: ./ruleset/acl4ssr/LocalAreaNetwork.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+    interval: 86400
+  UnBan:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/UnBan.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
+    interval: 86400
+  BanAD:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/BanAD.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
+    interval: 86400
+  BanProgramAD:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/BanProgramAD.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
     interval: 86400
   ChinaDomain:
     type: http
@@ -174,6 +203,11 @@ rule-providers:
 rules:
 - RULE-SET,LocalAreaNetwork,DIRECT
 
+# ACL4SSR 官方广告白名单优先；广告误伤时也可在面板临时放行全部广告域名
+- RULE-SET,UnBan,DIRECT
+- RULE-SET,BanAD,广告拦截
+- RULE-SET,BanProgramAD,广告拦截
+
 - RULE-SET,GoogleCN,全球直连
 - RULE-SET,SteamCN,全球直连
 
@@ -188,6 +222,5 @@ rules:
 
 - RULE-SET,ChinaIp,全球直连
 - RULE-SET,ChinaIpV6,全球直连
-- GEOIP,CN,全球直连
 
 - MATCH,节点选择

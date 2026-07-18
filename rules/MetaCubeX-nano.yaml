@@ -38,6 +38,14 @@ proxy-groups:
   - 节点选择
   - 自动测速
 
+- name: 广告拦截
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+  proxies:
+  - REJECT
+  - DIRECT
+  - 节点选择
+
 - name: 漏网之鱼
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
@@ -51,6 +59,9 @@ rules:
 # 局域网 / 私有地址
 - GEOSITE,private,DIRECT
 - GEOIP,private,DIRECT,no-resolve
+
+# 广告域名默认拒绝；误伤时可在面板临时切换为直连或节点
+- GEOSITE,category-ads-all,广告拦截
 
 # 明确非中国域名进入节点选择
 - GEOSITE,geolocation-!cn,节点选择

@@ -2,8 +2,8 @@
 """Regression matrix: first-match domain routes for all Sift templates under rules/.
 
 Uses template-declared providers / geox-url only (via explain_route helpers).
-Domain-only diagnosis: ACL4SSR GEOIP rules are skipped; IP providers with
-behavior ipcidr are skipped for domain input.
+Domain-only diagnosis: GEOIP rules and providers with behavior ipcidr are
+skipped for domain input.
 
 Exit 0 if all FAIL-level expectations pass; exit 1 on any FAIL.
 """
@@ -43,6 +43,8 @@ TEMPLATES: Dict[str, str] = {
 # Canonical probe domains for whole-tree regression after routing design changes.
 DEFAULT_DOMAINS: List[str] = [
     "localhost",
+    "ad.doubleclick.net",
+    "pagead2.googlesyndication.com",
     "googleapis.cn",
     "gstatic.cn",
     "www.google.com",
@@ -87,6 +89,7 @@ SHORT = {
     "流媒体": "流媒",
     "OneDrive": "OD",
     "Telegram": "TG",
+    "广告拦截": "广告",
     "DIRECT": "DIR",
     "AI": "AI",
 }
@@ -106,6 +109,9 @@ def default_expectations() -> List[Expectation]:
     exp: List[Expectation] = []
 
     exp.append(("localhost", ALL, {"DIRECT"}, "FAIL"))
+
+    for ad_domain in ("ad.doubleclick.net", "pagead2.googlesyndication.com"):
+        exp.append((ad_domain, ALL, {"广告拦截"}, "FAIL"))
 
     # Google .cn global services must not fall through to broad CN direct on Full.
     exp.append(("googleapis.cn", ["DW-f", "MC-f", "AC-f"], {"谷歌服务"}, "FAIL"))

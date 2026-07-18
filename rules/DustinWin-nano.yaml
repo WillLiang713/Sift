@@ -30,6 +30,14 @@ proxy-groups:
   - 节点选择
   - 自动测速
 
+- name: 广告拦截
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+  proxies:
+  - REJECT
+  - DIRECT
+  - 节点选择
+
 - name: 漏网之鱼
   type: select
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
@@ -46,6 +54,13 @@ rule-providers:
     format: text
     path: ./ruleset/dustinwin/private.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.list"
+    interval: 86400
+  ads:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/ads.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ads.list"
     interval: 86400
   privateip:
     type: http
@@ -79,6 +94,9 @@ rule-providers:
 rules:
 - RULE-SET,private,DIRECT
 - RULE-SET,privateip,DIRECT,no-resolve
+
+# 广告域名默认拒绝；误伤时可在面板临时切换为直连或节点
+- RULE-SET,ads,广告拦截
 
 # 明确非中国域名进入节点选择（对齐 MetaCubeX geolocation-!cn 位阶）
 - RULE-SET,proxy,节点选择

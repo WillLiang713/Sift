@@ -96,10 +96,21 @@ proxy-groups:
   - 节点选择
   - 自动测速
 
+- name: 广告拦截
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+  proxies:
+  - REJECT
+  - DIRECT
+  - 节点选择
+
 rules:
 # 局域网 / 私有地址
 - GEOSITE,private,DIRECT
 - GEOIP,private,DIRECT,no-resolve
+
+# 广告域名默认拒绝；误伤时可在面板临时切换为直连或节点
+- GEOSITE,category-ads-all,广告拦截
 
 # GitHub / Copilot：高优先级走节点，避免被 Microsoft 大类抢先直连
 - GEOSITE,github,节点选择
