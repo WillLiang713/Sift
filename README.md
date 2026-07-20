@@ -17,14 +17,14 @@
 
 | 文件 | 策略组 | 规则提供商 | 说明 |
 | --- | ---: | ---: | --- |
-| [`rules/DustinWin-full.yaml`](./rules/DustinWin-full.yaml) | 19 | 20 | DustinWin 规则集完整版：含可切换 `广告拦截` 与 `谷歌服务`；场景组之后用 `proxy` 接管明确非中国域名；Tracker 仅返回 real-IP；保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点及内置 DNS/嗅探 |
-| [`rules/DustinWin-core.yaml`](./rules/DustinWin-core.yaml) | 5 | 13 | DustinWin 规则集核心白名单版：含可切换 `广告拦截`；完整 Apple / Microsoft 与国内白名单进入 `全球直连`；`proxy` 在 `cn-lite` 前接管明确非中国域名；Tracker 仅返回 real-IP；保留 DNS、嗅探和状态持久化 |
+| [`rules/DustinWin-full.yaml`](./rules/DustinWin-full.yaml) | 19 | 18 | DustinWin 规则集完整版：含可切换 `广告拦截` 与 `谷歌服务`；`proxy` 同时用于路由和 fake-IP 白名单，确保 `googleapis.cn` 等代理例外进入 Mihomo；保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点及内置 DNS/嗅探 |
+| [`rules/DustinWin-core.yaml`](./rules/DustinWin-core.yaml) | 5 | 11 | DustinWin 规则集核心白名单版：含可切换 `广告拦截`；完整 Apple / Microsoft 与国内白名单进入 `全球直连`；`proxy` 在 `cn-lite` 前接管明确非中国域名，并作为 fake-IP 白名单；保留 DNS、嗅探和状态持久化 |
 | [`rules/DustinWin-nano.yaml`](./rules/DustinWin-nano.yaml) | 6 | 6 | DustinWin 规则集极简版：`ads` 可切换拦截，`proxy` 明确非中国域名优先代理，国内直连和兜底分流；不接管 DNS |
-| [`rules/MetaCubeX-full.yaml`](./rules/MetaCubeX-full.yaml) | 19 | 2 | MetaCubeX Geodata 完整版：使用 `category-ads-all` 可切换拦截并保留 `谷歌服务`；使用 `GEOSITE` / `GEOIP` 分流；DNS 侧额外引用 `fakeip-filter` / `trackerslist`，国内用 `geosite:cn` |
-| [`rules/MetaCubeX-core.yaml`](./rules/MetaCubeX-core.yaml) | 5 | 2 | MetaCubeX Geodata 核心白名单版：使用 `category-ads-all` 可切换拦截；完整 Apple、Microsoft 与国内白名单进入 `全球直连`；DNS 侧额外引用 `fakeip-filter` / `trackerslist`，国内用 `geosite:cn` |
+| [`rules/MetaCubeX-full.yaml`](./rules/MetaCubeX-full.yaml) | 19 | 0 | MetaCubeX Geodata 完整版：使用 `category-ads-all` 可切换拦截并保留 `谷歌服务`；使用 `GEOSITE` / `GEOIP` 分流；DNS 直接用 `geolocation-!cn` + `google` 作为 fake-IP 白名单 |
+| [`rules/MetaCubeX-core.yaml`](./rules/MetaCubeX-core.yaml) | 5 | 0 | MetaCubeX Geodata 核心白名单版：使用 `category-ads-all` 可切换拦截；完整 Apple、Microsoft 与国内白名单进入 `全球直连`；DNS 直接用 `geolocation-!cn` + `google` 作为 fake-IP 白名单 |
 | [`rules/MetaCubeX-nano.yaml`](./rules/MetaCubeX-nano.yaml) | 6 | 0 | MetaCubeX Geodata 极简版：使用 `category-ads-all` 可切换拦截，并保留明确非中国域名、`google` 路由例外、国内域名/IP 与兜底分流；不接管 DNS |
-| [`rules/ACL4SSR-full.yaml`](./rules/ACL4SSR-full.yaml) | 19 | 32 | ACL4SSR 规则集完整版：`UnBan` 前置放行，`BanAD` / `BanProgramAD` 进入可切换 `广告拦截`；含 `谷歌服务`、分服务流媒体、AI、游戏、Telegram、Apple、Microsoft、OneDrive、地区节点及 DNS/嗅探；Tracker 仅返回 real-IP |
-| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 5 | 17 | ACL4SSR 规则集核心白名单版：`UnBan` + `BanAD` / `BanProgramAD` 可切换拦截；GoogleCN / SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连`；`ProxyLite` 优先于 `.cn` 泛规则；Tracker 仅返回 real-IP |
+| [`rules/ACL4SSR-full.yaml`](./rules/ACL4SSR-full.yaml) | 19 | 31 | ACL4SSR 规则集完整版：`UnBan` 前置放行，`BanAD` / `BanProgramAD` 进入可切换 `广告拦截`；含 `谷歌服务`、分服务流媒体、AI、游戏、Telegram、Apple、Microsoft、OneDrive、地区节点及 DNS/嗅探；DNS-only `proxy` 用作 fake-IP 白名单 |
+| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 5 | 16 | ACL4SSR 规则集核心白名单版：`UnBan` + `BanAD` / `BanProgramAD` 可切换拦截；GoogleCN / SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连`；`ProxyLite` 优先于 `.cn` 泛规则；DNS-only `proxy` 确保明确代理域名使用 fake-IP |
 | [`rules/ACL4SSR-nano.yaml`](./rules/ACL4SSR-nano.yaml) | 6 | 8 | ACL4SSR 规则集极简版：`UnBan` + `BanAD` / `BanProgramAD` 可切换拦截，局域网直连、`ProxyLite` 代理、国内直连和兜底分流；不接管 DNS |
 
 ```text
@@ -45,7 +45,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 - **三类规则来源**：`DustinWin-*` 使用 DustinWin / blackmatrix7 远程 `.list` 规则集；`MetaCubeX-*` 使用 MetaCubeX `GEOSITE` / `GEOIP`；`ACL4SSR-*` 使用 ACL4SSR Clash `.list` 路由规则，DNS 侧与 DustinWin 模板共用 domain provider。
 - **运行优化**：Full / Core 及其 Geodata 版本默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
 - **状态持久化**：Full / Core 及其 MetaCubeX / ACL4SSR 版本默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
-- **DNS 分模板**：所有 Nano 模板不接管 DNS，留给客户端本地管理；Full / Core 内置 fake-ip 分流 DNS。`fake-ip-filter` 与 `nameserver-policy` 共用 DustinWin `fakeip-filter` / `private`（MetaCubeX 为 `geosite:private`）加上 MetaCubeX geosite **cn**（DustinWin/ACL4SSR 用 `cn.mrs` rule-set；MetaCubeX 用 `geosite:cn`）；启用 `respect-rules` + `direct-nameserver` 后，其他实际直连流量也使用国内 DoH，代理流量默认使用海外 DoH。路由国内兜底仍用 `cn-lite` / `ChinaDomain` / `GEOSITE,cn`，与 DNS 全量 cn 解耦。
+- **DNS 分模板**：所有 Nano 模板不接管 DNS；Full / Core 内置 fake-ip 白名单 DNS。DustinWin 用 `rule-set:proxy`，MetaCubeX 用 `geosite:geolocation-!cn` + `geosite:google`，ACL4SSR 用 DNS-only DustinWin `proxy`；只有明确代理域名返回 fake-IP，私有、Tracker、国内及其他未列入域名默认返回 real-IP。`nameserver-policy` 仍用 MetaCubeX cn + private 选择国内 DoH，路由国内兜底仍用 `cn-lite` / `ChinaDomain` / `GEOSITE,cn`。
 - **广告拦截可回退**：九个模板都提供 `广告拦截` 策略组，默认 `REJECT`，误伤时可在面板临时切换为 `DIRECT` 或 `节点选择`。DustinWin 使用 `ads`，MetaCubeX 使用 `category-ads-all`，ACL4SSR 使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD`。
 - **域名嗅探**：Full / Core 及其 MetaCubeX / ACL4SSR 版本启用 `sniffer`，从 HTTP Host、TLS SNI 和 QUIC 握手中提取域名，提升 TUN / redir-host / 纯 IP 场景下的规则命中准确率。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
@@ -204,9 +204,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
 
 ## 规则来源
 
-`DustinWin-*` 模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，通常使用 `format: text` 的 `.list` 以提高客户端兼容性；三档模板都使用 DustinWin `ads`（anti-AD）进入 `广告拦截`。所有带 DNS 的 Full/Core 模板额外使用 DustinWin `trackerslist.mrs`：其纯域名数据由 [XIU2/TrackersListCollection](https://github.com/XIU2/TrackersListCollection) 与 [ngosang/trackerslist](https://github.com/ngosang/trackerslist) 组合，仅加入 `dns.fake-ip-filter` 以返回 real-IP，不参与路由。海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`（DustinWin 均无对应完整集，路径均不含 `geosite`/`geoip`）：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`（microsoft / onedrive 必须 classical 才能保住 keyword / IP / process 规则）。明确非中国域名使用 DustinWin `proxy`（`geolocation-!cn` + gfwlist），位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被 `+.cn` 误直连。
+`DustinWin-*` 模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，通常使用 `format: text` 的 `.list` 以提高客户端兼容性；三档模板都使用 DustinWin `ads`（anti-AD）进入 `广告拦截`。海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`。明确非中国域名使用 DustinWin `proxy`（`geolocation-!cn` + gfwlist），位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：路由放在场景/品牌规则之后、`cn-lite` 之前，DNS 中同时用作 fake-IP 白名单，避免 `googleapis.cn` 等在防火墙层被中国 IP 旁路。
 
-DNS 的 `fake-ip-filter` 与 `nameserver-policy` 共用兼容例外（`fakeip-filter` / `private`）加上 MetaCubeX geosite **cn**（DustinWin/ACL4SSR：`format: mrs` 的 `cn.mrs`；MetaCubeX：`geosite:cn`）。`trackerslist` 只额外进入 `fake-ip-filter` 返回 real-IP，不进入 `nameserver-policy`，也不绑定 `DIRECT` / `全球直连`。`*-cn` 规则只表达路由直连意图。策略组改为代理后回到默认海外 DoH。blackmatrix7 的完整 Apple / Microsoft / OneDrive classical 规则不进入 DNS。路由国内兜底仍用 `cn-lite` / ACL4SSR `ChinaDomain` / `GEOSITE,cn`，不与 DNS 的 MetaCubeX cn 混用为路由 provider。
+DNS 使用 fake-IP 白名单模式：DustinWin 用 `rule-set:proxy`，ACL4SSR 用 DNS-only DustinWin `proxy`，MetaCubeX 用 `geosite:geolocation-!cn` + `geosite:google`。未列入的兼容、私有、Tracker 和国内域名自然返回 real-IP，不再需要 `fakeip-filter` / `trackerslist` provider。`nameserver-policy` 仍用 MetaCubeX cn + private 选择国内 DoH；路由国内兜底仍用 `cn-lite` / ACL4SSR `ChinaDomain` / `GEOSITE,cn`。
 
 - **DustinWin-full**：`private` · `privateip` · `ads`（进入 `广告拦截`）· `trackerslist`（DNS-only real-IP，不参与路由）· `google`（blackmatrix7，进入 `谷歌服务`）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cnip` · `fakeip-filter` · `cn`（MetaCubeX `cn.mrs`，DNS real-IP + policy）
 - **DustinWin-core**：`private` · `privateip` · `ads`（进入 `广告拦截`）· `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `onedrive`（blackmatrix7，进入 `节点选择`，须在 `microsoft` 前）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cnip` · `trackerslist`（DNS-only real-IP）· `fakeip-filter` · `cn`（MetaCubeX `cn.mrs`，DNS real-IP + policy）

@@ -11,12 +11,12 @@
 说明：
 
 - 以下 DustinWin URL 使用 GitHub release 下载链接，与官方示例保持一致。jsDelivr 同等链接遵循相同文件名，路径中使用发布分支名。
-- 所有带 DNS 的 Full/Core 模板使用 DustinWin `trackerslist.mrs`（`behavior: domain` / `format: mrs`），其纯域名数据由 XIU2/TrackersListCollection 与 ngosang/trackerslist 组合；仅加入 `dns.fake-ip-filter` 返回 real-IP，不参与路由。
+- Full/Core 使用 fake-IP 白名单模式；Tracker 不在代理域名白名单中，因此自然返回 real-IP，无需额外引用 `trackerslist.mrs`。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
-- 当前模板通常优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；DNS-only `trackerslist` 是明确例外，直接使用 `format: mrs`。其他 MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
+- 当前模板通常优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
 - `rules/DustinWin-*.yaml` 使用 DustinWin `ads` 进入可切换的 `广告拦截`，并使用 `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
-- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；三档模板均使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD` 广告拦截；Full/Core 的 DNS 与 DustinWin 模板对齐：`fakeip-filter` / `private` / MetaCubeX `cn.mrs` 同时用于 real-IP 与国内 `nameserver-policy`，`trackerslist` 仅作为额外 real-IP 例外；路由国内域名仍用 `ChinaDomain`。
-- `rules/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。Full/Core DNS 国内层用 `geosite:cn`；因 MetaCubeX GeoSite 没有 `trackerslist` 标签，使用独立 DNS-only provider。
+- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 另用 DNS-only DustinWin `proxy` domain provider 作为 fake-IP 白名单，MetaCubeX `cn.mrs` + `private` 只用于国内 `nameserver-policy`；路由国内域名仍用 `ChinaDomain`。
+- `rules/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`，Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。Full/Core DNS 用 `geosite:geolocation-!cn` + `geosite:google` 作为 fake-IP 白名单，以覆盖 `googleapis.cn` / `gstatic.cn` 等 Google 全球 `.cn` 例外；不定义 `rule-providers`。
 - 本仓库不规避 ShellCrash 对 URL 中 `geosite`/`geoip` 子串的启发式误判；MetaCubeX DNS `cn.mrs` 路径含 `geosite` 为预期。
 
 ## URL 模板
@@ -35,7 +35,7 @@
 
 ## ACL4SSR Rule Sets
 
-`rules/ACL4SSR-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 的 `.list` 文件包含 `DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`、`IP-CIDR`、`IP-CIDR6`、`no-resolve` 等 Clash 规则行，因此路由 provider 统一使用 `behavior: classical` 与 `format: text`。DNS 侧与 DustinWin 对齐：`fakeip-filter` / `private` 为 domain-only 兼容例外；MetaCubeX `cn.mrs`（`behavior: domain` / `format: mrs`）用于 `fake-ip-filter` 与 `nameserver-policy`；路由国内域名仍用 `ChinaDomain`。
+`rules/ACL4SSR-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 路由 provider 使用 `behavior: classical` 与 `format: text`。Full/Core DNS 为了引用 domain-only 白名单，额外定义 DustinWin `proxy`；MetaCubeX `cn.mrs` + `private` 仅供 `nameserver-policy`，路由国内域名仍用 `ChinaDomain`。
 
 ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜底，不再追加内置 `GEOIP,CN`；未被上游 provider 收录的 IP 将继续进入模板最终 `MATCH`。
 
@@ -61,9 +61,9 @@ ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜�
 | `ProxyMedia` | 流媒体聚合包 | `classical` / `text` | `Clash/ProxyMedia.list` | 上游聚合媒体列表（含 `challenges.cloudflare.com` 等）；Sift ACL4SSR Full **不再引用**，改用下方分服务包。 |
 | `YouTube` / `Netflix` / `NetflixIP` / `DisneyPlus` / `Spotify` / `TikTok` | 主流流媒体 | `classical` / `text` | `Ruleset/YouTube.list` 等；`Netflix.list` 在 `Clash/` 根目录 | ACL4SSR Full 进入 `流媒体`；均在 `Google` / `ProxyLite` 前。 |
 | `Telegram` | Telegram | `classical` / `text` | `Clash/Telegram.list` | Full 进入 `Telegram`。 |
-| `fakeip-filter` | DNS fake-ip 兼容例外 | `domain` / `text` | DustinWin `mihomo-ruleset/fakeip-filter.list` | Full/Core DNS 使用，与 DustinWin / MetaCubeX 模板对齐。 |
+| `proxy`（DNS） | Full/Core fake-IP 白名单 | `domain` / `text` | DustinWin `mihomo-ruleset/proxy.list` | 仅供 ACL4SSR DNS 引用；路由仍用 `ProxyLite`。 |
 | `private` | DNS fake-ip 私有域名例外 | `domain` / `text` | DustinWin `mihomo-ruleset/private.list` | Full/Core DNS 使用，与 DustinWin 模板对齐。 |
-| `cn`（DNS） | Full/Core DNS real-IP + policy | `domain` / `mrs` | MetaCubeX `meta/geo/geosite/cn.mrs` | 与 `geosite:cn` 同源；**不**用于 ACL4SSR/DustinWin 路由。 |
+| `cn`（DNS） | Full/Core 国内 nameserver policy | `domain` / `mrs` | MetaCubeX `meta/geo/geosite/cn.mrs` | 与 `geosite:cn` 同源；**不**用于 fake-IP 白名单或 ACL4SSR/DustinWin 路由。 |
 
 ## DustinWin Rule Sets
 

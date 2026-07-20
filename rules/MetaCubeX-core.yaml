@@ -8,7 +8,7 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-# Geodata：路由使用 MetaCubeX geosite / geoip / metadb；DNS fake-ip 过滤单独补充 domain provider。
+# Geodata：路由使用 MetaCubeX geosite / geoip / metadb；DNS fake-ip 白名单直接使用 geosite。
 geox-url:
   geoip: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
   geosite: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
@@ -16,23 +16,20 @@ geox-url:
 geo-auto-update: true
 geo-update-interval: 24
 
-# DNS：fake-ip；解析 AAAA；国内/私有域名按 policy 解析，其他直连流量使用国内 DoH，代理流量默认海外 DoH。
+# DNS：fake-ip 白名单；明确非中国及 Google 域名使用 fake-IP，其余返回 real-IP。
 dns:
   enable: true
   ipv6: true
   listen: ":53"
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-  fake-ip-filter-mode: blacklist
+  fake-ip-filter-mode: whitelist
   fake-ip-filter:
-    - rule-set:fakeip-filter
-    - geosite:private
-    # MetaCubeX geosite 无 trackerslist 标签，改用 DNS-only provider 返回 real-IP
-    - rule-set:trackerslist
-    # MetaCubeX geosite cn：与 meta-rules-dat cn.mrs 同源；路由仍用 GEOSITE,cn
-    - geosite:cn
+    - geosite:geolocation-!cn
+    # googleapis.cn / gstatic.cn 等 Google 全球 .cn 例外
+    - geosite:google
   nameserver-policy:
-    # 与 fake-ip-filter 同源：geosite cn + private
+    # geosite cn + private 仍使用国内 DoH
     "geosite:cn,private":
       - https://223.5.5.5/dns-query
       - https://1.12.12.12/dns-query
@@ -60,24 +57,6 @@ sniffer:
       ports: [443, 8443]
     QUIC:
       ports: [443, 8443]
-
-# DNS 专用：补充 fakeip-filter / trackerslist；国内/私有用 geosite:cn / geosite:private。路由仍只用 GEOSITE/GEOIP。
-rule-providers:
-  fakeip-filter:
-    type: http
-    behavior: domain
-    format: text
-    interval: 86400
-    path: ./ruleset/dustinwin/fakeip-filter.list
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
-  # XIU2 + ngosang 纯域名；仅用于 real-IP，不参与路由
-  trackerslist:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    path: ./ruleset/dustinwin/trackerslist.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs"
 
 proxy-groups:
 - name: 节点选择
