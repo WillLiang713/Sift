@@ -17,7 +17,7 @@ CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软�
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 广告拦截 漏网之鱼"
 NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 # Geodata templates keep the same group contracts and route with GEOSITE/GEOIP.
-# The only allowed provider is DNS-only fakeip-filter for dns.fake-ip-filter.
+# Allowed DNS-only providers: fakeip-filter + ChinaDomain (no routing RULE-SET).
 
 # --- Static analyzer (one pass per file) --------------------------------------
 AWK=$(cat <<'AWKEOF'
@@ -83,9 +83,11 @@ section=="rules" {
 section=="dns" {                                   # dns block: collect rule-set refs
   if($0 ~ /^  ipv6:[ \t]*true([ \t]*#.*)?$/) dns_ipv6_true=1
   s=$0; sub(/#.*/,"",s)
-  if(s ~ /rule-set:/){
-    sub(/.*rule-set:[ \t]*/,"",s); sub(/["':, \t].*$/,"",s); s=trim(s)
-    if(s!="" && !(s in dnsseen)){ dnsseen[s]=1; dnsrs[ndnsrs]=s; ndnsrs++ }
+  # Support "rule-set:a,private" / multi rule-set tokens on one policy key
+  while(match(s, /rule-set:[ \t]*[A-Za-z0-9_-]+/)){
+    t=substr(s, RSTART, RLENGTH); sub(/^rule-set:[ \t]*/,"",t); t=trim(t)
+    if(t!="" && !(t in dnsseen)){ dnsseen[t]=1; dnsrs[ndnsrs]=t; ndnsrs++ }
+    s=substr(s, RSTART+RLENGTH)
   }
   next
 }
@@ -95,7 +97,9 @@ END{
   if(fail_dns)        emit("FAIL","top-level `dns:`/`fake-ip` present — this template must stay DNS-free")
   if(allow_dns=="1" && !top_ipv6_true) emit("FAIL","DNS template must set top-level `ipv6: true` to allow IPv6 connections")
   if(allow_dns=="1" && !dns_ipv6_true) emit("FAIL","DNS template must set `dns.ipv6: true` to return AAAA answers")
-  if(geodata=="1") for(k in provs) if(k!="fakeip-filter") emit("FAIL","Geodata template may only define DNS-only provider `fakeip-filter`, not `" k "`")
+  if(geodata=="1") for(k in provs)
+    if(k!="fakeip-filter" && k!="ChinaDomain")
+      emit("FAIL","Geodata template may only define DNS-only providers `fakeip-filter`/`ChinaDomain`, not `" k "`")
 
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
   for(i=0;i<npol;i++){ p=pols[i]; if(!(p in groups) && !(p in builtin)) emit("FAIL","rule policy `" p "` is not a defined group or builtin") }
@@ -103,7 +107,11 @@ END{
   for(i=0;i<ndnsrs;i++){
     s=dnsrs[i]; usedprov[s]=1
     if(!(s in provs)) emit("FAIL","DNS rule-set references undefined provider `" s "`")
-    else if(prov_behavior[s]!="domain") emit("FAIL","DNS rule-set `" s "` uses behavior `" prov_behavior[s] "` — use domain-only providers in fake-ip-filter/nameserver-policy")
+    else if(prov_behavior[s]!="domain"){
+      # ChinaDomain is classical Clash DOMAIN* lines; allowed only for this DNS real-IP layer
+      if(!(s=="ChinaDomain" && prov_behavior[s]=="classical"))
+        emit("FAIL","DNS rule-set `" s "` uses behavior `" prov_behavior[s] "` — use domain-only providers in fake-ip-filter/nameserver-policy (ChinaDomain classical is the only exception)")
+    }
   }
   for(k in provs) if(!(k in usedprov)) emit("WARN","rule-provider `" k "` defined but never used in rules")
 

@@ -19,8 +19,11 @@ dns:
   fake-ip-filter:
     - rule-set:fakeip-filter
     - rule-set:private
+    # 保守国内 real-IP（ACL4SSR ChinaDomain）；不用全量 cn，避免 Play/GVT 等误伤
+    - rule-set:ChinaDomain
   nameserver-policy:
-    "rule-set:cn":
+    # 与 fake-ip-filter 同源：保守国内 + 私有；不用全量 cn，避免 Play/GVT 等误走国内 DoH
+    "rule-set:ChinaDomain,private":
       - https://223.5.5.5/dns-query
       - https://1.12.12.12/dns-query
   respect-rules: true
@@ -379,13 +382,6 @@ rule-providers:
     path: ./ruleset/dustinwin/cn-lite.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.list"
     interval: 86400
-  cn:
-    type: http
-    behavior: domain
-    format: text
-    path: ./ruleset/dustinwin/cn.list
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn.list"
-    interval: 86400
   cnip:
     type: http
     behavior: ipcidr
@@ -399,6 +395,14 @@ rule-providers:
     format: text
     path: ./ruleset/dustinwin/fakeip-filter.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
+    interval: 86400
+  # DNS-only：保守国内 real-IP 层；classical 含 DOMAIN* 规则，勿改为 domain
+  ChinaDomain:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/acl4ssr/ChinaDomain.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
     interval: 86400
 
 rules:

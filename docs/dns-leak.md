@@ -24,16 +24,16 @@ nameserver:
 
 ## 当前分工
 
-Full/Core 模板按用途拆分 DNS。静态 DNS policy 只引用 `cn` 这个完整国内 DNS 入口；`*-cn` 规则只表达路由直连意图，不代表一定适合静态 DNS policy。实际直连流量则由 `respect-rules` 与 `direct-nameserver` 使用国内 DoH：
+Full/Core 模板按用途拆分 DNS。`fake-ip-filter` 与 `nameserver-policy` **共用**保守国内入口 ACL4SSR `ChinaDomain`（外加 `private`），**不再**引用全量 `cn` / `geosite:cn`：全量列表曾误收 Google Play / GVT 等下载域名，既不宜 real-IP，也不宜强制国内 DoH。`*-cn` 规则只表达路由直连意图，不进入静态 DNS。实际直连流量仍由 `respect-rules` 与 `direct-nameserver` 使用国内 DoH。
 
 ```yaml
 fake-ip-filter:
   - rule-set:fakeip-filter
   - rule-set:private
-  - rule-set:cn
+  - rule-set:ChinaDomain
 
 nameserver-policy:
-  "rule-set:cn":
+  "rule-set:ChinaDomain,private":
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
 
@@ -55,15 +55,15 @@ proxy-server-nameserver:
 
 | 字段 | 用途 |
 | --- | --- |
-| `fake-ip-filter` | 国内直连规则集返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
-| `nameserver-policy` | 只让 `cn` 静态使用国内 DoH；`apple-cn`、`microsoft-cn`、`games-cn` 等 `*-cn` 路由补充规则不进入 DNS policy。路由侧的 `proxy`（明确非中国域名）进入 `节点选择`，不作为国内 DNS policy 条件。 |
-| `direct-nameserver` | 在 `respect-rules` 下，实际命中 `DIRECT` 的 DNS 查询使用国内 DoH；因此 Apple/Microsoft 默认直连时可获得国内 DNS 调度，手动切到节点后不再使用此路径。 |
+| `fake-ip-filter` | 兼容例外 + 保守国内列表返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
+| `nameserver-policy` | 与 filter 同源：`ChinaDomain` + `private` 静态使用国内 DoH；不用全量 `cn`。`*-cn` 路由补充与 blackmatrix7 完整品牌包不进 policy。 |
+| `direct-nameserver` | 在 `respect-rules` 下，实际命中 `DIRECT` 的 DNS 查询使用国内 DoH；未进 `ChinaDomain` 但路由直连的国内站仍走此路径获得国内调度。 |
 | `nameserver` | 默认解析，使用海外 DoH（IP 形式），供代理路径与未命中直连路径使用。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
-DNS 静态规则只保留 `fakeip-filter`、`private`、`cn`，不会引用 `*-cn` 路由补充规则，也不会引用完整 `rule-set:apple` / `rule-set:microsoft` / `rule-set:onedrive`，因为 blackmatrix7 classical 规则中可能包含 `PROCESS-NAME` 等非域名规则类型，不适合 `fake-ip-filter` / `nameserver-policy`。完整 `rule-set:apple` / `rule-set:microsoft` 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时，`direct-nameserver` 据此使用国内 DoH。Core 路由侧将 `onedrive` 放在 `microsoft` 前进入 `节点选择`（无 OneDrive UI 组）。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
+DNS 静态规则只保留 `fakeip-filter`、`private`、`ChinaDomain`，不会引用全量 `cn`、`*-cn` 路由补充，也不会引用完整 `rule-set:apple` / `rule-set:microsoft` / `rule-set:onedrive`（blackmatrix7 classical 可能含 `PROCESS-NAME` 等）。`ChinaDomain` 是刻意放行的 classical 例外：源列表以 `DOMAIN` / `DOMAIN-SUFFIX` / `DOMAIN-KEYWORD` 为主，仅含少量 IP 行。完整 Apple / Microsoft 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时由 `direct-nameserver` 使用国内 DoH。Core 路由侧将 `onedrive` 放在 `microsoft` 前进入 `节点选择`（无 OneDrive UI 组）。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
 
-`rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；但 MetaCubeX `meta-rules-dat` 当前没有 `geosite:fakeip-filter` 分类，所以 DNS 侧按 Mihomo 官方示例允许的 `rule-set:<name>` 方式额外补充一个 DustinWin domain provider：
+`rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；DNS 侧额外补充 DustinWin `fakeip-filter` 与 ACL4SSR `ChinaDomain`（不用 `geosite:cn` 做 policy / real-IP）：
 
 ```yaml
 rule-providers:
@@ -74,13 +74,20 @@ rule-providers:
     interval: 86400
     path: ./ruleset/dustinwin/fakeip-filter.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
+  ChinaDomain:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    path: ./ruleset/acl4ssr/ChinaDomain.list
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
 
 fake-ip-filter:
   - rule-set:fakeip-filter
   - geosite:private
-  - geosite:cn
+  - rule-set:ChinaDomain
 nameserver-policy:
-  "geosite:cn,private":
+  "rule-set:ChinaDomain,geosite:private":
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
 ```
@@ -91,10 +98,10 @@ nameserver-policy:
 
 国内域名分两条路径：
 
-1. 命中 `dns.fake-ip-filter` 的国内直连规则集时，客户端直接拿到真实 IP；在 OpenWrt/OpenClash 这类路由器环境里，真实中国 IP 可以继续命中本机的 China IP 直连链路，也不会被禁 QUIC 规则当作 `198.18/16` fake-ip 误拒绝。
-2. 未命中 `fake-ip-filter` 的域名仍走 fake-ip 流程：客户端拿到 fake IP，内核再按原始域名匹配 `rules`，命中直连规则后进入 `全球直连`。
+1. 命中 `dns.fake-ip-filter`（`fakeip-filter` / `private` / `ChinaDomain`）时，客户端直接拿到真实 IP，并用 `nameserver-policy` 的国内 DoH 解析；在 OpenWrt/OpenClash 这类路由器环境里，真实中国 IP 可以继续命中本机的 China IP 直连链路，也不会被禁 QUIC 规则当作 `198.18/16` fake-ip 误拒绝。
+2. 未命中 `ChinaDomain` 的域名仍走 fake-ip 流程：客户端拿到 fake IP，内核再按原始域名匹配 `rules`；命中直连后由 `direct-nameserver` 使用国内 DoH，路由侧仍靠 `cn-lite` / `ChinaDomain` / `GEOSITE,cn` 等直连。
 
-因此默认 `nameserver` 仍可以使用海外 DoH；静态国内域名由 `fake-ip-filter` / `nameserver-policy` 保留国内解析质量，其他实际直连域名由 `direct-nameserver` 使用国内 DoH。
+因此默认 `nameserver` 仍可以使用海外 DoH；`ChinaDomain` 同时管 real-IP 与静态国内 DoH；更宽的国内直连靠路由 + `direct-nameserver`，不再依赖全量 `cn` policy。
 
 ## 客户端设置
 
@@ -145,7 +152,7 @@ dns:
 
 ## 绕过大陆为什么仍然干净
 
-泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 `cn` 或路由侧的 `cn-lite`。
+泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 `ChinaDomain` 或路由侧的 `cn-lite` / `ChinaDomain` / `GEOSITE,cn`。
 
 因此代理测试域名继续使用默认 `nameserver`，也就是海外 DoH。
 

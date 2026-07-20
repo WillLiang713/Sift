@@ -15,7 +15,7 @@
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
 - `rules/DustinWin-*.yaml` 使用 DustinWin `ads` 进入可切换的 `广告拦截`，并使用 `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
-- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；三档模板均使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD` 广告拦截；Full/Core 的 DNS rule-set 与 DustinWin 模板对齐，使用 DustinWin `fakeip-filter` / `private` 作为 real-IP 兼容例外，`cn` 仅用于国内 `nameserver-policy`。
+- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；三档模板均使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD` 广告拦截；Full/Core 的 DNS 与 DustinWin 模板对齐：`fakeip-filter` / `private` / `ChinaDomain` 同时用于 real-IP 与国内 `nameserver-policy`（不再引用全量 `cn`）。
 - `rules/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。
 - 此处列出的 blackmatrix7 规则路径均不含 `geosite` 或 `geoip`。接入 ShellCrash 模板前仍需检查 URL 路径。
 
@@ -35,7 +35,7 @@
 
 ## ACL4SSR Rule Sets
 
-`rules/ACL4SSR-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 的 `.list` 文件包含 `DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`、`IP-CIDR`、`IP-CIDR6`、`no-resolve` 等 Clash 规则行，因此路由 provider 统一使用 `behavior: classical` 与 `format: text`。DNS rule-set 不引用这些 classical 列表，而是与 DustinWin 模板对齐：`fakeip-filter` / `private` 作为 domain-only real-IP 例外，`cn` 仅作为国内 `nameserver-policy` 入口。
+`rules/ACL4SSR-*.yaml` 模板保留 Sift 的三档策略组与兜底语义，只替换远程规则来源。ACL4SSR 的 `.list` 文件包含 `DOMAIN-SUFFIX`、`DOMAIN-KEYWORD`、`IP-CIDR`、`IP-CIDR6`、`no-resolve` 等 Clash 规则行，因此路由 provider 统一使用 `behavior: classical` 与 `format: text`。DNS 侧与 DustinWin 对齐：`fakeip-filter` / `private` 为 domain-only 兼容例外；`ChinaDomain` 作为唯一 classical DNS 层，**同时**用于 `fake-ip-filter` 与 `nameserver-policy`（Full/Core 复用路由侧同名 provider；DustinWin/MetaCubeX Full/Core 额外定义 DNS-only 副本）；不再引用全量 DustinWin `cn`。
 
 ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜底，不再追加内置 `GEOIP,CN`；未被上游 provider 收录的 IP 将继续进入模板最终 `MATCH`。
 
@@ -47,7 +47,7 @@ ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜�
 | `UnBan` | 广告误伤放行 | `classical` / `text` | `Clash/UnBan.list` | Full/Core/Nano 在广告规则前直连。 |
 | `BanAD` | 常规广告拦截 | `classical` / `text` | `Clash/BanAD.list` | Full/Core/Nano 进入 `广告拦截`。 |
 | `BanProgramAD` | 应用内广告补充 | `classical` / `text` | `Clash/BanProgramAD.list` | Full/Core/Nano 进入 `广告拦截`。 |
-| `ChinaDomain` | 国内域名路由兜底 | `classical` / `text` | `Clash/ChinaDomain.list` | 含域名规则，也可能含少量 IP 规则；仅用于路由。 |
+| `ChinaDomain` | 国内域名路由兜底 + Full/Core DNS | `classical` / `text` | `Clash/ChinaDomain.list` | 以 DOMAIN* 为主，少量 IP 规则；路由兜底；Full/Core 同时用于 `fake-ip-filter` 与 `nameserver-policy`（不用全量 `cn`）。 |
 | `ChinaIp` | 国内 IP 路由兜底 | `classical` / `text` | `Clash/ChinaIp.list` | 规则行自带 `no-resolve`。 |
 | `ChinaIpV6` | 国内 IPv6 路由兜底 | `classical` / `text` | `Clash/ChinaIpV6.list` | 规则行自带 `no-resolve`。 |
 | `GoogleCN` | 中国区 Google 服务 | `classical` / `text` | `Clash/GoogleCN.list` | Full/Core 在服务规则前进入 `全球直连`。 |
@@ -63,7 +63,7 @@ ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜�
 | `Telegram` | Telegram | `classical` / `text` | `Clash/Telegram.list` | Full 进入 `Telegram`。 |
 | `fakeip-filter` | DNS fake-ip 兼容例外 | `domain` / `text` | DustinWin `mihomo-ruleset/fakeip-filter.list` | Full/Core DNS 使用，与 DustinWin / MetaCubeX 模板对齐。 |
 | `private` | DNS fake-ip 私有域名例外 | `domain` / `text` | DustinWin `mihomo-ruleset/private.list` | Full/Core DNS 使用，与 DustinWin 模板对齐。 |
-| `cn` | DNS 国内解析 policy | `domain` / `text` | DustinWin `mihomo-ruleset/cn.list` | Full/Core 仅作为 `nameserver-policy` 入口；国内域名默认仍返回 fake-ip。 |
+| ~~`cn`~~ | （已移除） | — | DustinWin `mihomo-ruleset/cn.list` | Full/Core 不再引用；国内 DNS 改用 `ChinaDomain` + `direct-nameserver`。上游全量列表仍见 DustinWin 表。 |
 
 ## DustinWin Rule Sets
 
@@ -95,7 +95,7 @@ ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜�
 | `tld-proxy` | 国外顶级域名 | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/tld-proxy.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/tld-proxy.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/tld-proxy.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/tld-proxy.json>) | v2fly tld-!cn；非中国大陆顶级域。 |
 | `gfw` | 国外域名（GFW） | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/gfw.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/gfw.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/gfw.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/gfw.json>) | gfwlist；GFWList 域名。 |
 | `proxy` | 国外域名（Proxy） | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/proxy.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/proxy.json>) | v2fly geolocation-!cn + gfwlist；geolocation-!cn 与 gfwlist 组合，删除 @cn/@ads。 |
-| `cn` | 国内域名 | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cn.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cn.json>) | v2fly cn + dnsmasq-china-list accelerated-domains；完整国内域名；配置时通常与 cn-lite 二选一。 |
+| `cn` | 国内域名（全量） | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cn.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cn.json>) | v2fly cn + dnsmasq-china-list accelerated-domains；完整国内域名。Sift Full/Core **不**再用于 DNS filter/policy（改用 ChinaDomain）；路由侧用 `cn-lite`。 |
 | `cn-lite` | 国内域名（精简版） | `domain` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cn-lite.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cn-lite.json>) | v2fly cn + blackmatrix7 China；精简国内域名；本仓库用作路由 provider 时命名为 `cn-lite`。 |
 | `privateip` | 私有网络（IP） | `ipcidr` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/privateip.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/privateip.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/privateip.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/privateip.json>) | DustinWin geoip private；私有 IP 段。 |
 | `cnip` | 国内 IP | `ipcidr` | [mrs](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cnip.mrs>) / [list](<https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cnip.list>) | [srs](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cnip.srs>) / [json](<https://github.com/DustinWin/ruleset_geodata/releases/download/sing-box-ruleset/cnip.json>) | IPNetDB + china-operator-ip + blackmatrix7 ChinaASN；中国大陆 IP 段。 |

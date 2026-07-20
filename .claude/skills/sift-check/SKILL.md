@@ -24,7 +24,7 @@ Project invariants that `mihomo -t` cannot catch:
 - **Referential integrity** — every `proxies:` entry and every rule policy resolves to a defined group or a builtin (`DIRECT`/`REJECT`); every `RULE-SET,<x>` and DNS `rule-set:<x>` resolves to a defined `rule-providers` key.
 - **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
 - **Node-free** — no top-level `proxies:` in any template.
-- **DNS scope** — Full and Core templates may carry top-level `dns:` blocks; Nano templates must stay DNS-free. DNS `fake-ip-filter` / `nameserver-policy` rule-set refs are integrity-checked and must use `behavior: domain` providers.
+- **DNS scope** — Full and Core templates may carry top-level `dns:` blocks; Nano templates must stay DNS-free. DNS `fake-ip-filter` / `nameserver-policy` rule-set refs are integrity-checked and must use `behavior: domain` providers, except DNS-only `ChinaDomain` which is deliberately `classical`.
 - **Canonical groups** — required strategy-group names must be present; Core must not contain service/brand UI groups, region node groups, or the separate `漏网之鱼` group, and Nano must not contain its forbidden Full/Core-only groups.
 - **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. blackmatrix7 service keys mapping to capitalized upstream paths — informational only).
 
