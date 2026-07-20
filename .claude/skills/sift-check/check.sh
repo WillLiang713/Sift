@@ -17,7 +17,7 @@ CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软�
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 广告拦截 漏网之鱼"
 NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 # Geodata templates keep the same group contracts and route with GEOSITE/GEOIP.
-# Allowed DNS-only providers: fakeip-filter + ChinaDomain (no routing RULE-SET).
+# Allowed DNS-only provider: fakeip-filter (domestic DNS uses geosite:cn / geosite:private).
 
 # --- Static analyzer (one pass per file) --------------------------------------
 AWK=$(cat <<'AWKEOF'
@@ -98,8 +98,8 @@ END{
   if(allow_dns=="1" && !top_ipv6_true) emit("FAIL","DNS template must set top-level `ipv6: true` to allow IPv6 connections")
   if(allow_dns=="1" && !dns_ipv6_true) emit("FAIL","DNS template must set `dns.ipv6: true` to return AAAA answers")
   if(geodata=="1") for(k in provs)
-    if(k!="fakeip-filter" && k!="ChinaDomain")
-      emit("FAIL","Geodata template may only define DNS-only providers `fakeip-filter`/`ChinaDomain`, not `" k "`")
+    if(k!="fakeip-filter")
+      emit("FAIL","Geodata template may only define DNS-only provider `fakeip-filter`, not `" k "`")
 
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
   for(i=0;i<npol;i++){ p=pols[i]; if(!(p in groups) && !(p in builtin)) emit("FAIL","rule policy `" p "` is not a defined group or builtin") }
@@ -107,17 +107,14 @@ END{
   for(i=0;i<ndnsrs;i++){
     s=dnsrs[i]; usedprov[s]=1
     if(!(s in provs)) emit("FAIL","DNS rule-set references undefined provider `" s "`")
-    else if(prov_behavior[s]!="domain"){
-      # ChinaDomain is classical Clash DOMAIN* lines; allowed only for this DNS real-IP layer
-      if(!(s=="ChinaDomain" && prov_behavior[s]=="classical"))
-        emit("FAIL","DNS rule-set `" s "` uses behavior `" prov_behavior[s] "` — use domain-only providers in fake-ip-filter/nameserver-policy (ChinaDomain classical is the only exception)")
-    }
+    else if(prov_behavior[s]!="domain")
+      emit("FAIL","DNS rule-set `" s "` uses behavior `" prov_behavior[s] "` — use domain-only providers in fake-ip-filter/nameserver-policy")
   }
   for(k in provs) if(!(k in usedprov)) emit("WARN","rule-provider `" k "` defined but never used in rules")
 
   for(i=0;i<nurl;i++){
-    u=url_val[i]; lu=tolower(u)
-    if(lu ~ /geoip|geosite/) emit("FAIL","provider `" url_key[i] "` URL contains geoip/geosite — triggers ShellCrash geo misdetection: " u)
+    u=url_val[i]
+    # ShellCrash geo-keyword URL heuristics are intentionally not enforced here.
     nn=split(u, pp, "/"); base=pp[nn]; sub(/\.(mrs|list).*$/,"",base)
     if(base!="" && base!=url_key[i]) emit("INFO","provider key `" url_key[i] "` maps to file `" base "` (basename != key; OK if intentional, see AGENTS.md)")
   }

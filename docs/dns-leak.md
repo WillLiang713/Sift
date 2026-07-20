@@ -24,16 +24,16 @@ nameserver:
 
 ## 当前分工
 
-Full/Core 模板按用途拆分 DNS。`fake-ip-filter` 与 `nameserver-policy` **共用**保守国内入口 ACL4SSR `ChinaDomain`（外加 `private`），**不再**引用全量 `cn` / `geosite:cn`：全量列表曾误收 Google Play / GVT 等下载域名，既不宜 real-IP，也不宜强制国内 DoH。`*-cn` 规则只表达路由直连意图，不进入静态 DNS。实际直连流量仍由 `respect-rules` 与 `direct-nameserver` 使用国内 DoH。
+Full/Core 模板按用途拆分 DNS。`fake-ip-filter` 与 `nameserver-policy` **共用** MetaCubeX geosite **cn**（DustinWin/ACL4SSR 为 `rule-set:cn` → `cn.mrs`；MetaCubeX 为 `geosite:cn`）外加 `private`，覆盖国内域名 real-IP 与国内 DoH。`*-cn` 规则只表达路由直连意图，不进入静态 DNS。未命中 cn 但实际直连的流量仍由 `respect-rules` 与 `direct-nameserver` 使用国内 DoH。
 
 ```yaml
 fake-ip-filter:
   - rule-set:fakeip-filter
   - rule-set:private
-  - rule-set:ChinaDomain
+  - rule-set:cn
 
 nameserver-policy:
-  "rule-set:ChinaDomain,private":
+  "rule-set:cn,private":
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
 
@@ -51,19 +51,33 @@ proxy-server-nameserver:
   - https://1.12.12.12/dns-query
 ```
 
+DustinWin / ACL4SSR 的 DNS-only `cn` provider：
+
+```yaml
+cn:
+  type: http
+  behavior: domain
+  format: mrs
+  path: ./ruleset/metacubex/cn.mrs
+  url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+  interval: 86400
+```
+
+路由侧仍用 DustinWin `cn-lite` 或 ACL4SSR `ChinaDomain`，**不要**把 DNS 用的 MetaCubeX `cn` 替换进路由兜底。
+
 所有 DoH 上游都写成 IP 形式（`223.5.5.5`=阿里、`1.12.12.12`=doh.pub、`1.1.1.1`=Cloudflare、`8.8.8.8`=Google），因此不再需要 `default-nameserver` 去 bootstrap 解析 DoH 服务器域名。
 
 | 字段 | 用途 |
 | --- | --- |
-| `fake-ip-filter` | 兼容例外 + 保守国内列表返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
-| `nameserver-policy` | 与 filter 同源：`ChinaDomain` + `private` 静态使用国内 DoH；不用全量 `cn`。`*-cn` 路由补充与 blackmatrix7 完整品牌包不进 policy。 |
-| `direct-nameserver` | 在 `respect-rules` 下，实际命中 `DIRECT` 的 DNS 查询使用国内 DoH；未进 `ChinaDomain` 但路由直连的国内站仍走此路径获得国内调度。 |
-| `nameserver` | 默认解析，使用海外 DoH（IP 形式），供代理路径与未命中直连路径使用。 |
+| `fake-ip-filter` | 兼容例外 + MetaCubeX cn 返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
+| `nameserver-policy` | 与 filter 同源：MetaCubeX cn + private 静态使用国内 DoH。`*-cn` 与 blackmatrix7 完整品牌包不进 policy。 |
+| `direct-nameserver` | 在 `respect-rules` 下，实际命中 `DIRECT` 的 DNS 查询使用国内 DoH（含未进 cn 的直连域）。 |
+| `nameserver` | 默认解析，使用海外 DoH（IP 形式），供代理路径使用。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
-DNS 静态规则只保留 `fakeip-filter`、`private`、`ChinaDomain`，不会引用全量 `cn`、`*-cn` 路由补充，也不会引用完整 `rule-set:apple` / `rule-set:microsoft` / `rule-set:onedrive`（blackmatrix7 classical 可能含 `PROCESS-NAME` 等）。`ChinaDomain` 是刻意放行的 classical 例外：源列表以 `DOMAIN` / `DOMAIN-SUFFIX` / `DOMAIN-KEYWORD` 为主，仅含少量 IP 行。完整 Apple / Microsoft 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时由 `direct-nameserver` 使用国内 DoH。Core 路由侧将 `onedrive` 放在 `microsoft` 前进入 `节点选择`（无 OneDrive UI 组）。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
+DNS 静态规则保留 `fakeip-filter`、`private`、MetaCubeX `cn`，不会引用 `*-cn` 路由补充，也不会引用完整 `rule-set:apple` / `rule-set:microsoft` / `rule-set:onedrive`（blackmatrix7 classical 可能含 `PROCESS-NAME` 等）。完整 Apple / Microsoft 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时由 `direct-nameserver` 使用国内 DoH。Core 路由侧将 `onedrive` 放在 `microsoft` 前进入 `节点选择`（无 OneDrive UI 组）。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
 
-`rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；DNS 侧额外补充 DustinWin `fakeip-filter` 与 ACL4SSR `ChinaDomain`（不用 `geosite:cn` 做 policy / real-IP）：
+`rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；DNS 侧仅额外补充 DustinWin `fakeip-filter`，国内层直接用 geodata：
 
 ```yaml
 rule-providers:
@@ -74,34 +88,29 @@ rule-providers:
     interval: 86400
     path: ./ruleset/dustinwin/fakeip-filter.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
-  ChinaDomain:
-    type: http
-    behavior: classical
-    format: text
-    interval: 86400
-    path: ./ruleset/acl4ssr/ChinaDomain.list
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
 
 fake-ip-filter:
   - rule-set:fakeip-filter
   - geosite:private
-  - rule-set:ChinaDomain
+  - geosite:cn
 nameserver-policy:
-  "rule-set:ChinaDomain,geosite:private":
+  "geosite:cn,private":
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
 ```
 
 `rules/MetaCubeX-nano.yaml` 与 `rules/DustinWin-nano.yaml` 一样不接管 DNS。
 
+本仓库**不**为 ShellCrash 对 URL 中 `geosite`/`geoip` 子串的启发式误判做规避；若客户端因此多下 geo 库，应在客户端侧处理。
+
 ## 国内域名为什么仍然直连
 
 国内域名分两条路径：
 
-1. 命中 `dns.fake-ip-filter`（`fakeip-filter` / `private` / `ChinaDomain`）时，客户端直接拿到真实 IP，并用 `nameserver-policy` 的国内 DoH 解析；在 OpenWrt/OpenClash 这类路由器环境里，真实中国 IP 可以继续命中本机的 China IP 直连链路，也不会被禁 QUIC 规则当作 `198.18/16` fake-ip 误拒绝。
-2. 未命中 `ChinaDomain` 的域名仍走 fake-ip 流程：客户端拿到 fake IP，内核再按原始域名匹配 `rules`；命中直连后由 `direct-nameserver` 使用国内 DoH，路由侧仍靠 `cn-lite` / `ChinaDomain` / `GEOSITE,cn` 等直连。
+1. 命中 `dns.fake-ip-filter`（`fakeip-filter` / `private` / MetaCubeX `cn`）时，客户端直接拿到真实 IP，并用 `nameserver-policy` 的国内 DoH 解析；在 OpenWrt/OpenClash 这类路由器环境里，真实中国 IP 可以继续命中本机的 China IP 直连链路，也不会被禁 QUIC 规则当作 `198.18/16` fake-ip 误拒绝。
+2. 未命中 cn 的域名仍走 fake-ip 流程：客户端拿到 fake IP，内核再按原始域名匹配 `rules`；命中直连后由 `direct-nameserver` 使用国内 DoH，路由侧仍靠 `cn-lite` / `ChinaDomain` / `GEOSITE,cn` 等直连。
 
-因此默认 `nameserver` 仍可以使用海外 DoH；`ChinaDomain` 同时管 real-IP 与静态国内 DoH；更宽的国内直连靠路由 + `direct-nameserver`，不再依赖全量 `cn` policy。
+因此默认 `nameserver` 仍可以使用海外 DoH；MetaCubeX cn 同时管 real-IP 与静态国内 DoH；其余实际直连靠 `direct-nameserver`。
 
 ## 客户端设置
 
@@ -152,18 +161,6 @@ dns:
 
 ## 绕过大陆为什么仍然干净
 
-泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 `ChinaDomain` 或路由侧的 `cn-lite` / `ChinaDomain` / `GEOSITE,cn`。
+泄露测试使用的域名不是国内域名，不会命中 DNS 侧的 MetaCubeX `cn` 或路由侧的 `cn-lite` / `ChinaDomain` / `GEOSITE,cn`。
 
 因此代理测试域名继续使用默认 `nameserver`，也就是海外 DoH。
-
-国内域名命中静态 policy 后使用国内 DoH；其他命中直连规则的域名也会通过 `direct-nameserver` 使用国内 DoH。两者都是为了直连访问质量，不会影响代理域名的海外 DNS 测试结果。
-
-## 复发排查
-
-优先检查：
-
-- 浏览器安全 DNS / DoH 是否关闭。
-- 运行配置中的 `nameserver` 是否仍然是海外 DoH。
-- 客户端是否重新开启了自定义 DNS、追加上游 DNS 或追加默认 DNS。
-- `漏网之鱼`（Full / Nano）或 `节点选择`（Core）是否被手动切成 `DIRECT`。
-- 终端设备 DNS 是否仍指向路由器路径，而不是公共 DNS。

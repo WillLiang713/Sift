@@ -27,11 +27,11 @@ dns:
   fake-ip-filter:
     - rule-set:fakeip-filter
     - geosite:private
-    # 保守国内 real-IP（ACL4SSR ChinaDomain）；不用 geosite:cn 全量，避免 Play/GVT 等误伤
-    - rule-set:ChinaDomain
+    # MetaCubeX geosite cn：与 meta-rules-dat cn.mrs 同源；路由仍用 GEOSITE,cn
+    - geosite:cn
   nameserver-policy:
-    # 与 fake-ip-filter 同源：ChinaDomain + 私有；不用 geosite:cn 全量，避免 Play/GVT 等误走国内 DoH
-    "rule-set:ChinaDomain,geosite:private":
+    # 与 fake-ip-filter 同源：geosite cn + private
+    "geosite:cn,private":
       - https://223.5.5.5/dns-query
       - https://1.12.12.12/dns-query
   respect-rules: true
@@ -59,7 +59,7 @@ sniffer:
     QUIC:
       ports: [443, 8443]
 
-# DNS 专用：fakeip-filter + 保守国内 real-IP（ChinaDomain）；路由仍只用 GEOSITE/GEOIP。
+# DNS 专用：仅补充 fakeip-filter；国内/私有用 geosite:cn / geosite:private。路由仍只用 GEOSITE/GEOIP。
 rule-providers:
   fakeip-filter:
     type: http
@@ -68,14 +68,6 @@ rule-providers:
     interval: 86400
     path: ./ruleset/dustinwin/fakeip-filter.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
-  # DNS-only：classical 含 DOMAIN* 规则，勿改为 domain；勿用于 rules
-  ChinaDomain:
-    type: http
-    behavior: classical
-    format: text
-    interval: 86400
-    path: ./ruleset/acl4ssr/ChinaDomain.list
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
 
 proxy-groups:
 - name: 节点选择

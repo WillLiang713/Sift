@@ -1,6 +1,6 @@
 ---
 name: sift-check
-description: Validate the Sift Mihomo templates under rules/ against project invariants — strategy-group & rule-set referential integrity, the ShellCrash geosite/geoip URL constraint, node-free rules, DNS allowance per template, canonical group scopes, and optional mihomo/yamllint checks. Use before committing template, rule-provider, or documentation changes.
+description: Validate the Sift Mihomo templates under rules/ against project invariants — strategy-group & rule-set referential integrity, node-free rules, DNS allowance per template, canonical group scopes, geodata purity, and optional mihomo/yamllint checks. Use before committing template, rule-provider, or documentation changes.
 ---
 
 # sift-check
@@ -22,9 +22,9 @@ It `cd`s to the repo root, so it can be invoked from anywhere. Exit `0` = PASS, 
 Project invariants that `mihomo -t` cannot catch:
 
 - **Referential integrity** — every `proxies:` entry and every rule policy resolves to a defined group or a builtin (`DIRECT`/`REJECT`); every `RULE-SET,<x>` and DNS `rule-set:<x>` resolves to a defined `rule-providers` key.
-- **ShellCrash constraint** — no `geosite` / `geoip` substring in any `rule-providers` URL (→ `[FAIL]`). See `AGENTS.md › Rule Sources & ShellCrash Compatibility`.
 - **Node-free** — no top-level `proxies:` in any template.
-- **DNS scope** — Full and Core templates may carry top-level `dns:` blocks; Nano templates must stay DNS-free. DNS `fake-ip-filter` / `nameserver-policy` rule-set refs are integrity-checked and must use `behavior: domain` providers, except DNS-only `ChinaDomain` which is deliberately `classical`.
+- **DNS scope** — Full and Core templates may carry top-level `dns:` blocks; Nano templates must stay DNS-free. DNS `fake-ip-filter` / `nameserver-policy` rule-set refs are integrity-checked and must use `behavior: domain` providers.
+- **Note** — ShellCrash URL heuristics that treat `geosite`/`geoip` path substrings as “must download Geo databases” are **not** enforced; templates may use MetaCubeX `.../geosite/...` provider URLs.
 - **Canonical groups** — required strategy-group names must be present; Core must not contain service/brand UI groups, region node groups, or the separate `漏网之鱼` group, and Nano must not contain its forbidden Full/Core-only groups.
 - **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. blackmatrix7 service keys mapping to capitalized upstream paths — informational only).
 
