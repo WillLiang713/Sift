@@ -83,10 +83,14 @@ section=="rules" {
 section=="dns" {                                   # dns block: collect rule-set refs
   if($0 ~ /^  ipv6:[ \t]*true([ \t]*#.*)?$/) dns_ipv6_true=1
   s=$0; sub(/#.*/,"",s)
-  # Support "rule-set:a,private" / multi rule-set tokens on one policy key
-  while(match(s, /rule-set:[ \t]*[A-Za-z0-9_-]+/)){
-    t=substr(s, RSTART, RLENGTH); sub(/^rule-set:[ \t]*/,"",t); t=trim(t)
-    if(t!="" && !(t in dnsseen)){ dnsseen[t]=1; dnsrs[ndnsrs]=t; ndnsrs++ }
+  # Mihomo grouped selector: "rule-set:cn,private" references both providers.
+  while(match(s, /rule-set:[ \t]*[A-Za-z0-9_-]+([ \t]*,[ \t]*[A-Za-z0-9_-]+)*/)){
+    t=substr(s, RSTART, RLENGTH); sub(/^rule-set:[ \t]*/,"",t)
+    nref=split(t, refs, /[ \t]*,[ \t]*/)
+    for(j=1;j<=nref;j++){
+      ref=trim(refs[j])
+      if(ref!="" && !(ref in dnsseen)){ dnsseen[ref]=1; dnsrs[ndnsrs]=ref; ndnsrs++ }
+    }
     s=substr(s, RSTART+RLENGTH)
   }
   next
@@ -109,7 +113,7 @@ END{
     else if(prov_behavior[s]!="domain")
       emit("FAIL","DNS rule-set `" s "` uses behavior `" prov_behavior[s] "` — use domain-only providers in fake-ip-filter/nameserver-policy")
   }
-  for(k in provs) if(!(k in usedprov)) emit("WARN","rule-provider `" k "` defined but never used in rules")
+  for(k in provs) if(!(k in usedprov)) emit("WARN","rule-provider `" k "` is not referenced by routing rules or DNS selectors")
 
   for(i=0;i<nurl;i++){
     u=url_val[i]

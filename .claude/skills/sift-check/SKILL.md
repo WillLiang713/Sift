@@ -23,7 +23,7 @@ Project invariants that `mihomo -t` cannot catch:
 
 - **Referential integrity** — every `proxies:` entry and every rule policy resolves to a defined group or a builtin (`DIRECT`/`REJECT`); every `RULE-SET,<x>` and DNS `rule-set:<x>` resolves to a defined `rule-providers` key.
 - **Node-free** — no top-level `proxies:` in any template.
-- **DNS scope** — Full and Core templates may carry top-level `dns:` blocks; Nano templates must stay DNS-free. DNS `fake-ip-filter` / `nameserver-policy` rule-set refs are integrity-checked and must use `behavior: domain` providers. `trackerslist` is DNS-only: it must be referenced from `fake-ip-filter` for real-IP and must not appear in routing rules.
+- **DNS scope** — Full and Core templates may carry top-level `dns:` blocks and must use fake-IP whitelist semantics; Nano templates stay DNS-free. DNS `fake-ip-filter` / `nameserver-policy` refs are integrity-checked and must use `behavior: domain` providers. Grouped Mihomo selectors such as `"rule-set:cn,private"` are parsed as references to both `cn` and `private`; MetaCubeX Full/Core use geosite selectors directly and define no `rule-providers`.
 - **Note** — ShellCrash URL heuristics that treat `geosite`/`geoip` path substrings as “must download Geo databases” are **not** enforced; templates may use MetaCubeX `.../geosite/...` provider URLs.
 - **Canonical groups** — required strategy-group names must be present; Core must not contain service/brand UI groups, region node groups, or the separate `漏网之鱼` group, and Nano must not contain its forbidden Full/Core-only groups.
 - **Orphan providers** (`[WARN]`) and **key ≠ file basename** (`[INFO]`, e.g. blackmatrix7 service keys mapping to capitalized upstream paths — informational only).
