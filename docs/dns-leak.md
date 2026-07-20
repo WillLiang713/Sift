@@ -24,12 +24,13 @@ nameserver:
 
 ## 当前分工
 
-Full/Core 模板按用途拆分 DNS。`fake-ip-filter` 与 `nameserver-policy` **共用** MetaCubeX geosite **cn**（DustinWin/ACL4SSR 为 `rule-set:cn` → `cn.mrs`；MetaCubeX 为 `geosite:cn`）外加 `private`，覆盖国内域名 real-IP 与国内 DoH。`*-cn` 规则只表达路由直连意图，不进入静态 DNS。未命中 cn 但实际直连的流量仍由 `respect-rules` 与 `direct-nameserver` 使用国内 DoH。
+Full/Core 模板按用途拆分 DNS。`fake-ip-filter` 与 `nameserver-policy` **共用** MetaCubeX geosite **cn**（DustinWin/ACL4SSR 为 `rule-set:cn` → `cn.mrs`；MetaCubeX 为 `geosite:cn`）外加 `private`，覆盖国内域名 real-IP 与国内 DoH。`trackerslist` 只额外进入 `fake-ip-filter`，让 BT Tracker 返回 real-IP；它不进入 `nameserver-policy`，也不改变路由出口。`*-cn` 规则只表达路由直连意图，不进入静态 DNS。未命中 cn 但实际直连的流量仍由 `respect-rules` 与 `direct-nameserver` 使用国内 DoH。
 
 ```yaml
 fake-ip-filter:
   - rule-set:fakeip-filter
   - rule-set:private
+  - rule-set:trackerslist
   - rule-set:cn
 
 nameserver-policy:
@@ -51,7 +52,7 @@ proxy-server-nameserver:
   - https://1.12.12.12/dns-query
 ```
 
-DustinWin / ACL4SSR 的 DNS-only `cn` provider：
+DustinWin / ACL4SSR 的 DNS-only `cn` provider，以及所有 Full/Core 共用的 Tracker real-IP provider：
 
 ```yaml
 cn:
@@ -61,6 +62,14 @@ cn:
   path: ./ruleset/metacubex/cn.mrs
   url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
   interval: 86400
+
+trackerslist:
+  type: http
+  behavior: domain
+  format: mrs
+  path: ./ruleset/dustinwin/trackerslist.mrs
+  url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs"
+  interval: 86400
 ```
 
 路由侧仍用 DustinWin `cn-lite` 或 ACL4SSR `ChinaDomain`，**不要**把 DNS 用的 MetaCubeX `cn` 替换进路由兜底。
@@ -69,15 +78,15 @@ cn:
 
 | 字段 | 用途 |
 | --- | --- |
-| `fake-ip-filter` | 兼容例外 + MetaCubeX cn 返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。 |
+| `fake-ip-filter` | 兼容例外 + Tracker + MetaCubeX cn 返回真实 IP，避免被路由器 nft / 禁 QUIC 规则按 `198.18/16` fake-ip 误处理。Tracker 仅影响 real-IP，不改变路由。 |
 | `nameserver-policy` | 与 filter 同源：MetaCubeX cn + private 静态使用国内 DoH。`*-cn` 与 blackmatrix7 完整品牌包不进 policy。 |
 | `direct-nameserver` | 在 `respect-rules` 下，实际命中 `DIRECT` 的 DNS 查询使用国内 DoH（含未进 cn 的直连域）。 |
 | `nameserver` | 默认解析，使用海外 DoH（IP 形式），供代理路径使用。 |
 | `proxy-server-nameserver` | 专门解析代理节点域名，避免开启 `respect-rules` 后出现启动环路。 |
 
-DNS 静态规则保留 `fakeip-filter`、`private`、MetaCubeX `cn`，不会引用 `*-cn` 路由补充，也不会引用完整 `rule-set:apple` / `rule-set:microsoft` / `rule-set:onedrive`（blackmatrix7 classical 可能含 `PROCESS-NAME` 等）。完整 Apple / Microsoft 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时由 `direct-nameserver` 使用国内 DoH。Core 路由侧将 `onedrive` 放在 `microsoft` 前进入 `节点选择`（无 OneDrive UI 组）。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
+DNS 静态规则保留 `fakeip-filter`、`private`、`trackerslist`、MetaCubeX `cn`；其中 `trackerslist` 只在 `fake-ip-filter` 中使用，不会进入路由或强制直连。DNS 不会引用 `*-cn` 路由补充，也不会引用完整 `rule-set:apple` / `rule-set:microsoft` / `rule-set:onedrive`（blackmatrix7 classical 可能含 `PROCESS-NAME` 等）。完整 Apple / Microsoft 仍在路由侧进入 `全球直连`；在 `DIRECT` 选中时由 `direct-nameserver` 使用国内 DoH。Core 路由侧将 `onedrive` 放在 `microsoft` 前进入 `节点选择`（无 OneDrive UI 组）。Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 和 `自动测速`，且 `DIRECT` 排第一。
 
-`rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；DNS 侧仅额外补充 DustinWin `fakeip-filter`，国内层直接用 geodata：
+`rules/MetaCubeX-full.yaml` / `rules/MetaCubeX-core.yaml` 的路由规则仍只用 `GEOSITE` / `GEOIP`；MetaCubeX GeoSite 没有 `trackerslist` 标签，因此 DNS 侧额外补充 DustinWin `fakeip-filter` 与 `trackerslist` 两个 provider，国内层直接用 geodata：
 
 ```yaml
 rule-providers:
@@ -88,10 +97,18 @@ rule-providers:
     interval: 86400
     path: ./ruleset/dustinwin/fakeip-filter.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
+  trackerslist:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: ./ruleset/dustinwin/trackerslist.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs"
 
 fake-ip-filter:
   - rule-set:fakeip-filter
   - geosite:private
+  - rule-set:trackerslist
   - geosite:cn
 nameserver-policy:
   "geosite:cn,private":

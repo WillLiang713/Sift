@@ -27,6 +27,8 @@ dns:
   fake-ip-filter:
     - rule-set:fakeip-filter
     - geosite:private
+    # MetaCubeX geosite 无 trackerslist 标签，改用 DNS-only provider 返回 real-IP
+    - rule-set:trackerslist
     # MetaCubeX geosite cn：与 meta-rules-dat cn.mrs 同源；路由仍用 GEOSITE,cn
     - geosite:cn
   nameserver-policy:
@@ -59,7 +61,7 @@ sniffer:
     QUIC:
       ports: [443, 8443]
 
-# DNS 专用：仅补充 fakeip-filter；国内/私有用 geosite:cn / geosite:private。路由仍只用 GEOSITE/GEOIP。
+# DNS 专用：补充 fakeip-filter / trackerslist；国内/私有用 geosite:cn / geosite:private。路由仍只用 GEOSITE/GEOIP。
 rule-providers:
   fakeip-filter:
     type: http
@@ -68,6 +70,14 @@ rule-providers:
     interval: 86400
     path: ./ruleset/dustinwin/fakeip-filter.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.list"
+  # XIU2 + ngosang 纯域名；仅用于 real-IP，不参与路由
+  trackerslist:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: ./ruleset/dustinwin/trackerslist.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs"
 
 proxy-groups:
 - name: 节点选择

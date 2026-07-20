@@ -19,6 +19,8 @@ dns:
   fake-ip-filter:
     - rule-set:fakeip-filter
     - rule-set:private
+    # BT Tracker 仅返回 real-IP，不参与路由
+    - rule-set:trackerslist
     # MetaCubeX geosite cn（MRS）：国内 real-IP；路由仍用 cn-lite
     - rule-set:cn
   nameserver-policy:
@@ -159,6 +161,14 @@ rule-providers:
     format: text
     path: ./ruleset/dustinwin/cnip.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.list"
+    interval: 86400
+  # DNS-only：XIU2 + ngosang 纯域名，Tracker 仅返回 real-IP，不参与路由
+  trackerslist:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/dustinwin/trackerslist.mrs
+    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs"
     interval: 86400
   fakeip-filter:
     type: http

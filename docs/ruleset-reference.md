@@ -11,12 +11,12 @@
 说明：
 
 - 以下 DustinWin URL 使用 GitHub release 下载链接，与官方示例保持一致。jsDelivr 同等链接遵循相同文件名，路径中使用发布分支名。
-- `rules/DustinWin-full.yaml` 额外使用 DustinWin/domain-list-custom 的 `trackerslist.list`，内容为 Clash `DOMAIN,...` 规则行，接入时使用 `classical` / `text`。
+- 所有带 DNS 的 Full/Core 模板使用 DustinWin `trackerslist.mrs`（`behavior: domain` / `format: mrs`），其纯域名数据由 XIU2/TrackersListCollection 与 ngosang/trackerslist 组合；仅加入 `dns.fake-ip-filter` 返回 real-IP，不参与路由。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
-- 当前模板优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
+- 当前模板通常优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`；DNS-only `trackerslist` 是明确例外，直接使用 `format: mrs`。其他 MRS 链接保留为上游格式参考。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
 - `rules/DustinWin-*.yaml` 使用 DustinWin `ads` 进入可切换的 `广告拦截`，并使用 `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
-- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；三档模板均使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD` 广告拦截；Full/Core 的 DNS 与 DustinWin 模板对齐：`fakeip-filter` / `private` / MetaCubeX `cn.mrs` 同时用于 real-IP 与国内 `nameserver-policy`；路由国内域名仍用 `ChinaDomain`。
-- `rules/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。Full/Core DNS 国内层用 `geosite:cn`。
+- `rules/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；三档模板均使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD` 广告拦截；Full/Core 的 DNS 与 DustinWin 模板对齐：`fakeip-filter` / `private` / MetaCubeX `cn.mrs` 同时用于 real-IP 与国内 `nameserver-policy`，`trackerslist` 仅作为额外 real-IP 例外；路由国内域名仍用 `ChinaDomain`。
+- `rules/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`（在 `geolocation-!cn` 与 `cn` 前）；Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。上游 `geolocation-!cn` 未覆盖 `googleapis.cn` / `gstatic.cn` 等仍落在 `cn` / `tld-cn` 中的 Google 全球服务域名。Full/Core DNS 国内层用 `geosite:cn`；因 MetaCubeX GeoSite 没有 `trackerslist` 标签，使用独立 DNS-only provider。
 - 本仓库不规避 ShellCrash 对 URL 中 `geosite`/`geoip` 子串的启发式误判；MetaCubeX DNS `cn.mrs` 路径含 `geosite` 为预期。
 
 ## URL 模板

@@ -17,7 +17,7 @@ CORE_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软�
 NANO_REQ="节点选择 手动切换 自动测速 全球直连 广告拦截 漏网之鱼"
 NANO_FORB="AI 流媒体 游戏平台 Telegram 苹果服务 谷歌服务 微软服务 OneDrive 香港节点 美国节点 日本节点 新加坡节点 其他节点"
 # Geodata templates keep the same group contracts and route with GEOSITE/GEOIP.
-# Allowed DNS-only provider: fakeip-filter (domestic DNS uses geosite:cn / geosite:private).
+# Allowed DNS-only providers: fakeip-filter and trackerslist (domestic DNS uses geosite:cn / geosite:private).
 
 # --- Static analyzer (one pass per file) --------------------------------------
 AWK=$(cat <<'AWKEOF'
@@ -98,8 +98,8 @@ END{
   if(allow_dns=="1" && !top_ipv6_true) emit("FAIL","DNS template must set top-level `ipv6: true` to allow IPv6 connections")
   if(allow_dns=="1" && !dns_ipv6_true) emit("FAIL","DNS template must set `dns.ipv6: true` to return AAAA answers")
   if(geodata=="1") for(k in provs)
-    if(k!="fakeip-filter")
-      emit("FAIL","Geodata template may only define DNS-only provider `fakeip-filter`, not `" k "`")
+    if(k!="fakeip-filter" && k!="trackerslist")
+      emit("FAIL","Geodata template may only define DNS-only providers `fakeip-filter` / `trackerslist`, not `" k "`")
 
   for(i=0;i<np;i++){ r=pf_r[i]; if(!(r in groups) && !(r in builtin)) emit("FAIL","group `" pf_g[i] "` references undefined proxy `" r "`") }
   for(i=0;i<npol;i++){ p=pols[i]; if(!(p in groups) && !(p in builtin)) emit("FAIL","rule policy `" p "` is not a defined group or builtin") }
@@ -167,6 +167,29 @@ check_file rules/MetaCubeX-nano.yaml MetaCubeX-nano "$NANO_REQ" "$NANO_FORB" 0 1
 check_file rules/ACL4SSR-full.yaml ACL4SSR-full "$FULL_REQ" "$FULL_FORB" 1 0
 check_file rules/ACL4SSR-core.yaml ACL4SSR-core "$CORE_REQ" "$CORE_FORB" 1 0
 check_file rules/ACL4SSR-nano.yaml ACL4SSR-nano "$NANO_REQ" "$NANO_FORB" 0 0
+
+# Full/Core Tracker domains are DNS compatibility exceptions only: return real-IP,
+# but do not force DIRECT / 全球直连 or any other routing policy.
+for f in \
+  rules/DustinWin-full.yaml rules/DustinWin-core.yaml \
+  rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml \
+  rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml; do
+  dns_tracker=$(awk '
+    /^dns:$/ { in_dns=1; next }
+    in_dns && /^[A-Za-z][A-Za-z0-9_-]*:/ { in_dns=0 }
+    in_dns && $0 ~ /^    - rule-set:trackerslist([[:space:]]*#.*)?$/ { print NR; exit }
+  ' "$f")
+  route_tracker=$(awk '/^- RULE-SET,trackerslist,/{ print NR; exit }' "$f")
+  if [ -z "$dns_tracker" ]; then
+    printf '  [FAIL] %s must reference trackerslist from dns.fake-ip-filter\n' "$f"
+    fails=$((fails+1))
+  elif [ -n "$route_tracker" ]; then
+    printf '  [FAIL] %s must not route trackerslist; it is DNS-only real-IP\n' "$f"
+    fails=$((fails+1))
+  else
+    printf '  [ OK ] %s keeps trackerslist DNS-only real-IP\n' "$f"
+  fi
+done
 
 # DustinWin proxy (geolocation-!cn + gfwlist) covers global .cn exceptions such as
 # googleapis.cn. It must take precedence over cn-lite's broad +.cn entry, matching
