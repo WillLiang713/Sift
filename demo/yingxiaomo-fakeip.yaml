@@ -1,0 +1,446 @@
+# Sift demo snapshot — upstream community reference (not a Sift template).
+# Source: https://github.com/yingxiaomo/Mihomo-Personal-Rules/blob/main/configs/fakeip.yaml
+# License: see upstream repo (no SPDX declared at fetch time).
+# Purpose: Fake-IP profile that pulls DustinWin ruleset_geodata MRS (close to Sift rule sources).
+# Note: proxy-providers.url is a placeholder string; replace before use.
+# 规则并不是越多越好，在满足自己需求情况下，尽量做到精简，不要过度复杂，以免影响性能。
+
+# 仅自用，要用的可以根据自己需求修改一下。
+
+# 连通性检查通用锚点
+Check: &Check { url: https://www.gstatic.com/generate_204, interval: 180, timeout: 5000 } 
+
+
+# 机场订阅
+proxy-providers:
+  Airport1:                                                        # 添加多个机场不要重复命名
+    url: "机场订阅"                                                 # 机场订阅地址 
+    type: http                                                     # 订阅类型       
+    interval: 86400                                                # 订阅更新频率，单位为秒，86400秒即24小时                                 
+    health-check:                                                  # 启用节点连通性检查                  
+      enable: true                                                 # 是否启用连通性检查         
+      url: https://www.gstatic.com/generate_204                    # 用于检查节点连通性的网址
+      interval: 300                                                # 检查频率，单位为秒
+    proxy: DIRECT                                                  # 订阅下载时使用的代理名称，若不需要可删除此行，DIRECT表示直连                           
+    override:
+      ip-version: ipv4-prefer                                      # ipv4-prefer: 优先使用 IPv4，对于 TCP 会进行双栈解析，并发链接但是优先使用 IPv4 链接，UDP 则为双栈解析，获取结果中的第一个 IPv4
+#      additional-prefix: ""                                       # 自定义节点名字前缀                  
+#      additional-suffix: ""                                       # 自定义节点名字后缀                 
+#      skip-cert-verify: false                                     # 是否跳过节点的证书验证，默认为 false
+      udp: false                                                   # 是否启用 UDP 转发，默认为 false                  
+#    filter: "(?i)新加坡|坡|狮城|SG|Singapore"                      # 订阅内节点的过滤规则，支持正则表达式  
+
+
+# 要添加多个机场就把上面的整个 Airport1 块复制粘贴，改个名字就行了
+
+
+# 全局配置
+port: 7890                                                         # HTTP(S) 代理端口
+socks-port: 7891                                                   # SOCKS5 代理端口 
+redir-port: 7892                                                   # 流量转发端口   
+mixed-port: 7893                                                   # HTTP(S)&SOCKS5 混合代理端口
+tproxy-port: 7894                                                  # TProxy 代理端口（用于透明代理）
+allow-lan: true                                                    # 允许局域网
+bind-address: "*"                                                  # 绑定局域网 IP，* 表示监听所有地址
+ipv6: true                                                         # ipv6，false表示关闭
+unified-delay: true                                                # 启用统一延迟，显示节点到目标站点的真实延迟
+tcp-concurrent: true                                               # 开启 TCP 并发
+log-level: info                                                    # 日志等级
+mode: rule                                                         # 运行模式
+find-process-mode: 'off'                                           # 进程匹配模式（always: 总是匹配；strict: 严格匹配；off: 关闭）
+global-ua: clash.meta                                              # 自定义外部资源下载时使用的的 UA，默认为 clash.meta
+# interface-name: en0                                              # 强制绑定出口网卡
+keep-alive-idle: 600                                               # TCP 空闲保持，针对移动端优化，可以给手机省电
+keep-alive-interval: 15                                            # TCP 保活探测频率（秒），维持连接不被强制断开
+disable-keep-alive: false                                          # 是否禁用保活机制（false 表示维持开启，有利于连接稳定）
+profile:
+  store-selected: true                                             # 记忆上次选中的节点，重启后无需重新选择                         
+  store-fake-ip: true                                              # fake-ip 缓存，false表示关闭               
+ntp:
+  enable: false                                                    # 是否启用 NTP 服务
+  write-to-system: false                                           # 是否将 NTP 时间写入系统，需要管理员权限
+  server: time.apple.com                                           # NTP 服务地址，默认 time.apple.com
+  port: 123                                                        # NTP 服务端口，默认 123
+  interval: 30                                                     # NTP 同步间隔，单位为秒，默认 30 秒
+
+
+# 数据库
+# 为防止使用插件朋友遇到问题，我注释掉了此模块，跑裸核可以去掉注释。
+#geodata-mode: true                                                  # 更改 geoip 使用文件，mmdb 或者 dat，可选 true/false,true为 dat，此项有默认值 false
+#geodata-loader: standard                                            # GEO 文件加载模式，standard：标准加载器，memconservative：专为内存受限 (小内存) 设备优化的加载器 (默认值)
+#geo-auto-update: true                                               # 自动更新
+#geo-update-interval: 24                                             # 更新间隔，单位为小时
+#geox-url:                                                           # 自定义下载地址
+#  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+#  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
+#  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+#  asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+
+
+# 控制面板
+# 为防止使用插件朋友遇到面板问题，我注释掉了此模块，跑裸核可以去掉注释。
+#external-controller: 0.0.0.0:9090
+#secret: ""
+#external-ui: ui
+#external-ui-name: zashboard
+#external-ui-url: "https://ghfast.top/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+
+# 嗅探
+sniffer:
+  enable: true
+  force-dns-mapping: false                                          # 对 redir-host 类型识别的流量进行强制嗅探，Fake-IP 模式下通常不需要强制还原 DNS 映射
+  parse-pure-ip: true                                               # 强制嗅探那些没有经过 DNS 解析的流量。开启！这对 Fake-IP 模式非常重要
+  override-destination: true                                        # 建议开启，将嗅探到的域名作为最终目标
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+    - "+.miwifi.com"
+    - "+.mi.com"
+    - "+.xiaomi.com"
+    - "+.miui.com"
+    - "connect.rom.miui.com"
+    - "dlg.io.mi.com"
+    - "+.push.apple.com"
+    - "+.apple.com"
+    - "router.asus.com"
+    - "tplogin.cn"
+    - "+.lan"
+    - "+.local"
+    - "+.msftconnecttest.com"                                # Windows 网络连接测试
+    - "+.msftncsi.com"                                       # Windows 网络状态指示器
+
+
+# 入站
+tun:
+  enable: true                                                      # 开启tun
+  stack: mixed                                                      # 三种模式,system（兼容性最好但是udp支持不佳）/gvisor（udp支持好）/mixed（结合前两个的优点）
+  dns-hijack: ["any:53", "tcp://any:53"]                            # 劫持53端口
+  #device: nikki                                                    # 使用nikki插件，混入全部不修改的情况，开启接口指定为nikki
+  auto-route: true                                                  # 自动路由
+  auto-redirect: true                                               # 自动重定向
+  auto-detect-interface: true                                       # 自动接口选择
+  endpoint-independent-nat: true                                    # 启用独立于端点的 NAT 用于提高NAT等级，可能对游戏联机有帮助
+  udp-timeout: 300                                                  # UDP NAT 过期时间，以秒为单位
+
+
+# DNS模块
+dns:
+  enable: true                                                      # 启用DNS模块
+  cache-algorithm: arc                                              # DNS缓存算法，支持 lru、arc ，默认为 arc
+  prefer-h3: false                                                  # 稳妥起见：关闭 DoH 的 HTTP/3，走 HTTP/2 (TCP) 极其稳定 
+  listen: 0.0.0.0:1053                                              # 监听地址和端口
+  ipv6: true                                                        # 是否启用IPv6
+  respect-rules: true                                               # 是否让连接DNS服务器时能够遵循规则
+  use-hosts: true                                                   # 是否回应配置中的 hosts，默认 true
+  use-system-hosts: false                                           # 是否查询系统 hosts 文件，默认 false，裸核建议改为true，毕竟系统 hosts 里可能有一些重要的本地解析记录
+  enhanced-mode: fake-ip                                            # 增强模式，支持 redir-host 和 fake-ip 两种模式
+  fake-ip-range: "28.0.0.1/8"                                       # fake-ip地址池
+#  fake-ip-range6: "fd00::/8"
+  fake-ip-filter-mode: blacklist                                    # 黑白名单
+  fake-ip-filter:                                                   # 黑名单列表，在这里写的域名或者规则集和数据库都会被回退到 redir-host 模式解析，防止某些域名被fake-ip错误解析导致无法访问
+#    - "+.*"                                                        # 测试用，表示所有域名都走redir-host模式解析
+    - "*.lan"
+    - "*.local"
+    - "stun.*"
+    - "geosite:cn,private,category-cdn-cn,category-games@cn,tencent-games,steam@cn"
+    - "rule-set:fakeip过滤"
+    - "+.miwifi.com"
+    - "router.asus.com"
+    - "tplogin.cn"
+    - "+.mi.com"
+    - "+.xiaomi.com"
+    - "dlg.io.mi.com"
+    - "connect.rom.miui.com"
+    - "+.services.googleapis.cn"
+    - "+.xn--ngstr-lra8j.com"
+    - "time.*.com"
+    - "ntp.*.com"
+    - "+.msftncsi.com"
+    - "+.pool.ntp.org"
+    - "+.ntp.tencent.com"
+    - "+.ntp1.aliyun.com"
+    - "+.ntp.ntsc.ac.cn"
+    - "+.cn.ntp.org.cn"                                                                                                                                                                                                                                                                                           
+    - "msftconnecttest.com"          
+    - "xbox.*.com"
+    - "+.xboxlive.com"
+    - "lenovo.cname.china.cdn.lenovo.com.cn" # 联想的一些服务
+
+
+# 基础DNS服务器，必须先有它才能使用域名类型的DNS配置，因此必须为IP，此处使用阿里云DNS
+# 下面全是数字dns所以这个可以注释掉
+#  default-nameserver:      
+#    - tls://223.5.5.5                      # 阿里 DNS
+#    - tls://120.53.53.53                   # 这个是腾讯的 DNS，默认的119不支持这些写法 
+
+
+# 规则匹配到直连时使用的DNS，既然是可以直连的，当然要用国内DNS解析速度更快更稳定
+  direct-nameserver: &cn_dns               # 这里定义锚点给下方使用
+    - https://223.5.5.5/dns-query          # 阿里 DNS
+    - https://120.53.53.53/dns-query       # 这个是腾讯的 DNS，默认的119不支持这些写法
+
+
+# 解析代理节点时使用的DNS，最好设置为国内DNS，否则在代理的第一步就可能因为连接不上国外DNS而解析不出代理节点的IP，最终倒在起点
+  proxy-server-nameserver: *cn_dns
+
+
+# 指定域名查询的解析服务器，可使用 geosite, 优先于 nameserver/fallback 查询
+  nameserver-policy:
+# 局域网与反向解析，交回系统处理，防死循环
+    "geosite:private": system
+    "+.arpa": system
+# 国内域名
+    "geosite:cn,category-cdn-cn,category-games@cn,tencent-games,steam@cn": *cn_dns
+    "rule-set:游戏下载,微软cn,苹果cn,谷歌cn": *cn_dns
+
+# 在访问的国外网站没有匹配到任何域名规则，最终走了MATCH兜底规则时使用的DNS，为了确保不发生DNS泄漏和DNS污染，必须使用国外DNS
+# 说人话就是上面开启了遵循路由规则，DNS请求会匹配自己写的规则，没匹配到的会用这个DNS，上面写了cn数据库，没匹配到数据库的都会使用这个解析，所以写国外的防止DNS泄露
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+# 节点选择锚点
+all: &all { type: select, proxies: [ 新加坡智能, 香港智能, 台湾智能, 日本智能, 美国智能, 其他智能, 自建智能, 新加坡手动, 香港手动, 台湾手动, 日本手动, 美国手动, 其他手动, 自建手动, 全部手动, 新加坡自动, 香港自动, 台湾自动, 日本自动, 美国自动, 其他自动, 自建自动, 直连 ] } 
+Bybit: &Bybit { type: select, proxies: [ Bybit服务 ] }
+
+# 节点筛选锚点
+SG: &SG { filter: "(?i)新加坡|狮城|\bSG\b|Singapore" } 
+HK: &HK { filter: "(?i)香港|\bHK\b|HongKong|Hong Kong" } 
+US: &US { filter: "(?i)美国|美区|美东|美西|\bUS\b|United States" }
+JP: &JP { filter: "(?i)日本|\bJP\b|Japan" } 
+TW: &TW { filter: "(?i)台湾|台北|新北|\bTW\b|Taiwan" } 
+ZJ: &ZJ { filter: "(?i)^(?!.*移动).*(自建|workers)" }             # 这里只会匹配自建和workers，不会匹配移动自建，既然是自建节点，改个名字就行了
+B: &B { filter: "^((?!US|美国|自建|直连|流量|到期|重置|HK|香港|SG|新加坡|CA|加拿大|FR|法国|UK|英国|KR|韩国|KP|朝鲜|CU|古巴|IR|伊朗|UZ|乌兹别克|SU|苏丹|SY|叙利亚|UA|俄罗斯控制乌克兰|Се|塞瓦斯托波尔).)*$" } 
+Other: &Other { filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|香港|\bHK\b|HongKong|Hong Kong|台湾|\bTW\b|Taiwan|日本|\bJP\b|Japan|新加坡|\bSG\b|Singapore|美国|美区|美东|美西|\bUS\b|United States|直连)).*" }
+
+
+# 节点分组锚点
+# Select 策略通用模板 (用于手动选择)
+Select: &Select { type: select, include-all: true, exclude-type: direct  } 
+# Url-Test 策略通用模板 (用于自动选择)
+Url-Test: &Url-Test { type: url-test, include-all: true, <<: *Check, tolerance: 50, hidden: true, exclude-type: direct }
+# Fallback 策略通用模板 (用于故障转移)
+Fallback: &Fallback { type: fallback, <<: *Check, include-all: true, hidden: true, lazy: false }
+# Round-Robin 策略通用模板 (用于轮询负载均衡)
+# 轮询会循环使用列表中的节点，适用于需要平均分配负载的场景
+RR: &RR { type: load-balance, strategy: round-robin, include-all: true, tolerance: 50, <<: *Check,hidden: true, exclude-type: direct }
+# Load-Balance (散列) 策略通用模板
+# 适用于需要保持客户端连接一致性（例如，防止频繁切换 IP 导致登录失效）的场景
+CH: &CH { type: load-balance, strategy: consistent-hashing, include-all: true, tolerance: 50, <<: *Check,hidden: true, exclude-type: direct }
+
+# 锚点里面的 hidden: true 表示隐藏这个代理组，不会在代理列表中显示，但仍然可以在规则中使用它们。适合用于不需要手动更改的分组，比如自动选择、负载均衡等。
+
+
+# 代理组配置
+proxy-groups:
+  - { name: 漏网之鱼, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/match.png" }
+  - { name: 游戏平台, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Steam.png" }
+  - { name: GitHub, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/GitHub.png" }
+  - { name: 电报消息, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Telegram.png" }
+  - { name: Cloudflare, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Cloudflare.png" }
+  - { name: AI服务, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/AI.png" }
+  - { name: ChatGPT, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/ChatGPT.png" }
+  - { name: Claude, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Claude.png" }
+  - { name: MetaAI, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/MetaAI.png" }
+  - { name: Perplexity, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Perplexity.png" }
+  - { name: Gemini, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Gemini.png" }
+  - { name: Copilot, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Copilot.png" }
+  - { name: 油管视频, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/YouTube.png" }
+  - { name: 谷歌服务, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Google.png" }
+  - { name: 哔哩哔哩, type: select, proxies: [直连, 香港散列, 台湾散列, 香港手动, 台湾手动], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/bilibili.png" }
+  - { name: 微软云盘, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/OneDrive.png" }
+  - { name: 微软服务, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Microsoft.png" }
+  - { name: 苹果服务, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Apple.png" }
+  - { name: 网络测试, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Speedtest.png" }
+  - { name: Twitter, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Twitter.png" }
+  - { name: TikTok, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Tiktok.png" }
+  - { name: 代理域名, <<: *all, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Global.png" }
+  - { name: 直连, type: select, proxies: [DIRECT], hidden: true, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Direct.png" }
+
+
+# 全部节点
+  - { name: 全部手动, <<: [ *Select, *Check ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Proxy.png" }
+# - { name: 全部自动, <<: *Url-Test, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Auto.png" }
+# - { name: 全部故转, <<: *Fallback, include-all: true, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Loop.png" }
+# - { name: 轮询负载, <<: *RR, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Round_Robin.png" }
+# - { name: 散列负载, <<: *CH, icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Final.png" }
+
+
+# 手动选择
+  - { name: 新加坡手动, <<: [ *Select, *Check, *SG ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Singapore.png" }
+  - { name: 香港手动, <<: [ *Select, *Check, *HK ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Hong_Kong.png" }
+  - { name: 台湾手动, <<: [ *Select, *Check, *TW ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Taiwan.png" }
+  - { name: 日本手动, <<: [ *Select, *Check, *JP ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Japan.png" }
+  - { name: 美国手动, <<: [ *Select, *Check, *US ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/United_States.png" }
+  - { name: 其他手动, <<: [ *Select, *Check, *Other ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Puzzle.png"}
+  - { name: 自建手动, <<: [ *Select, *Check, *ZJ ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Daily.png"}
+
+
+# dns
+  - { name: DNS服务, type: url-test, <<: *Check, hidden: true, proxies: [ 香港自动, 新加坡自动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Area.png"}
+
+# Bybit
+  - { name: Bybit服务, <<: [*Select, *Check, *B], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Bitcoin.png"}
+
+
+# 故障转移 
+# - { name: 新加坡故转, <<: *Fallback, proxies: [ 新加坡自动, 新加坡手动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Singapore.png"}
+# - { name: 香港故转, <<: *Fallback, proxies: [ 香港自动, 香港手动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Hong_Kong.png"}
+# - { name: 台湾故转, <<: *Fallback, proxies: [ 台湾自动, 台湾手动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Taiwan.png"}
+# - { name: 日本故转, <<: *Fallback, proxies: [ 日本自动, 日本手动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Japan.png"}
+# - { name: 美国故转, <<: *Fallback, proxies: [ 美国自动, 美国手动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/United_States.png"}
+# - { name: 其他故转, <<: *Fallback, proxies: [ 其他自动, 其他手动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Puzzle.png"}
+# - { name: 自建故转, <<: *Fallback, proxies: [ 自建自动, 自建手动 ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Daily.png"}
+
+
+# 自动选择
+  - { name: 新加坡自动, <<: [*Url-Test, *SG], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Singapore.png"}
+  - { name: 香港自动, <<: [*Url-Test, *HK], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Hong_Kong.png"}
+  - { name: 台湾自动, <<: [*Url-Test, *TW], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Taiwan.png"}
+  - { name: 日本自动, <<: [*Url-Test, *JP], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Japan.png"}
+  - { name: 美国自动, <<: [*Url-Test, *US], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/United_States.png"}
+  - { name: 其他自动, <<: [*Url-Test, *Other], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Puzzle.png"}
+  - { name: 自建自动, <<: [*Url-Test, *ZJ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Daily.png"}
+
+
+# 轮询负载 
+# - { name: 新加坡轮询, <<: [ *RR, *SG ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Singapore.png"}
+# - { name: 香港轮询, <<: [ *RR, *HK ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Hong_Kong.png"}
+# - { name: 台湾轮询, <<: [ *RR, *TW ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Taiwan.png"}
+# - { name: 日本轮询, <<: [ *RR, *JP ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Japan.png"}
+# - { name: 美国轮询, <<: [ *RR, *US ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/United_States.png"}
+# - { name: 其他轮询, <<: [ *RR, *Other ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Puzzle.png"}
+# - { name: 自建轮询, <<: [ *RR, *ZJ ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Daily.png" }
+
+
+# 散列负载 
+  - { name: 新加坡散列, <<: [ *CH, *SG ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Singapore.png"}
+  - { name: 香港散列, <<: [ *CH, *HK ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Hong_Kong.png"}
+  - { name: 台湾散列, <<: [ *CH, *TW ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Taiwan.png"}
+  - { name: 日本散列, <<: [ *CH, *JP ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Japan.png"}
+  - { name: 美国散列, <<: [ *CH, *US ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/United_States.png"}
+  - { name: 其他散列, <<: [ *CH, *Other ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Puzzle.png"}
+  - { name: 自建散列, <<: [ *CH, *ZJ ], icon: "https://fastly.jsdelivr.net/gh/YingXiaoMo/Mihomo-Personal-Rules@main/icons/Daily.png" }
+
+
+# 规则匹配
+rules:
+  # 1. 屏蔽广告 (可选)
+  - DST-PORT,3478,DIRECT
+  - DST-PORT,19302,DIRECT 
+  - GEOSITE,category-ads-all, REJECT
+
+  # 2. 管理与DNS
+  - RULE-SET,DNS, DNS服务
+  - RULE-SET,fakeip过滤, 直连
+  - RULE-SET,私有域名, 直连
+  - RULE-SET,私有ip, 直连,no-resolve
+
+  # 3. 网络测试
+  - RULE-SET,网络测试, 网络测试
+
+  # 4. 谷歌/消息推送
+  - RULE-SET,谷歌FCM, 香港自动
+
+  # 5. AI 服务
+  - RULE-SET,ChatGPT, ChatGPT
+  - RULE-SET,Claude, Claude
+  - RULE-SET,Meta AI, MetaAI
+  - RULE-SET,Perplexity, Perplexity
+  - RULE-SET,Gemini, Gemini
+  - RULE-SET,Copilot, Copilot
+  - RULE-SET,AI服务, AI服务
+
+  # 6. 特定流媒体与大厂服务
+  - RULE-SET,哔哩哔哩, 哔哩哔哩
+  - RULE-SET,电报域名, 电报消息
+  - RULE-SET,电报ip, 电报消息, no-resolve
+  - RULE-SET,油管视频, 油管视频
+  - RULE-SET,Twitter, Twitter
+  - RULE-SET,TikTok, TikTok
+  - RULE-SET,GitHub, GitHub
+  - RULE-SET,Bybit, Bybit服务
+  - RULE-SET,谷歌cn, 直连
+  - RULE-SET,谷歌域名, 谷歌服务
+  - RULE-SET,谷歌ip, 谷歌服务, no-resolve
+  - RULE-SET,苹果cn, 直连
+  - RULE-SET,苹果服务, 苹果服务
+  - RULE-SET,微软cn, 直连
+  - RULE-SET,微软云盘, 微软云盘
+  - RULE-SET,微软服务, 微软服务
+  - RULE-SET,Cloudflare, Cloudflare
+
+  # 7. 游戏相关
+  - RULE-SET,游戏下载, 直连
+  - RULE-SET,trackerslist, 直连
+  - RULE-SET,游戏平台, 游戏平台
+
+  # 8. 通用分流规则
+  - RULE-SET,直连软件, 直连
+  - RULE-SET,代理顶级域名, 代理域名
+  - RULE-SET,代理域名, 代理域名
+  - RULE-SET,直连域名, 直连
+
+  # 9. 默认规则
+  - RULE-SET,国内ip, 直连, no-resolve
+  - GEOIP,CN, 直连, no-resolve
+  # 10. 放行所有未被上方规则截获的未知 UDP 流量
+  - NETWORK,udp,DIRECT
+  - MATCH, 漏网之鱼
+
+
+# 规则集
+rule-anchor:
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+  domain_text: &domain_text {type: http, interval: 86400, behavior: domain, format: text} 
+  class: &class {type: http, interval: 86400, behavior: classical, format: text}
+
+
+rule-providers: 
+  DNS: { <<: *class, url: "https://raw.githubusercontent.com/yingxiaomo/Mihomo-Personal-Rules/refs/heads/main/rules/proxydns.list"} 
+
+  fakeip过滤: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/fakeip-filter-lite.mrs"}
+  游戏下载: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games-cn.mrs"} 
+  游戏平台: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/games.mrs"} 
+  私有域名: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs"} 
+  trackerslist: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/trackerslist.mrs"} 
+  直连软件: { <<: *class, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/applications.list"} 
+  哔哩哔哩: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/bilibili.mrs"} 
+  微软云盘: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs"} 
+  微软cn: { <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft@cn.mrs"} 
+  微软服务: { <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/microsoft.mrs"} 
+  苹果cn: { <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple@cn.mrs"}
+  苹果服务: { <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/apple.mrs"} 
+  谷歌cn: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/google-cn.mrs"} 
+  谷歌FCM: { <<: *class, url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GoogleFCM/GoogleFCM.list"} 
+  网络测试: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/networktest.mrs"} 
+  ChatGPT: { <<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/openai.mrs"} 
+  Claude: { <<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/blackmatrix7/ios_rule_script/refs/heads/master/rule/Clash/Claude/Claude.list"} 
+  Meta AI: { <<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/MetaAi.list"} 
+  Perplexity: { <<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/perplexity.mrs"} 
+  Copilot: { <<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Copilot.list"} 
+  Gemini: { <<: *class, url: "https://gh-proxy.com/raw.githubusercontent.com/liandu2024/clash/refs/heads/main/list/Gemini.list"} 
+  AI服务: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/ai.mrs"} 
+  GitHub: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs"} 
+  油管视频: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/youtube.mrs"} 
+  谷歌域名: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"} 
+  Twitter: { <<: *domain, url: "https://gh-proxy.com/github.com/metacubex/meta-rules-dat/raw/refs/heads/meta/geo/geosite/x.mrs"} 
+  电报域名: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs"} 
+  Bybit: { <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/bybit.mrs"} 
+  TikTok: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/tiktok.mrs"} 
+  Cloudflare: { <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cloudflare.mrs"} 
+  代理顶级域名: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/tld-proxy.mrs"} 
+  代理域名: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/gfw.mrs"} 
+  直连域名: { <<: *domain, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs"} 
+  私有ip: { <<: *ip, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/privateip.mrs"} 
+  国内ip: { <<: *ip, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cnip.mrs"} 
+  谷歌ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs"} 
+  电报ip: { <<: *ip, url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/telegramip.mrs"} 

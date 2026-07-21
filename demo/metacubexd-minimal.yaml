@@ -1,0 +1,36 @@
+# Sift demo snapshot — upstream reference only (not a Sift template).
+# Source: https://github.com/MetaCubeX/metacubexd/blob/main/docs/config.yaml
+# License: MIT (MetaCubeX/metacubexd)
+# Purpose: minimal standalone profile (loopback, MATCH,DIRECT, no providers).
+# Minimal standalone profile for local evaluation.
+# It has no remote providers or downloads, sends all traffic DIRECT, keeps TUN
+# disabled, and exposes the proxy and controller only on loopback by default.
+
+mixed-port: 7890
+allow-lan: false
+bind-address: 127.0.0.1
+mode: rule
+log-level: info
+ipv6: false
+
+external-controller: 127.0.0.1:9090
+# Loopback-only use does not require a secret. Before binding the controller to
+# a LAN address, set a strong secret and restrict access with a firewall.
+secret: ''
+
+# If you intentionally bind the controller to a trusted LAN and serve the
+# dashboard from a different origin, add that exact origin instead of a
+# wildcard. For example:
+# external-controller-cors:
+#   allow-private-network: true
+#   allow-origins:
+#     - 'http://192.168.1.2:8080'
+
+tun:
+  enable: false
+
+proxies: []
+proxy-groups: []
+
+rules:
+  - MATCH,DIRECT
