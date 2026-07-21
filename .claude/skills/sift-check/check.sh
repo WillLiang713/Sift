@@ -210,6 +210,41 @@ for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml; do
   fi
 done
 
+# Full/Core nameserver-policy must route proxy domains to overseas DoH explicitly,
+# because nameserver-policy takes precedence over respect-rules and would otherwise
+# let .cn proxy domains (googleapis.cn, gstatic.cn) latch onto the cn domestic-DoH policy.
+for f in rules/DustinWin-full.yaml rules/DustinWin-core.yaml rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml; do
+  if ! awk '
+    /^dns:$/ { in_dns=1; next }
+    in_dns && /^  nameserver-policy:$/ { in_pol=1; next }
+    in_pol && /^  [A-Za-z]/ { in_pol=0; in_entry=0 }
+    in_pol && $0 ~ /^    "rule-set:proxy":$/ { in_entry=1; next }
+    in_pol && $0 ~ /^    "rule-set:/ { in_entry=0 }
+    in_pol && in_entry && /^      - https:\/\/1.1.1.1\/dns-query$/ { found=1 }
+    in_pol && in_entry && /^      - https:\/\/8.8.8.8\/dns-query$/ { found2=1 }
+    END{ exit !(found && found2) }
+  ' "$f"; then
+    printf '  [FAIL] %s must route rule-set:proxy to overseas DoH via nameserver-policy\n' "$f"
+    fails=$((fails+1))
+  fi
+done
+
+for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml; do
+  if ! awk '
+    /^dns:$/ { in_dns=1; next }
+    in_dns && /^  nameserver-policy:$/ { in_pol=1; next }
+    in_pol && /^  [A-Za-z]/ { in_pol=0; in_entry=0 }
+    in_pol && $0 ~ /^    "geosite:geolocation-!cn,google":$/ { in_entry=1; next }
+    in_pol && $0 ~ /^    "geosite:/ { in_entry=0 }
+    in_pol && in_entry && /^      - https:\/\/1.1.1.1\/dns-query$/ { found=1 }
+    in_pol && in_entry && /^      - https:\/\/8.8.8.8\/dns-query$/ { found2=1 }
+    END{ exit !(found && found2) }
+  ' "$f"; then
+    printf '  [FAIL] %s must route geosite:geolocation-!cn,google to overseas DoH via nameserver-policy\n' "$f"
+    fails=$((fails+1))
+  fi
+done
+
 # DustinWin proxy (geolocation-!cn + gfwlist) covers global .cn exceptions such as
 # googleapis.cn. It must take precedence over cn-lite's broad +.cn entry, matching
 # MetaCubeX geolocation-!cn / ACL4SSR ProxyLite placement.

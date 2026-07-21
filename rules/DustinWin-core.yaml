@@ -20,6 +20,10 @@ dns:
     # DustinWin proxy（geolocation-!cn + gfwlist）：含 googleapis.cn 等全球 .cn 例外
     - rule-set:proxy
   nameserver-policy:
+    # 明确代理域名使用海外 DoH（优先于 cn，避免如 googleapis.cn 等 .cn 代理域名被国内 DNS 影响）
+    "rule-set:proxy":
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
     # MetaCubeX cn + 私有域名仍使用国内 DoH
     "rule-set:cn,private":
       - https://223.5.5.5/dns-query

@@ -4,15 +4,20 @@
 
 ## 解析与出口分工
 
-`respect-rules: true` 使 DNS 查询按最终分流结果选择解析路径：
+| `respect-rules: true` 使 DNS 查询按最终分流结果选择解析路径。`nameserver-policy` 优先于 `respect-rules`，因此必须按意图明确分层：
 
-- 明确代理域名使用默认海外 DoH。
+- 明确代理域名（`proxy` / `geolocation-!cn` + `google`）通过 `nameserver-policy` 强制使用海外 DoH（优先于 cn）。
+- `cn` + `private` 域名通过 `nameserver-policy` 使用国内 DoH。
 - 实际命中 `DIRECT` 的域名使用 `direct-nameserver` 国内 DoH。
-- MetaCubeX cn + private 通过 `nameserver-policy` 静态使用国内 DoH。
 - `proxy-server-nameserver` 使用国内 DoH 解析代理节点域名，避免启动环路。
-
 ```yaml
 nameserver-policy:
+  # 明确代理域名使用海外 DoH
+  "rule-set:proxy":
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+  # 国内及私有域名使用国内 DoH
   "rule-set:cn,private":
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
@@ -31,7 +36,7 @@ proxy-server-nameserver:
   - https://1.12.12.12/dns-query
 ```
 
-MetaCubeX 模板的 policy key 为 `"geosite:cn,private"`。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
+MetaCubeX 模板的 policy key 为 `"geosite:geolocation-!cn,google"`（海外 DoH）与 `"geosite:cn,private"`（国内 DoH）。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
 
 ## Fake-IP 白名单
 
@@ -81,7 +86,7 @@ fake-ip-filter:
 2. OpenWrt/Nikki 等客户端可能在防火墙层按 China IP 提前直连。
 3. 流量没有进入 Mihomo，因而无法命中更高意图的 `proxy` / `GEOSITE,google` 规则。
 
-白名单模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口。`nameserver-policy` 仍可使用 cn 选择国内 DoH；它只决定上游解析器，不再决定客户端是否获得 fake-IP。
+白名单模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口。`nameserver-policy` 为 `proxy`/`geolocation-!cn,google` 指定海外 DoH，为 `cn,private` 指定国内 DoH；两层 DNS 意图分离，不再混用。
 
 ## 国内域名为什么仍然直连
 

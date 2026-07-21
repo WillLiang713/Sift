@@ -29,6 +29,10 @@ dns:
     # googleapis.cn / gstatic.cn 等 Google 全球 .cn 例外
     - geosite:google
   nameserver-policy:
+    # 明确非中国及 Google 全球使用海外 DoH（优先于 cn，避免如 googleapis.cn 等 .cn 代理域名被国内 DNS 影响）
+    "geosite:geolocation-!cn,google":
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
     # geosite cn + private 仍使用国内 DoH
     "geosite:cn,private":
       - https://223.5.5.5/dns-query
