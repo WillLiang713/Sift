@@ -29,15 +29,18 @@ EXPLAIN = SCRIPTS / "explain_route.py"
 UPDATE_CACHE = SCRIPTS / "update_cache.py"
 
 TEMPLATES: Dict[str, str] = {
-    "DW-f": "rules/DustinWin-full.yaml",
-    "DW-c": "rules/DustinWin-core.yaml",
-    "DW-n": "rules/DustinWin-nano.yaml",
-    "MC-f": "rules/MetaCubeX-full.yaml",
-    "MC-c": "rules/MetaCubeX-core.yaml",
-    "MC-n": "rules/MetaCubeX-nano.yaml",
-    "AC-f": "rules/ACL4SSR-full.yaml",
-    "AC-c": "rules/ACL4SSR-core.yaml",
-    "AC-n": "rules/ACL4SSR-nano.yaml",
+    "HY-f": "rules/full.yaml",
+    "HY-c": "rules/core.yaml",
+    "HY-n": "rules/nano.yaml",
+    "DW-f": "rules/variants/DustinWin-full.yaml",
+    "DW-c": "rules/variants/DustinWin-core.yaml",
+    "DW-n": "rules/variants/DustinWin-nano.yaml",
+    "MC-f": "rules/variants/MetaCubeX-full.yaml",
+    "MC-c": "rules/variants/MetaCubeX-core.yaml",
+    "MC-n": "rules/variants/MetaCubeX-nano.yaml",
+    "AC-f": "rules/variants/ACL4SSR-full.yaml",
+    "AC-c": "rules/variants/ACL4SSR-core.yaml",
+    "AC-n": "rules/variants/ACL4SSR-nano.yaml",
 }
 
 # Canonical probe domains for whole-tree regression after routing design changes.

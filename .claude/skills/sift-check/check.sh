@@ -150,33 +150,40 @@ check_file(){
 }
 
 TEMPLATES=(
-  rules/DustinWin-full.yaml
-  rules/DustinWin-core.yaml
-  rules/DustinWin-nano.yaml
-  rules/MetaCubeX-full.yaml
-  rules/MetaCubeX-core.yaml
-  rules/MetaCubeX-nano.yaml
-  rules/ACL4SSR-full.yaml
-  rules/ACL4SSR-core.yaml
-  rules/ACL4SSR-nano.yaml
+  rules/full.yaml
+  rules/core.yaml
+  rules/nano.yaml
+  rules/variants/DustinWin-full.yaml
+  rules/variants/DustinWin-core.yaml
+  rules/variants/DustinWin-nano.yaml
+  rules/variants/MetaCubeX-full.yaml
+  rules/variants/MetaCubeX-core.yaml
+  rules/variants/MetaCubeX-nano.yaml
+  rules/variants/ACL4SSR-full.yaml
+  rules/variants/ACL4SSR-core.yaml
+  rules/variants/ACL4SSR-nano.yaml
 )
 
-check_file rules/DustinWin-full.yaml DustinWin-full "$FULL_REQ" "$FULL_FORB" 1 0
-check_file rules/DustinWin-core.yaml DustinWin-core "$CORE_REQ" "$CORE_FORB" 1 0
-check_file rules/DustinWin-nano.yaml DustinWin-nano "$NANO_REQ" "$NANO_FORB" 0 0
-check_file rules/MetaCubeX-full.yaml MetaCubeX-full "$FULL_REQ" "$FULL_FORB" 1 1
-check_file rules/MetaCubeX-core.yaml MetaCubeX-core "$CORE_REQ" "$CORE_FORB" 1 1
-check_file rules/MetaCubeX-nano.yaml MetaCubeX-nano "$NANO_REQ" "$NANO_FORB" 0 1
-check_file rules/ACL4SSR-full.yaml ACL4SSR-full "$FULL_REQ" "$FULL_FORB" 1 0
-check_file rules/ACL4SSR-core.yaml ACL4SSR-core "$CORE_REQ" "$CORE_FORB" 1 0
-check_file rules/ACL4SSR-nano.yaml ACL4SSR-nano "$NANO_REQ" "$NANO_FORB" 0 0
+check_file rules/full.yaml hybrid-full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file rules/core.yaml hybrid-core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file rules/nano.yaml hybrid-nano "$NANO_REQ" "$NANO_FORB" 0 0
+check_file rules/variants/DustinWin-full.yaml DustinWin-full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file rules/variants/DustinWin-core.yaml DustinWin-core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file rules/variants/DustinWin-nano.yaml DustinWin-nano "$NANO_REQ" "$NANO_FORB" 0 0
+check_file rules/variants/MetaCubeX-full.yaml MetaCubeX-full "$FULL_REQ" "$FULL_FORB" 1 1
+check_file rules/variants/MetaCubeX-core.yaml MetaCubeX-core "$CORE_REQ" "$CORE_FORB" 1 1
+check_file rules/variants/MetaCubeX-nano.yaml MetaCubeX-nano "$NANO_REQ" "$NANO_FORB" 0 1
+check_file rules/variants/ACL4SSR-full.yaml ACL4SSR-full "$FULL_REQ" "$FULL_FORB" 1 0
+check_file rules/variants/ACL4SSR-core.yaml ACL4SSR-core "$CORE_REQ" "$CORE_FORB" 1 0
+check_file rules/variants/ACL4SSR-nano.yaml ACL4SSR-nano "$NANO_REQ" "$NANO_FORB" 0 0
 
 # Full/Core use fake-IP whitelist mode. Explicit proxy-domain sets receive fake-IP;
 # private/CN/Tracker and other unlisted domains naturally receive real-IP.
 for f in \
-  rules/DustinWin-full.yaml rules/DustinWin-core.yaml \
-  rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml \
-  rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml; do
+  rules/full.yaml rules/core.yaml \
+  rules/variants/DustinWin-full.yaml rules/variants/DustinWin-core.yaml \
+  rules/variants/MetaCubeX-full.yaml rules/variants/MetaCubeX-core.yaml \
+  rules/variants/ACL4SSR-full.yaml rules/variants/ACL4SSR-core.yaml; do
   whitelist_mode=$(awk '
     /^dns:[[:space:]]*$/ { in_dns=1; next }
     in_dns && /^[A-Za-z][A-Za-z0-9_-]*:/ { in_dns=0 }
@@ -196,14 +203,14 @@ for f in \
   fi
 done
 
-for f in rules/DustinWin-full.yaml rules/DustinWin-core.yaml rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml; do
+for f in rules/full.yaml rules/core.yaml rules/variants/DustinWin-full.yaml rules/variants/DustinWin-core.yaml rules/variants/ACL4SSR-full.yaml rules/variants/ACL4SSR-core.yaml; do
   if ! awk '/^  fake-ip-filter:/{ in_filter=1; next } in_filter && /^    - rule-set:proxy[[:space:]]*$/{ found=1 } in_filter && /^  [A-Za-z]/{ in_filter=0 } END{ exit !found }' "$f"; then
     printf '  [FAIL] %s must use rule-set:proxy as the fake-IP whitelist\n' "$f"
     fails=$((fails+1))
   fi
 done
 
-for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml; do
+for f in rules/variants/MetaCubeX-full.yaml rules/variants/MetaCubeX-core.yaml; do
   if ! awk '/^  fake-ip-filter:/{ in_filter=1; next } in_filter && /^    - geosite:geolocation-!cn[[:space:]]*$/{ geo=1 } in_filter && /^    - geosite:google[[:space:]]*$/{ google=1 } in_filter && /^  [A-Za-z]/{ in_filter=0 } END{ exit !(geo && google) }' "$f"; then
     printf '  [FAIL] %s must whitelist geosite:geolocation-!cn and geosite:google for fake-IP\n' "$f"
     fails=$((fails+1))
@@ -213,7 +220,7 @@ done
 # Full/Core nameserver-policy must route proxy domains to overseas DoH explicitly,
 # because nameserver-policy takes precedence over respect-rules and would otherwise
 # let .cn proxy domains (googleapis.cn, gstatic.cn) latch onto the cn domestic-DoH policy.
-for f in rules/DustinWin-full.yaml rules/DustinWin-core.yaml rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml; do
+for f in rules/full.yaml rules/core.yaml rules/variants/DustinWin-full.yaml rules/variants/DustinWin-core.yaml rules/variants/ACL4SSR-full.yaml rules/variants/ACL4SSR-core.yaml; do
   if ! awk '
     /^dns:$/ { in_dns=1; next }
     in_dns && /^  nameserver-policy:$/ { in_pol=1; next }
@@ -229,7 +236,7 @@ for f in rules/DustinWin-full.yaml rules/DustinWin-core.yaml rules/ACL4SSR-full.
   fi
 done
 
-for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml; do
+for f in rules/variants/MetaCubeX-full.yaml rules/variants/MetaCubeX-core.yaml; do
   if ! awk '
     /^dns:$/ { in_dns=1; next }
     in_dns && /^  nameserver-policy:$/ { in_pol=1; next }
@@ -248,7 +255,7 @@ done
 # DustinWin proxy (geolocation-!cn + gfwlist) covers global .cn exceptions such as
 # googleapis.cn. It must take precedence over cn-lite's broad +.cn entry, matching
 # MetaCubeX geolocation-!cn / ACL4SSR ProxyLite placement.
-for f in rules/DustinWin-full.yaml rules/DustinWin-core.yaml rules/DustinWin-nano.yaml; do
+for f in rules/full.yaml rules/core.yaml rules/nano.yaml rules/variants/DustinWin-full.yaml rules/variants/DustinWin-core.yaml rules/variants/DustinWin-nano.yaml; do
   proxy_line=$(awk '/^- RULE-SET,proxy,节点选择/{ print NR; exit }' "$f")
   cn_line=$(awk '/^- RULE-SET,cn-lite,全球直连/{ print NR; exit }' "$f")
   if [ -z "$proxy_line" ] || [ -z "$cn_line" ]; then
@@ -264,7 +271,7 @@ done
 
 # ACL4SSR ChinaDomain contains DOMAIN-SUFFIX,cn. ProxyLite must take precedence
 # so googleapis.cn and other explicit proxy exceptions are not sent direct.
-for f in rules/ACL4SSR-full.yaml rules/ACL4SSR-core.yaml rules/ACL4SSR-nano.yaml; do
+for f in rules/variants/ACL4SSR-full.yaml rules/variants/ACL4SSR-core.yaml rules/variants/ACL4SSR-nano.yaml; do
   proxy_line=$(awk '/^- RULE-SET,ProxyLite,节点选择/{ print NR; exit }' "$f")
   china_line=$(awk '/^- RULE-SET,ChinaDomain,全球直连/{ print NR; exit }' "$f")
   if [ -z "$proxy_line" ] || [ -z "$china_line" ]; then
@@ -288,7 +295,7 @@ done
 # gstatic.cn (in cn/tld-cn but not geolocation-!cn):
 # - Full: GEOSITE,google,谷歌服务 before geolocation-!cn and cn (UI strategy group)
 # - Core/Nano: GEOSITE,google,节点选择 between geolocation-!cn and cn (routing-only)
-for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml rules/MetaCubeX-nano.yaml; do
+for f in rules/variants/MetaCubeX-full.yaml rules/variants/MetaCubeX-core.yaml rules/variants/MetaCubeX-nano.yaml; do
   noncn_line=$(awk '/^- GEOSITE,geolocation-!cn,节点选择/{ print NR; exit }' "$f")
   cn_line=$(awk '/^- GEOSITE,cn,全球直连/{ print NR; exit }' "$f")
   if [ -z "$noncn_line" ] || [ -z "$cn_line" ]; then
@@ -327,6 +334,22 @@ for f in rules/MetaCubeX-full.yaml rules/MetaCubeX-core.yaml rules/MetaCubeX-nan
       fi
       ;;
   esac
+done
+
+# Hybrid main templates: github must precede microsoft (MetaCubeX microsoft is broad).
+for f in rules/full.yaml rules/core.yaml; do
+  gh_line=$(awk '/^- RULE-SET,github,节点选择/{ print NR; exit }' "$f")
+  ms_line=$(awk '/^- RULE-SET,microsoft,/{ print NR; exit }' "$f")
+  od_line=$(awk '/^- RULE-SET,onedrive,/{ print NR; exit }' "$f")
+  if [ -z "$gh_line" ] || [ -z "$ms_line" ] || [ -z "$od_line" ]; then
+    printf '  [FAIL] %s must route github, onedrive, and microsoft\n' "$f"
+    fails=$((fails+1))
+  elif [ "$gh_line" -lt "$ms_line" ] && [ "$od_line" -lt "$ms_line" ]; then
+    printf '  [ OK ] %s routes github and onedrive before microsoft\n' "$f"
+  else
+    printf '  [FAIL] %s must route github and onedrive before microsoft\n' "$f"
+    fails=$((fails+1))
+  fi
 done
 
 # --- Optional toolchain -------------------------------------------------------

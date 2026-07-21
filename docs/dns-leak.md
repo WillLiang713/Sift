@@ -36,7 +36,9 @@ proxy-server-nameserver:
   - https://1.12.12.12/dns-query
 ```
 
-MetaCubeX 模板的 policy key 为 `"geosite:geolocation-!cn,google"`（海外 DoH）与 `"geosite:cn,private"`（国内 DoH）。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
+Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡顿）。
+
+主模板与 DustinWin/ACL 变体的 policy key 为 `rule-set:proxy` / `rule-set:cn,private`。MetaCubeX 变体的 policy key 为 `"geosite:geolocation-!cn,google"`（海外 DoH）与 `"geosite:cn,private"`（国内 DoH）。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
 
 ## Fake-IP 白名单
 

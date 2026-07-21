@@ -19,6 +19,7 @@ geo-update-interval: 24
 # DNS：fake-ip 白名单；明确非中国及 Google 域名使用 fake-IP，其余返回 real-IP。
 dns:
   enable: true
+  prefer-h3: false
   ipv6: true
   listen: ":53"
   enhanced-mode: fake-ip
@@ -61,6 +62,13 @@ sniffer:
       ports: [443, 8443]
     QUIC:
       ports: [443, 8443]
+  skip-domain:
+    - "+.lan"
+    - "+.local"
+    - "Mijia Cloud"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.push.apple.com"
 
 proxy-groups:
 - name: 节点选择
@@ -74,14 +82,17 @@ proxy-groups:
 - name: 手动切换
   type: select
   include-all: true
+  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
 
 - name: 自动测速
   type: url-test
   include-all: true
+  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
+  timeout: 3000
   tolerance: 50
 
 - name: 全球直连

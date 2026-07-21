@@ -2,7 +2,7 @@
 
 第三方 / 上游 Mihomo（Clash Meta）YAML 示例，仅供对照阅读与手工对比，**不是**本仓库的无节点分流模板。
 
-可直接使用的模板在 [`../rules/`](../rules/)。
+可直接使用的模板在 [`../rules/`](../rules/)（默认 `full`/`core`/`nano`；单源见 `variants/`）。
 
 ## 文件一览
 
@@ -10,7 +10,7 @@
 | --- | --- | --- | --- |
 | [`config.yaml`](./config.yaml) | [MetaCubeX/mihomo `docs/config.yaml`](https://github.com/MetaCubeX/mihomo/blob/Meta/docs/config.yaml) | 大 | 官方全字段语法与能力清单（代理协议、DNS、TUN、sniffer、listeners 等） |
 | [`metacubexd-minimal.yaml`](./metacubexd-minimal.yaml) | [MetaCubeX/metacubexd `docs/config.yaml`](https://github.com/MetaCubeX/metacubexd/blob/main/docs/config.yaml) | 极小 | 最小可跑配置：回环、无 provider、`MATCH,DIRECT` |
-| [`ACL4SSR-GeneralClashConfig.yml`](./ACL4SSR-GeneralClashConfig.yml) | [ACL4SSR/ACL4SSR `Clash/GeneralClashConfig.yml`](https://github.com/ACL4SSR/ACL4SSR/blob/master/Clash/GeneralClashConfig.yml) | 中 | 经典 ACL4SSR 内嵌规则写法，与 `rules/ACL4SSR-*.yaml` 的远程 rule-providers 思路对比 |
+| [`ACL4SSR-GeneralClashConfig.yml`](./ACL4SSR-GeneralClashConfig.yml) | [ACL4SSR/ACL4SSR `Clash/GeneralClashConfig.yml`](https://github.com/ACL4SSR/ACL4SSR/blob/master/Clash/GeneralClashConfig.yml) | 中 | 经典 ACL4SSR 内嵌规则写法，与 `rules/variants/ACL4SSR-*.yaml` 的远程 rule-providers 思路对比 |
 | [`BSakura-Miku-mihomo-template.yml`](./BSakura-Miku-mihomo-template.yml) | [BSakura-Miku/mihomo-config](https://github.com/BSakura-Miku/mihomo-config) | 中 | 现代网关 / 透明代理向模板；订阅 URL 已为占位符 |
 | [`Keviin560-mihomo-dns.yaml`](./Keviin560-mihomo-dns.yaml) | [Keviin560/Shunt_Rules `mihomo-dns.yaml`](https://github.com/Keviin560/Shunt_Rules/blob/main/mihomo-dns.yaml) | 中 | 重 DNS + MRS `rule-providers` + 地区策略组的社区写法 |
 | [`yingxiaomo-fakeip.yaml`](./yingxiaomo-fakeip.yaml) | [yingxiaomo/Mihomo-Personal-Rules `configs/fakeip.yaml`](https://github.com/yingxiaomo/Mihomo-Personal-Rules/blob/main/configs/fakeip.yaml) | 中 | Fake-IP 全量配置，规则侧大量引用 DustinWin `ruleset_geodata`（与 Sift DustinWin 源相近）；订阅为占位 |

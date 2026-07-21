@@ -12,10 +12,10 @@ Use this skill when a Sift domain or IP route needs attribution ("why did this g
 ### Single domain / IP
 
 ```bash
-.agents/skills/sift-route-debug/scripts/explain_route.py rules/DustinWin-full.yaml example.com
-.agents/skills/sift-route-debug/scripts/explain_route.py rules/MetaCubeX-core.yaml play.googleapis.com
-.agents/skills/sift-route-debug/scripts/update_cache.py rules/DustinWin-full.yaml
-.agents/skills/sift-route-debug/scripts/update_cache.py rules/MetaCubeX-full.yaml
+.agents/skills/sift-route-debug/scripts/explain_route.py rules/variants/DustinWin-full.yaml example.com
+.agents/skills/sift-route-debug/scripts/explain_route.py rules/variants/MetaCubeX-core.yaml play.googleapis.com
+.agents/skills/sift-route-debug/scripts/update_cache.py rules/variants/DustinWin-full.yaml
+.agents/skills/sift-route-debug/scripts/update_cache.py rules/variants/MetaCubeX-full.yaml
 ```
 
 ### Whole-tree domain matrix (preferred after template edits)
@@ -68,9 +68,9 @@ Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = a
 
 | Label | Template |
 | --- | --- |
-| `DW-f` / `DW-c` / `DW-n` | `rules/DustinWin-{full,core,nano}.yaml` |
-| `MC-f` / `MC-c` / `MC-n` | `rules/MetaCubeX-{full,core,nano}.yaml` |
-| `AC-f` / `AC-c` / `AC-n` | `rules/ACL4SSR-{full,core,nano}.yaml` |
+| `DW-f` / `DW-c` / `DW-n` | `rules/full.yaml · rules/core.yaml · rules/nano.yaml (primary); variants/DustinWin-*` |
+| `MC-f` / `MC-c` / `MC-n` | `rules/variants/MetaCubeX-{full,core,nano}.yaml` |
+| `AC-f` / `AC-c` / `AC-n` | `rules/variants/ACL4SSR-{full,core,nano}.yaml` |
 
 ## Built-in probes (default)
 

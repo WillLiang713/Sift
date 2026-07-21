@@ -1,0 +1,216 @@
+# Core：国内白名单 + Apple/Microsoft 完整规则进入全球直连；OneDrive 在 Microsoft 前进入节点选择；其余 MATCH；含 DNS、嗅探器和状态持久化。
+
+ipv6: true
+unified-delay: true
+tcp-concurrent: true
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# DNS：fake-ip 白名单；明确非中国域名使用 fake-IP，其余域名返回 real-IP。
+dns:
+  enable: true
+  prefer-h3: false
+  ipv6: true
+  listen: ":53"
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: whitelist
+  fake-ip-filter:
+    # DustinWin proxy（geolocation-!cn + gfwlist）：含 googleapis.cn 等全球 .cn 例外
+    - rule-set:proxy
+  nameserver-policy:
+    # 明确代理域名使用海外 DoH（优先于 cn，避免如 googleapis.cn 等 .cn 代理域名被国内 DNS 影响）
+    "rule-set:proxy":
+      - https://1.1.1.1/dns-query
+      - https://8.8.8.8/dns-query
+    # MetaCubeX cn + 私有域名仍使用国内 DoH
+    "rule-set:cn,private":
+      - https://223.5.5.5/dns-query
+      - https://1.12.12.12/dns-query
+  respect-rules: true
+  direct-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  proxy-server-nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+# 嗅探器：从 HTTP/TLS/QUIC 流量中提取域名，提升 TUN / redir-host 分流准确率。
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "+.lan"
+    - "+.local"
+    - "Mijia Cloud"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.push.apple.com"
+
+proxy-groups:
+- name: 节点选择
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+  proxies:
+  - 自动测速
+  - 手动切换
+  - DIRECT
+
+- name: 手动切换
+  type: select
+  include-all: true
+  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+
+- name: 自动测速
+  type: url-test
+  include-all: true
+  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  url: https://cp.cloudflare.com/generate_204
+  interval: 300
+  timeout: 3000
+  tolerance: 50
+
+- name: 全球直连
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+  proxies:
+  - DIRECT
+  - 节点选择
+  - 自动测速
+
+- name: 广告拦截
+  type: select
+  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+  proxies:
+  - REJECT
+  - DIRECT
+  - 节点选择
+
+rule-providers:
+  private:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/private.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.list"
+    interval: 86400
+    proxy: DIRECT
+  ads:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/ads.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ads.list"
+    interval: 86400
+    proxy: DIRECT
+  privateip:
+    type: http
+    behavior: ipcidr
+    format: text
+    path: ./ruleset/dustinwin/privateip.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.list"
+    interval: 86400
+    proxy: DIRECT
+  apple:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/blackmatrix7/apple.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Apple/Apple.list"
+    interval: 86400
+    proxy: DIRECT
+  onedrive:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/blackmatrix7/onedrive.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OneDrive/OneDrive.list"
+    interval: 86400
+    proxy: DIRECT
+  microsoft:
+    type: http
+    behavior: classical
+    format: text
+    path: ./ruleset/blackmatrix7/microsoft.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Microsoft/Microsoft.list"
+    interval: 86400
+    proxy: DIRECT
+  games-cn:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/games-cn.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.list"
+    interval: 86400
+    proxy: DIRECT
+  proxy:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/proxy.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.list"
+    interval: 86400
+    proxy: DIRECT
+  cn-lite:
+    type: http
+    behavior: domain
+    format: text
+    path: ./ruleset/dustinwin/cn-lite.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.list"
+    interval: 86400
+    proxy: DIRECT
+  cnip:
+    type: http
+    behavior: ipcidr
+    format: text
+    path: ./ruleset/dustinwin/cnip.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.list"
+    interval: 86400
+    proxy: DIRECT
+  # DNS-only：MetaCubeX geosite cn；勿用于路由（路由用 cn-lite）
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    path: ./ruleset/metacubex/cn.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+    interval: 86400
+    proxy: DIRECT
+
+rules:
+- RULE-SET,private,DIRECT
+- RULE-SET,privateip,DIRECT,no-resolve
+
+# 广告域名默认拒绝；误伤时可在面板临时切换为直连或节点
+- RULE-SET,ads,广告拦截
+
+- RULE-SET,apple,全球直连
+# OneDrive 须在 microsoft 前进入节点选择，避免被微软大类抢先直连
+- RULE-SET,onedrive,节点选择
+- RULE-SET,microsoft,全球直连
+- RULE-SET,games-cn,全球直连
+
+# 明确非中国域名进入节点选择（对齐 MetaCubeX geolocation-!cn；须在 cn-lite 前）
+- RULE-SET,proxy,节点选择
+
+- RULE-SET,cn-lite,全球直连
+
+- RULE-SET,cnip,全球直连
+
+- MATCH,节点选择

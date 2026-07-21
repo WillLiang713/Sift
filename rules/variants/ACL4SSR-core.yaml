@@ -11,6 +11,7 @@ profile:
 # DNS：fake-ip 白名单；明确非中国域名使用 fake-IP，其余域名返回 real-IP。
 dns:
   enable: true
+  prefer-h3: false
   ipv6: true
   listen: ":53"
   enhanced-mode: fake-ip
@@ -52,6 +53,13 @@ sniffer:
       ports: [443, 8443]
     QUIC:
       ports: [443, 8443]
+  skip-domain:
+    - "+.lan"
+    - "+.local"
+    - "Mijia Cloud"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.push.apple.com"
 
 proxy-groups:
 - name: 节点选择
@@ -65,14 +73,17 @@ proxy-groups:
 - name: 手动切换
   type: select
   include-all: true
+  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
 
 - name: 自动测速
   type: url-test
   include-all: true
+  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
   icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
   url: https://cp.cloudflare.com/generate_204
   interval: 300
+  timeout: 3000
   tolerance: 50
 
 - name: 全球直连
@@ -99,6 +110,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/LocalAreaNetwork.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
     interval: 86400
+    proxy: DIRECT
   UnBan:
     type: http
     behavior: classical
@@ -106,6 +118,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/UnBan.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
     interval: 86400
+    proxy: DIRECT
   BanAD:
     type: http
     behavior: classical
@@ -113,6 +126,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/BanAD.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
     interval: 86400
+    proxy: DIRECT
   BanProgramAD:
     type: http
     behavior: classical
@@ -120,6 +134,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/BanProgramAD.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
     interval: 86400
+    proxy: DIRECT
   ChinaDomain:
     type: http
     behavior: classical
@@ -127,6 +142,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/ChinaDomain.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
     interval: 86400
+    proxy: DIRECT
   ChinaIp:
     type: http
     behavior: classical
@@ -134,6 +150,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/ChinaIp.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list"
     interval: 86400
+    proxy: DIRECT
   ChinaIpV6:
     type: http
     behavior: classical
@@ -141,6 +158,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/ChinaIpV6.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIpV6.list"
     interval: 86400
+    proxy: DIRECT
   GoogleCN:
     type: http
     behavior: classical
@@ -148,6 +166,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/GoogleCN.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
     interval: 86400
+    proxy: DIRECT
   SteamCN:
     type: http
     behavior: classical
@@ -155,6 +174,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/SteamCN.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list"
     interval: 86400
+    proxy: DIRECT
   Apple:
     type: http
     behavior: classical
@@ -162,6 +182,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/Apple.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
     interval: 86400
+    proxy: DIRECT
   OneDrive:
     type: http
     behavior: classical
@@ -169,6 +190,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/OneDrive.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/OneDrive.list"
     interval: 86400
+    proxy: DIRECT
   Microsoft:
     type: http
     behavior: classical
@@ -176,6 +198,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/Microsoft.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
     interval: 86400
+    proxy: DIRECT
   ProxyLite:
     type: http
     behavior: classical
@@ -183,6 +206,7 @@ rule-providers:
     path: ./ruleset/acl4ssr/ProxyLite.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyLite.list"
     interval: 86400
+    proxy: DIRECT
   # DNS-only：明确非中国域名的 fake-IP 白名单，路由仍用 ProxyLite
   proxy:
     type: http
@@ -191,6 +215,7 @@ rule-providers:
     path: ./ruleset/dustinwin/proxy.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.list"
     interval: 86400
+    proxy: DIRECT
   private:
     type: http
     behavior: domain
@@ -198,6 +223,7 @@ rule-providers:
     path: ./ruleset/dustinwin/private.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.list"
     interval: 86400
+    proxy: DIRECT
   # DNS-only：MetaCubeX geosite cn；路由国内域名仍用 ChinaDomain
   cn:
     type: http
@@ -206,6 +232,7 @@ rule-providers:
     path: ./ruleset/metacubex/cn.mrs
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
     interval: 86400
+    proxy: DIRECT
 
 rules:
 - RULE-SET,LocalAreaNetwork,DIRECT

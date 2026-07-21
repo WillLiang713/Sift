@@ -6,58 +6,61 @@
 
 <p align="center">
   <img alt="Core" src="https://img.shields.io/badge/core-compatible-blue">
-  <img alt="Rules" src="https://img.shields.io/badge/rules-list-green">
+  <img alt="Rules" src="https://img.shields.io/badge/rules-mrs%2Flist-green">
   <img alt="Node Free" src="https://img.shields.io/badge/nodes-not%20included-lightgrey">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue">
 </p>
 
 ## 模板
 
-`rules/` 存放可直接使用的无节点 Mihomo 配置模板，文件名按规则上游和档位命名：
+默认推荐 **综合主模板**（混合规则源 + MRS + 运行时加固）。单源特色模板在 `rules/variants/`。
 
-| 文件 | 策略组 | 规则提供商 | 说明 |
-| --- | ---: | ---: | --- |
-| [`rules/DustinWin-full.yaml`](./rules/DustinWin-full.yaml) | 19 | 18 | DustinWin 规则集完整版：含可切换 `广告拦截` 与 `谷歌服务`；`proxy` 同时用于路由和 fake-IP 白名单，确保 `googleapis.cn` 等代理例外进入 Mihomo；保留 AI、流媒体、游戏平台、Telegram、Apple、Microsoft、OneDrive、地区节点及内置 DNS/嗅探 |
-| [`rules/DustinWin-core.yaml`](./rules/DustinWin-core.yaml) | 5 | 11 | DustinWin 规则集核心白名单版：含可切换 `广告拦截`；完整 Apple / Microsoft 与国内白名单进入 `全球直连`；`proxy` 在 `cn-lite` 前接管明确非中国域名，并作为 fake-IP 白名单；保留 DNS、嗅探和状态持久化 |
-| [`rules/DustinWin-nano.yaml`](./rules/DustinWin-nano.yaml) | 6 | 6 | DustinWin 规则集极简版：`ads` 可切换拦截，`proxy` 明确非中国域名优先代理，国内直连和兜底分流；不接管 DNS |
-| [`rules/MetaCubeX-full.yaml`](./rules/MetaCubeX-full.yaml) | 19 | 0 | MetaCubeX Geodata 完整版：使用 `category-ads-all` 可切换拦截并保留 `谷歌服务`；使用 `GEOSITE` / `GEOIP` 分流；DNS 直接用 `geolocation-!cn` + `google` 作为 fake-IP 白名单 |
-| [`rules/MetaCubeX-core.yaml`](./rules/MetaCubeX-core.yaml) | 5 | 0 | MetaCubeX Geodata 核心白名单版：使用 `category-ads-all` 可切换拦截；完整 Apple、Microsoft 与国内白名单进入 `全球直连`；DNS 直接用 `geolocation-!cn` + `google` 作为 fake-IP 白名单 |
-| [`rules/MetaCubeX-nano.yaml`](./rules/MetaCubeX-nano.yaml) | 6 | 0 | MetaCubeX Geodata 极简版：使用 `category-ads-all` 可切换拦截，并保留明确非中国域名、`google` 路由例外、国内域名/IP 与兜底分流；不接管 DNS |
-| [`rules/ACL4SSR-full.yaml`](./rules/ACL4SSR-full.yaml) | 19 | 31 | ACL4SSR 规则集完整版：`UnBan` 前置放行，`BanAD` / `BanProgramAD` 进入可切换 `广告拦截`；含 `谷歌服务`、分服务流媒体、AI、游戏、Telegram、Apple、Microsoft、OneDrive、地区节点及 DNS/嗅探；DNS-only `proxy` 用作 fake-IP 白名单 |
-| [`rules/ACL4SSR-core.yaml`](./rules/ACL4SSR-core.yaml) | 5 | 16 | ACL4SSR 规则集核心白名单版：`UnBan` + `BanAD` / `BanProgramAD` 可切换拦截；GoogleCN / SteamCN、Apple / Microsoft 与国内白名单进入 `全球直连`；`ProxyLite` 优先于 `.cn` 泛规则；DNS-only `proxy` 确保明确代理域名使用 fake-IP |
-| [`rules/ACL4SSR-nano.yaml`](./rules/ACL4SSR-nano.yaml) | 6 | 8 | ACL4SSR 规则集极简版：`UnBan` + `BanAD` / `BanProgramAD` 可切换拦截，局域网直连、`ProxyLite` 代理、国内直连和兜底分流；不接管 DNS |
+### 综合主模板（默认）
+
+| 文件 | 策略组 | 说明 |
+| --- | ---: | --- |
+| [`rules/full.yaml`](./rules/full.yaml) | 19 | 完整场景：DustinWin MRS 骨架 + MetaCubeX 品牌/GitHub/DNS MRS；含 DNS、嗅探、地区与服务组；`github`/`onedrive` 先于 `microsoft` |
+| [`rules/core.yaml`](./rules/core.yaml) | 5 | 核心白名单：Apple/Microsoft 进全球直连；GitHub/OneDrive 先于 Microsoft 进节点选择；`MATCH → 节点选择` |
+| [`rules/nano.yaml`](./rules/nano.yaml) | 6 | 极简：DustinWin MRS；广告 + proxy + 国内兜底；不接管 DNS |
 
 ```text
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/DustinWin-full.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/DustinWin-core.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/DustinWin-nano.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/MetaCubeX-full.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/MetaCubeX-core.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/MetaCubeX-nano.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-full.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-core.yaml
-https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/ACL4SSR-nano.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/full.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/core.yaml
+https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 ```
+
+### 单源变体（`rules/variants/`）
+
+格式保持各源原样（DustinWin/ACL 的 `.list`、MetaCubeX 的 GEOSITE/GEOIP），已叠加测速 timeout、信息节点过滤、sniffer skip-domain、`prefer-h3: false`、provider `proxy: DIRECT` 等加固。
+
+| 路径 | 说明 |
+| --- | --- |
+| [`variants/DustinWin-*.yaml`](./rules/variants/) | DustinWin text + blackmatrix7 classical 品牌 |
+| [`variants/MetaCubeX-*.yaml`](./rules/variants/) | 纯 GEOSITE/GEOIP，无 routing rule-providers |
+| [`variants/ACL4SSR-*.yaml`](./rules/variants/) | ACL4SSR `.list`；Full 分服务流媒体；UnBan+Ban 广告链 |
+
+> 旧路径 `rules/DustinWin-full.yaml` 等已迁移到 `rules/variants/`，请更新 raw 链接。
 
 ## 设计要点
 
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
-- **三类规则来源**：`DustinWin-*` 使用 DustinWin / blackmatrix7 远程 `.list` 规则集；`MetaCubeX-*` 使用 MetaCubeX `GEOSITE` / `GEOIP`；`ACL4SSR-*` 使用 ACL4SSR Clash `.list` 路由规则，DNS 侧与 DustinWin 模板共用 domain provider。
-- **运行优化**：Full / Core 及其 Geodata 版本默认启用 `unified-delay` 和 `tcp-concurrent`，减少 Reality 等节点测速虚高，并提升多 IP 目标的连接成功率。
+- **综合主模板**：DustinWin MRS（ads/proxy/cn-lite/场景等）+ MetaCubeX geosite MRS（google/apple/microsoft/onedrive/github + DNS cn）；不绑定单一上游。
+- **单源变体**：`variants/DustinWin-*` 用 text/classical list；`variants/MetaCubeX-*` 用 GEOSITE/GEOIP；`variants/ACL4SSR-*` 用 ACL Clash list。
+- **运行优化**：Full/Core 启用 `unified-delay`、`tcp-concurrent`、`prefer-h3: false`；url-test 含 `timeout: 3000`；include-all 组过滤订阅残渣文案。
 - **状态持久化**：Full / Core 及其 MetaCubeX / ACL4SSR 版本默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
-- **DNS 分模板**：所有 Nano 模板不接管 DNS；Full / Core 内置 fake-ip 白名单 DNS。DustinWin 用 `rule-set:proxy`，MetaCubeX 用 `geosite:geolocation-!cn` + `geosite:google`，ACL4SSR 用 DNS-only DustinWin `proxy`；只有明确代理域名返回 fake-IP，私有、Tracker、国内及其他未列入域名默认返回 real-IP。`nameserver-policy` 仍用 MetaCubeX cn + private 选择国内 DoH，路由国内兜底仍用 `cn-lite` / `ChinaDomain` / `GEOSITE,cn`。
-- **广告拦截可回退**：九个模板都提供 `广告拦截` 策略组，默认 `REJECT`，误伤时可在面板临时切换为 `DIRECT` 或 `节点选择`。DustinWin 使用 `ads`，MetaCubeX 使用 `category-ads-all`，ACL4SSR 使用 `UnBan` 前置放行与 `BanAD` / `BanProgramAD`。
-- **域名嗅探**：Full / Core 及其 MetaCubeX / ACL4SSR 版本启用 `sniffer`，从 HTTP Host、TLS SNI 和 QUIC 握手中提取域名，提升 TUN / redir-host / 纯 IP 场景下的规则命中准确率。
+- **DNS 分模板**：Nano 不接管 DNS；Full/Core 用 fake-IP **白名单**。主模板与 DustinWin/ACL 变体用 `rule-set:proxy`；MetaCubeX 变体用 `geosite:geolocation-!cn` + `geosite:google`。
+- **广告拦截可回退**：所有模板提供 `广告拦截`（默认 REJECT）。主模板与 DustinWin 变体用 `ads`；MetaCubeX 用 `category-ads-all`；ACL 用 UnBan + BanAD/BanProgramAD。
+- **域名嗅探**：Full/Core 启用 sniffer，并 `skip-domain` 跳过 lan/local/米家/Windows 连通性/Apple Push 等。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 与 `自动测速`，且 `DIRECT` 排第一。
 - **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
-- **Full 场景分流**：完整模板保留 AI、流媒体、游戏平台、Telegram、Apple、**谷歌服务**、Microsoft、OneDrive 等独立入口。DustinWin Full 用 blackmatrix7 完整 Google 进入 `谷歌服务`，再在其后用 `proxy` 接管其余明确非中国域名；MetaCubeX Full 用 `GEOSITE,google → 谷歌服务`（位于 `geolocation-!cn` 前）；ACL4SSR Full 用 blackmatrix7 Google 进入 `谷歌服务`，流媒体改为 ACL 分服务列表（YouTube、Netflix+IP、DisneyPlus、Spotify、TikTok），不再使用聚合包 `ProxyMedia`（避免 `challenges.cloudflare.com` 等非内容域绑进流媒体）。Geodata Full 中游戏规则优先级高于 `category-entertainment`；GitHub 先于 Microsoft 单独进入 `节点选择`。
-- **Core 白名单分流**：核心模板不保留服务 UI 分组和地区节点组；DustinWin Core 的完整 Apple / Microsoft 规则和国内白名单进入 `全球直连`，该组默认 `DIRECT`、可切到 `节点选择` 或 `自动测速`，并在 `cn-lite` 前用 `proxy` 接管明确非中国域名，其余流量全部交给 `MATCH,节点选择`。三家 Core 均在 Microsoft 整包直连前将 OneDrive 单独导入 `节点选择`（无 OneDrive UI 组；商店/Xbox 等仍可随 Microsoft 直连，避免网盘与大下载绑死同一策略）。ACL4SSR Core 在 `ChinaDomain` 前保留 `ProxyLite`；MetaCubeX Core 在 `GEOSITE,cn` 前保留 `geolocation-!cn` 与路由专用 `google`（无 Google UI 组），避免 `googleapis.cn` 等被宽泛的 `cn` 分类误直连。
-- **Nano 极简代理**：DustinWin Nano 使用 `proxy`，Geodata Nano 使用 `geolocation-!cn` + `google` 路由例外，ACL4SSR Nano 使用 `ProxyLite`，代理明确非中国域名；三者都保留国内直连和兜底，不提供地区节点或服务分组。
+- **Full 场景分流**：主模板保留 AI/流媒体/游戏/Telegram/苹果/谷歌/微软/OneDrive 与地区组；`github` 与 `onedrive` 先于过宽的 `microsoft`；`google` 与 `proxy` 先于 `cn-lite`。
+- **Core 白名单分流**：无服务/地区 UI；主模板 Apple/Microsoft → 全球直连，GitHub/OneDrive → 节点选择（均在 microsoft 前），proxy 在 cn-lite 前，`MATCH → 节点选择`。
+- **Nano 极简代理**：主模板 DustinWin MRS（ads + proxy + cn-lite/cnip）；无 DNS/嗅探/地区/服务组。
 
 ## 分流顺序
 
-### DustinWin / Full
+### 综合主模板 / Full（默认）
 
 | 优先级 | 规则 | 出口 |
 | --- | --- | --- |
