@@ -8,6 +8,13 @@ profile:
   store-selected: true
   store-fake-ip: true
 
+# GeoIP：fallback-filter 固定使用 MetaCubeX MMDB，并每 24 小时自动更新。
+geodata-mode: false
+geox-url:
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
+geo-auto-update: true
+geo-update-interval: 24
+
 # DNS：fake-ip 白名单；高意图域名由 policy 分层；未分类域名国内主解析 + 海外 fallback 校验。
 dns:
   enable: true

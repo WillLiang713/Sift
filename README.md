@@ -46,7 +46,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 - **无节点**：模板不含 `proxies`，节点由订阅合并或本地配置补充。
 - **综合主模板**：DustinWin MRS（ads/proxy/cn-lite/场景等）+ MetaCubeX geosite MRS（google/apple/microsoft/onedrive/github + DNS cn）；不绑定单一上游。
 - **单源变体**：`variants/DustinWin-*` 用 text/classical list；`variants/MetaCubeX-*` 用 GEOSITE/GEOIP；`variants/ACL4SSR-*` 用 ACL Clash list。
-- **运行优化**：Full/Core 启用 `unified-delay`、`tcp-concurrent`、`prefer-h3: false`；url-test 含 `timeout: 3000`；include-all 组过滤订阅残渣文案。
+- **运行优化**：Full/Core 启用 `unified-delay`、`tcp-concurrent`、`prefer-h3: false`；url-test 含 `timeout: 3000`；include-all 组过滤订阅残渣文案；DNS fallback 的 CN 判断固定使用 MetaCubeX `geoip.metadb`（MMDB，24 小时自动更新）。
 - **状态持久化**：Full / Core 及其 MetaCubeX / ACL4SSR 版本默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
 - **DNS 分模板**：Nano 不接管 DNS；Full/Core 用 fake-IP **白名单**。明确代理/国内域名由 `nameserver-policy` 分别指定海外/国内 DoH；未分类域名使用国内 `nameserver` 与海外 `fallback` 并发查询，再由 `fallback-filter` 按 CN GeoIP 和保留地址选择结果。主模板与 DustinWin/ACL 变体用 `rule-set:proxy`；MetaCubeX 变体用 `geosite:geolocation-!cn` + `geosite:google`。
 - **广告拦截可回退**：所有模板提供 `广告拦截`（默认 REJECT）。主模板与 DustinWin 变体用 `ads`；MetaCubeX 用 `category-ads-all`；ACL 用 UnBan + BanAD/BanProgramAD。

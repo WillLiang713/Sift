@@ -146,6 +146,8 @@ fallback-filter:
 
 Sift 不在这里重复配置 `geosite:gfw` 或 Google/Facebook/YouTube 手写域名，因为它们已由 `rule-set:proxy` 或 MetaCubeX 的 `geosite:geolocation-!cn,google` policy 提前交给海外 DoH。这样既保留明确域名的解析意图，也避免 DustinWin/ACL 模板新增 GeoSite 数据库依赖。
 
+为避免依赖客户端或 Mihomo 的隐式默认值，所有 DNS-enabled Full/Core 模板显式使用 MMDB 模式，将 `geox-url.mmdb` 固定到 MetaCubeX `geoip.metadb`，并每 24 小时自动更新。综合主模板及 DustinWin/ACL4SSR 的路由 CN IP 判断仍由各自的 IP provider 完成；该 MMDB 只服务 Mihomo 内置 GeoIP 查询和 `fallback-filter`。
+
 ### 5. 得到 IP 后再次决定代理或直连
 
 当流程因 IP 类规则而发起解析时，取得 IP 后才能完成规则判断：

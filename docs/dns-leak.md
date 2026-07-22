@@ -63,6 +63,20 @@ Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡�
 
 `fallback-filter` 只选择结果，不阻止并发查询。未分类域名即使最终采用海外结果，国内 DoH 服务商仍可能看到该查询；这是换取未分类域名国内解析/CDN 优先能力的隐私取舍。
 
+### GeoIP 数据库管理
+
+所有 DNS-enabled Full/Core 模板都显式固定 `fallback-filter.geoip-code` 使用的数据库：
+
+```yaml
+geodata-mode: false
+geox-url:
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
+geo-auto-update: true
+geo-update-interval: 24
+```
+
+`geodata-mode: false` 选择 MMDB 模式；`geo-auto-update` 每 24 小时更新一次。综合主模板及 DustinWin/ACL4SSR 的国内路由仍使用各自的 `cnip` / `ChinaIp` provider，MMDB 只负责 Mihomo 内置 GeoIP 查询（包括 `fallback-filter`），不替换路由规则集。
+
 ## Fake-IP 白名单
 
 Full/Core 统一使用：
