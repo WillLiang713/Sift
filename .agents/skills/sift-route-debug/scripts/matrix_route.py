@@ -37,6 +37,15 @@ UPDATE_CACHE = SCRIPTS / "update_cache.py"
 GEO_VERSION = "v1.1"
 GEO_RELEASE_API = "https://api.github.com/repos/MetaCubeX/geo/releases/tags/{version}"
 
+
+def utf8_python_env() -> Dict[str, str]:
+    """Return an environment that makes child Python output UTF-8 on Windows."""
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
+    return env
+
+
 TEMPLATES: Dict[str, str] = {
     "HY-f": "rules/full.yaml",
     "HY-c": "rules/core.yaml",
@@ -218,7 +227,13 @@ def explain_one(
         geo_bin,
     ]
     proc = subprocess.run(
-        cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120
+        cmd,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=120,
+        env=utf8_python_env(),
     )
     out = proc.stdout + proc.stderr
     if "mixed RULE-SET" in out:
@@ -244,6 +259,7 @@ def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> None:
                 str(cache_dir),
             ],
             cwd=str(REPO_ROOT),
+            env=utf8_python_env(),
         )
         if proc.returncode != 0:
             print(f"  [WARN] update_cache exited {proc.returncode} for {rel}", file=sys.stderr)
