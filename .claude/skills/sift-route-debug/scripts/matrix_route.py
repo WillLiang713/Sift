@@ -11,11 +11,18 @@ Exit 0 if all FAIL-level expectations pass; exit 1 on any FAIL.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
+import os
+import platform
 import re
+import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set, Tuple
+from urllib.request import Request, urlopen
 
 # scripts/ -> sift-route-debug -> skills -> .agents -> repo root
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -27,6 +34,8 @@ import explain_route as er  # noqa: E402
 DEFAULT_CACHE = REPO_ROOT / ".cache" / "sift-route-debug"
 EXPLAIN = SCRIPTS / "explain_route.py"
 UPDATE_CACHE = SCRIPTS / "update_cache.py"
+GEO_VERSION = "v1.1"
+GEO_RELEASE_API = "https://api.github.com/repos/MetaCubeX/geo/releases/tags/{version}"
 
 TEMPLATES: Dict[str, str] = {
     "HY-f": "rules/full.yaml",
@@ -98,9 +107,9 @@ SHORT = {
 }
 
 ALL = list(TEMPLATES.keys())
-FULLS = ["DW-f", "MC-f", "AC-f"]
-CORES = ["DW-c", "MC-c", "AC-c"]
-NANOS = ["DW-n", "MC-n", "AC-n"]
+FULLS = ["HY-f", "DW-f", "MC-f", "AC-f"]
+CORES = ["HY-c", "DW-c", "MC-c", "AC-c"]
+NANOS = ["HY-n", "DW-n", "MC-n", "AC-n"]
 
 # (domain, template_labels, allowed_policies, level)
 # level: "FAIL" fails the run; "WARN" is informational only.
@@ -117,17 +126,17 @@ def default_expectations() -> List[Expectation]:
         exp.append((ad_domain, ALL, {"广告拦截"}, "FAIL"))
 
     # Google .cn global services must not fall through to broad CN direct on Full.
-    exp.append(("googleapis.cn", ["DW-f", "MC-f", "AC-f"], {"谷歌服务"}, "FAIL"))
-    exp.append(("googleapis.cn", ["DW-c", "DW-n", "MC-c", "MC-n", "AC-c", "AC-n"], {"节点选择"}, "FAIL"))
+    exp.append(("googleapis.cn", FULLS, {"谷歌服务"}, "FAIL"))
+    exp.append(("googleapis.cn", CORES + NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.google.com", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.youtube.com", ["MC-f", "AC-f"], {"流媒体"}, "FAIL"))
     # DustinWin Full streaming is IP-heavy (mediaip); YouTube domain often hits proxy.
-    exp.append(("www.youtube.com", ["DW-f"], {"谷歌服务", "节点选择", "流媒体"}, "WARN"))
+    exp.append(("www.youtube.com", ["HY-f", "DW-f"], {"谷歌服务", "节点选择", "流媒体"}, "WARN"))
     exp.append(
-        ("www.youtube.com", ["DW-c", "DW-n", "MC-c", "MC-n", "AC-c", "AC-n"], {"节点选择", "漏网之鱼"}, "FAIL")
+        ("www.youtube.com", CORES + NANOS, {"节点选择", "漏网之鱼"}, "FAIL")
     )
 
     # CF challenge must not bind to 流媒体 (ACL Full uses brand packs, not ProxyMedia).
@@ -135,11 +144,11 @@ def default_expectations() -> List[Expectation]:
 
     exp.append(("chatgpt.com", FULLS, {"AI"}, "FAIL"))
     exp.append(("chatgpt.com", CORES, {"节点选择"}, "FAIL"))
-    exp.append(("chatgpt.com", ["DW-n", "MC-n"], {"节点选择"}, "FAIL"))
+    exp.append(("chatgpt.com", ["HY-n", "DW-n", "MC-n"], {"节点选择"}, "FAIL"))
     exp.append(("chatgpt.com", ["AC-n"], {"节点选择", "漏网之鱼"}, "WARN"))
 
     exp.append(("www.netflix.com", ["AC-f", "MC-f"], {"流媒体"}, "FAIL"))
-    exp.append(("www.netflix.com", ["DW-f"], {"节点选择", "流媒体", "漏网之鱼"}, "WARN"))
+    exp.append(("www.netflix.com", ["HY-f", "DW-f"], {"节点选择", "流媒体", "漏网之鱼"}, "WARN"))
 
     for media in ("www.disneyplus.com", "open.spotify.com", "www.tiktok.com"):
         exp.append((media, ["AC-f"], {"流媒体"}, "FAIL"))
@@ -208,7 +217,9 @@ def explain_one(
         "--geo-bin",
         geo_bin,
     ]
-    proc = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    proc = subprocess.run(
+        cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120
+    )
     out = proc.stdout + proc.stderr
     if "mixed RULE-SET" in out:
         return explain_ruleset_domain(template, domain, cache_dir)
@@ -221,8 +232,8 @@ def explain_one(
     }
 
 
-def update_all_caches(cache_dir: Path) -> None:
-    for rel in TEMPLATES.values():
+def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> None:
+    for rel in (TEMPLATES[label] for label in labels):
         print(f"== update_cache {rel} ==")
         proc = subprocess.run(
             [
@@ -239,20 +250,47 @@ def update_all_caches(cache_dir: Path) -> None:
 
 
 def ensure_geo_bin(preferred: str) -> str:
-    """Return a usable geo binary path; try PATH then repo .cache/tools/geo."""
+    """Return a usable geo binary, downloading the official platform build if needed."""
     if preferred != "geo":
         return preferred
-    which = subprocess.run(["bash", "-lc", "command -v geo"], capture_output=True, text=True)
-    if which.returncode == 0 and which.stdout.strip():
-        return which.stdout.strip()
-    local = REPO_ROOT / ".cache" / "tools" / "geo"
-    if local.is_file() and os.access(local, os.X_OK):
-        return str(local)
-    return preferred
+    installed = shutil.which("geo")
+    if installed:
+        return installed
 
+    system = platform.system().lower()
+    machine = platform.machine().lower()
+    arch = {"amd64": "amd64", "x86_64": "amd64", "aarch64": "arm64", "arm64": "arm64", "i386": "386", "i686": "386"}.get(machine)
+    if system not in {"windows", "linux", "darwin"} or not arch:
+        return preferred
+    destination = REPO_ROOT / ".cache" / "tools" / "geo-bin" / GEO_VERSION / f"{system}-{arch}"
+    binary = destination / ("geo.exe" if system == "windows" else "geo")
+    if binary.is_file():
+        return str(binary)
 
-# late import for ensure_geo
-import os  # noqa: E402
+    headers = {"Accept": "application/vnd.github+json", "User-Agent": "Sift route matrix", "X-GitHub-Api-Version": "2022-11-28"}
+    token = os.environ.get("GITHUB_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    with urlopen(Request(GEO_RELEASE_API.format(version=GEO_VERSION), headers=headers), timeout=30) as response:
+        release = json.load(response)
+    assets = [asset for asset in release.get("assets", []) if isinstance(asset, dict)]
+    matches = [asset for asset in assets if system in str(asset.get("name", "")).lower() and arch in str(asset.get("name", "")).lower()]
+    if not matches:
+        raise RuntimeError(f"geo {GEO_VERSION} has no asset for {system}/{arch}")
+    asset = matches[0]
+    destination.mkdir(parents=True, exist_ok=True)
+    temporary = binary.with_suffix(binary.suffix + ".tmp")
+    with urlopen(Request(asset["browser_download_url"], headers={"User-Agent": "Sift route matrix"}), timeout=120) as response, temporary.open("wb") as output:
+        shutil.copyfileobj(response, output)
+    digest = asset.get("digest")
+    if isinstance(digest, str) and digest.startswith("sha256:"):
+        actual = hashlib.sha256(temporary.read_bytes()).hexdigest()
+        if actual.lower() != digest.removeprefix("sha256:").lower():
+            temporary.unlink(missing_ok=True)
+            raise RuntimeError("geo SHA-256 mismatch")
+    os.replace(temporary, binary)
+    binary.chmod(binary.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    return str(binary)
 
 
 def run_expectations(
@@ -267,13 +305,9 @@ def run_expectations(
     print("-" * 130)
     for domain, labs, allowed, level in expectations:
         if domain not in results:
-            print(f"  [WARN] skip expectation for missing probe domain {domain}")
-            warns += 1
             continue
         for lab in labs:
             if lab not in results[domain]:
-                print(f"  [WARN] skip {domain} @ {lab}: template not run")
-                warns += 1
                 continue
             pol = results[domain][lab].get("policy")
             if pol not in allowed:
@@ -302,7 +336,7 @@ def main() -> int:
     parser.add_argument(
         "--update-cache",
         action="store_true",
-        help="Run update_cache.py for every template before testing",
+        help="Run update_cache.py for selected templates before testing",
     )
     parser.add_argument(
         "--geo-bin",
@@ -324,7 +358,7 @@ def main() -> int:
         "--templates",
         nargs="*",
         choices=list(TEMPLATES.keys()),
-        help="Subset of template labels (default: all nine)",
+        help="Subset of template labels (default: all twelve)",
     )
     args = parser.parse_args()
 
@@ -332,12 +366,12 @@ def main() -> int:
     if not cache_dir.is_absolute():
         cache_dir = REPO_ROOT / cache_dir
 
-    geo_bin = ensure_geo_bin(args.geo_bin)
     labels = args.templates or list(TEMPLATES.keys())
     domains = args.domains or list(DEFAULT_DOMAINS)
+    geo_bin = ensure_geo_bin(args.geo_bin) if any(label.startswith("MC-") for label in labels) else args.geo_bin
 
     if args.update_cache:
-        update_all_caches(cache_dir)
+        update_all_caches(cache_dir, labels)
 
     results: Dict[str, Dict[str, Dict[str, Optional[str]]]] = {}
     for domain in domains:
@@ -367,7 +401,7 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - MetaCubeX requires geo CLI (PATH or .cache/tools/geo).")
+    print("  - MetaCubeX geo CLI is resolved from PATH or bootstrapped into .cache/tools/geo-bin.")
     print(f"  - geo-bin={geo_bin}")
     if fails:
         print("FAIL")

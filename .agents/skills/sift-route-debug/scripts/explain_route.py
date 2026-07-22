@@ -102,14 +102,21 @@ def parse_template(path: Path) -> Template:
                 if provider and line.startswith("    ") and ":" in line:
                     key, value = stripped.split(":", 1)
                     attr = key.strip().replace("-", "_")
+                    merged = clean_value(value)
+                    if attr == "<<" and merged in {"*mrs-domain", "*mrs-ip"}:
+                        providers[provider].format = "mrs"
+                        providers[provider].behavior = (
+                            "domain" if merged == "*mrs-domain" else "ipcidr"
+                        )
+                        continue
                     if attr == "format":
                         providers[provider].format = clean_value(value)
                     elif hasattr(providers[provider], attr):
                         setattr(providers[provider], attr, clean_value(value))
                 continue
 
-            if section == "rules" and line.startswith("- "):
-                raw = strip_comment(line[2:]).strip()
+            if section == "rules" and stripped.startswith("- "):
+                raw = strip_comment(stripped[2:]).strip()
                 if raw:
                     rules.append(Rule(line_no=line_no, raw=raw, parts=split_rule(raw)))
 
@@ -353,7 +360,9 @@ def run_geo_look(geo_bin: str, data_dir: Path, target: str, no_resolve: bool) ->
     for command in variants:
         tried.append(" ".join(command))
         try:
-            proc = subprocess.run(command, check=False, text=True, capture_output=True)
+            proc = subprocess.run(
+                command, check=False, text=True, encoding="utf-8", errors="replace", capture_output=True
+            )
         except FileNotFoundError:
             return 127, "", f"{geo_bin} not found on PATH", tried
         last_stdout, last_stderr = proc.stdout, proc.stderr

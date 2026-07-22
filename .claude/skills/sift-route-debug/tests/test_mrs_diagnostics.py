@@ -11,7 +11,40 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import explain_route as er  # noqa: E402
+import update_cache as uc  # noqa: E402
+
+
 class MrsDiagnosticsTest(unittest.TestCase):
+    def test_primary_template_anchor_and_indented_rules_are_parsed(self) -> None:
+        template = """\
+rule-anchor:
+  mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs}
+  mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs}
+rule-providers:
+  proxy:
+    <<: *mrs-domain
+    url: https://example.test/proxy.mrs
+  cnip:
+    <<: *mrs-ip
+    url: https://example.test/cnip.mrs
+rules:
+  - RULE-SET,proxy,节点选择
+  - RULE-SET,cnip,全球直连
+  - MATCH,节点选择
+"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "config.yaml"
+            path.write_text(template, encoding="utf-8")
+
+            explained = er.parse_template(path)
+            cached = uc.parse_template(path)
+
+        self.assertEqual(explained.providers["proxy"].behavior, "domain")
+        self.assertEqual(explained.providers["cnip"].behavior, "ipcidr")
+        self.assertEqual(len(explained.rules), 3)
+        self.assertEqual(cached["used_providers"], {"proxy", "cnip"})
+        self.assertEqual(cached["providers"]["proxy"]["format"], "mrs")
+
     def test_mrs_provider_uses_decoded_text_cache(self) -> None:
         source = "https://example.test/rules/cnip.mrs"
         provider = er.Provider(name="cnip", behavior="ipcidr", format="mrs", url=source)

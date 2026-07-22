@@ -1,13 +1,40 @@
 ---
 name: sift-route-debug
-description: Diagnose Sift Mihomo routing decisions for RULE-SET and MetaCubeX GEOSITE/GEOIP templates under rules/, and run whole-tree domain route regression across all Full/Core/Nano templates. Use when investigating why a domain or IP is routed direct/proxy, checking first-match rule attribution, regression-testing after routing changes, or when asked to test all templates' 分流路径.
+description: Validate every Sift template with a pinned Mihomo binary, diagnose RULE-SET and MetaCubeX GEOSITE/GEOIP routing decisions, and run whole-tree domain route regression. Use when checking whether configs load, investigating why a domain or IP is routed direct/proxy, checking first-match rule attribution, or testing all templates' 分流路径.
 ---
 
 # sift-route-debug
 
-Use this skill when a Sift domain or IP route needs attribution ("why did this go direct?", "which rule matched?"), or when validating **all templates** after routing / rule-provider / strategy-group changes.
+Use this skill when Sift templates need authoritative Mihomo loading validation, when a domain or IP route needs attribution ("why did this go direct?", "which rule matched?"), or after routing / provider / strategy-group changes.
 
 ## Commands
+
+### Complete check (preferred)
+
+```bash
+python .agents/skills/sift-route-debug/scripts/check.py
+```
+
+This single portable command runs pinned Mihomo loading validation for all 12 templates, refreshes and runs the complete domain route matrix, then runs `git diff --check`. Use `--quick` to reuse existing route caches.
+
+### Validate configs only
+
+```bash
+python .agents/skills/sift-route-debug/scripts/validate_configs.py
+```
+
+This standard-library-only script discovers all 12 YAML templates, downloads the pinned official Mihomo release for Windows, Linux, or macOS, verifies the release SHA-256 digest, caches it under `.cache/`, and runs each template with an isolated home directory:
+
+```bash
+mihomo -t -d <isolated-cache> -f <template>
+```
+
+Use an existing binary or a different release only when needed:
+
+```bash
+python .agents/skills/sift-route-debug/scripts/validate_configs.py --mihomo /path/to/mihomo
+python .agents/skills/sift-route-debug/scripts/validate_configs.py --version v1.19.29
+```
 
 ### Single domain / IP
 
@@ -21,22 +48,22 @@ Use this skill when a Sift domain or IP route needs attribution ("why did this g
 ### Whole-tree domain matrix (preferred after template edits)
 
 ```bash
-# Refresh all rule/geodata caches, then matrix + assertions (9 templates)
+# Refresh all rule/geodata caches, then matrix + assertions (12 templates)
 bash .agents/skills/sift-route-debug/scripts/matrix_route.sh
 
 # Or call Python directly (no auto geo bootstrap)
-python3 .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache
+python .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache
 
 # Matrix only (no FAIL/WARN expectations)
-python3 .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache --no-assert
+python .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache --no-assert
 
 # Subset of templates / extra probes
-python3 .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache \
-  --templates DW-f MC-f AC-f \
+python .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache \
+  --templates HY-f HY-c HY-n \
   --domain googleapis.cn --domain challenges.cloudflare.com
 ```
 
-`matrix_route.sh` will try to put MetaCubeX `geo` on PATH (repo `.cache/tools/geo`, downloading v1.1 linux binary if missing).
+`matrix_route.py` resolves MetaCubeX `geo` from PATH or downloads the official v1.1 build for the current platform into `.cache/tools/geo-bin/`. The shell wrapper remains a Linux convenience only.
 
 Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = at least one FAIL.
 
@@ -60,11 +87,10 @@ Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = a
 
 ### Whole-tree regression (after multi-template routing changes)
 
-1. Prefer `bash .agents/skills/sift-route-debug/scripts/matrix_route.sh` from repo root.
-2. Read the printed matrix (columns `DW-f/c/n`, `MC-f/c/n`, `AC-f/c/n`) and the ASSERTIONS section.
-3. FAIL = product contract broken (fix before commit). WARN = known design variance (report, usually do not block).
-4. Optionally run `bash .claude/skills/sift-check/check.sh` (or `.agents/skills/sift-check/check.sh`) for structural invariants alongside the route matrix.
-5. Domain matrix is **domain-first-match only**:
+1. Run `python .agents/skills/sift-route-debug/scripts/validate_configs.py`; every template must pass Mihomo's native parser.
+2. Run `python .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache` to refresh caches and test domain routing.
+3. Read the 12-column matrix and ASSERTIONS section. FAIL = product contract broken; WARN = known design variance.
+4. Domain matrix is **domain-first-match only**:
    - Any `GEOIP` rules are skipped for domain probes.
    - Providers with `behavior: ipcidr` are skipped for domain probes (runtime may still match after DNS).
 
@@ -72,7 +98,8 @@ Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = a
 
 | Label | Template |
 | --- | --- |
-| `DW-f` / `DW-c` / `DW-n` | `rules/full.yaml · rules/core.yaml · rules/nano.yaml (primary); variants/DustinWin-*` |
+| `HY-f` / `HY-c` / `HY-n` | `rules/full.yaml · rules/core.yaml · rules/nano.yaml` (hybrid primary) |
+| `DW-f` / `DW-c` / `DW-n` | `rules/variants/DustinWin-{full,core,nano}.yaml` |
 | `MC-f` / `MC-c` / `MC-n` | `rules/variants/MetaCubeX-{full,core,nano}.yaml` |
 | `AC-f` / `AC-c` / `AC-n` | `rules/variants/ACL4SSR-{full,core,nano}.yaml` |
 
@@ -86,15 +113,15 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 
 | Area | Contract (summary) |
 | --- | --- |
-| Advertising | `ad.doubleclick.net` / `pagead2.googlesyndication.com` → `广告拦截` on all nine templates |
-| Full Google | `www.google.com` / `googleapis.cn` → `谷歌服务` on DW/MC/AC Full |
+| Advertising | `ad.doubleclick.net` / `pagead2.googlesyndication.com` → `广告拦截` on all 12 templates |
+| Full Google | `www.google.com` / `googleapis.cn` → `谷歌服务` on HY/DW/MC/AC Full |
 | Core/Nano Google | → `节点选择` (not broad CN direct for `googleapis.cn`) |
 | CF challenge | `challenges.cloudflare.com` → `节点选择` or `漏网之鱼`, **never** `流媒体` |
 | Full AI | `chatgpt.com` → `AI` |
 | Full streaming | MC/AC: YouTube/Netflix → `流媒体`; AC brand packs (not ProxyMedia) |
 | Full brands | icloud → `苹果服务`, office → `微软服务` |
 | Core brands | full Apple/Microsoft → `全球直连` |
-| Domestic | baidu/qq/taobao/bilibili → `全球直连` on all nine |
+| Domestic | baidu/qq/taobao/bilibili → `全球直连` on all 12 |
 | Private | localhost → `DIRECT` |
 
 WARN-level examples (do not treat as hard failures unless design changes):
@@ -119,7 +146,7 @@ Common Sift cases to call out:
 
 ## MetaCubeX geo CLI
 
-Geodata diagnosis needs [MetaCubeX/geo](https://github.com/MetaCubeX/geo):
+Geodata diagnosis uses [MetaCubeX/geo](https://github.com/MetaCubeX/geo). `matrix_route.py` bootstraps it automatically; manual installation is optional:
 
 ```bash
 # optional manual install
@@ -129,4 +156,4 @@ chmod +x .cache/tools/geo
 export PATH="$PWD/.cache/tools:$PATH"
 ```
 
-`matrix_route.sh` attempts this automatically.
+`matrix_route.sh` is retained as a Linux convenience wrapper; the Python command is the portable entry point.

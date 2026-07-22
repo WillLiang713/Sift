@@ -74,11 +74,18 @@ def parse_template(path: Path) -> Dict[str, object]:
                     continue
                 if provider and line.startswith("    ") and ":" in line:
                     key, value = stripped.split(":", 1)
-                    providers[provider][key.strip()] = clean_value(value)
+                    key = key.strip()
+                    value = clean_value(value)
+                    providers[provider][key] = value
+                    if key == "<<" and value in {"*mrs-domain", "*mrs-ip"}:
+                        providers[provider]["format"] = "mrs"
+                        providers[provider]["behavior"] = (
+                            "domain" if value == "*mrs-domain" else "ipcidr"
+                        )
                 continue
 
-            if section == "rules" and line.startswith("- "):
-                raw_rule = strip_comment(line[2:]).strip()
+            if section == "rules" and stripped.startswith("- "):
+                raw_rule = strip_comment(stripped[2:]).strip()
                 parts = [part.strip() for part in raw_rule.split(",")]
                 if len(parts) >= 2 and parts[0].upper() == "RULE-SET":
                     used_providers.add(parts[1])
@@ -156,7 +163,9 @@ def dump_mrs(source: Path, behavior: str, dest: Path) -> None:
             raise RuntimeError("MRS diagnostics require mihomo or Node.js with Zstandard support")
         command = [node, str(MRS_DUMP), behavior, str(source), str(tmp)]
 
-    proc = subprocess.run(command, capture_output=True, text=True, check=False)
+    proc = subprocess.run(
+        command, capture_output=True, text=True, encoding="utf-8", errors="replace", check=False
+    )
     if proc.returncode != 0:
         tmp.unlink(missing_ok=True)
         detail = proc.stderr.strip() or proc.stdout.strip() or f"exit {proc.returncode}"
