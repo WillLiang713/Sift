@@ -16,7 +16,7 @@ geox-url:
 geo-auto-update: true
 geo-update-interval: 24
 
-# DNS：fake-ip 白名单；明确非中国及 Google 域名使用 fake-IP，其余返回 real-IP。
+# DNS：fake-ip 白名单；高意图域名由 policy 分层；未分类域名国内主解析 + 海外 fallback 校验。
 dns:
   enable: true
   prefer-h3: false
@@ -46,8 +46,16 @@ dns:
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
   nameserver:
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  fallback:
     - https://1.1.1.1/dns-query
     - https://8.8.8.8/dns-query
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+    ipcidr:
+      - 240.0.0.0/4
 
 # 嗅探器：从 HTTP/TLS/QUIC 流量中提取域名，提升 TUN / redir-host 分流准确率。
 sniffer:

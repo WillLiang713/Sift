@@ -4,10 +4,11 @@
 
 ## 解析与出口分工
 
-| `respect-rules: true` 使 DNS 查询按最终分流结果选择解析路径。`nameserver-policy` 优先于 `respect-rules`，因此必须按意图明确分层：
+`respect-rules: true` 使 DNS 查询按最终分流结果选择解析路径。`nameserver-policy` 优先于 `respect-rules`，因此必须按意图明确分层：
 
 - 明确代理域名（`proxy` / `geolocation-!cn` + `google`）通过 `nameserver-policy` 强制使用海外 DoH（优先于 cn）。
 - `cn` + `private` 域名通过 `nameserver-policy` 使用国内 DoH。
+- 未命中 `nameserver-policy` 的域名由国内 `nameserver` 与海外 `fallback` 并发查询，再由 `fallback-filter` 选择结果。
 - 实际命中 `DIRECT` 的域名使用 `direct-nameserver` 国内 DoH。
 - `proxy-server-nameserver` 使用国内 DoH 解析代理节点域名，避免启动环路。
 ```yaml
@@ -28,8 +29,18 @@ direct-nameserver:
   - https://1.12.12.12/dns-query
 
 nameserver:
+  - https://223.5.5.5/dns-query
+  - https://1.12.12.12/dns-query
+
+fallback:
   - https://1.1.1.1/dns-query
   - https://8.8.8.8/dns-query
+
+fallback-filter:
+  geoip: true
+  geoip-code: CN
+  ipcidr:
+    - 240.0.0.0/4
 
 proxy-server-nameserver:
   - https://223.5.5.5/dns-query
@@ -39,6 +50,18 @@ proxy-server-nameserver:
 Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡顿）。
 
 主模板与 DustinWin/ACL 变体的 policy key 为 `rule-set:proxy` / `rule-set:cn,private`。MetaCubeX 变体的 policy key 为 `"geosite:geolocation-!cn,google"`（海外 DoH）与 `"geosite:cn,private"`（国内 DoH）。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
+
+## 未分类域名的 fallback
+
+`nameserver-policy` 已命中的查询不会进入 `fallback`。只有未分类域名才会同时查询国内 `nameserver` 和海外 `fallback`：
+
+- 国内结果属于 CN 时，采用国内结果。
+- 国内结果不属于 CN 时，采用海外结果。
+- 国内结果落入保留地址 `240.0.0.0/4` 时，明确视为异常并采用海外结果。
+
+这里不再添加 `fallback-filter.geosite:gfw` 或 Google/Facebook/YouTube 手写域名：DustinWin/ACL 的 `rule-set:proxy` 与 MetaCubeX 的 `geosite:geolocation-!cn,google` 已在更高优先级的 `nameserver-policy` 中处理这些明确代理域名，避免为 DustinWin/ACL 模板额外引入 GeoSite 数据库依赖。
+
+`fallback-filter` 只选择结果，不阻止并发查询。未分类域名即使最终采用海外结果，国内 DoH 服务商仍可能看到该查询；这是换取未分类域名国内解析/CDN 优先能力的隐私取舍。
 
 ## Fake-IP 白名单
 
@@ -88,7 +111,7 @@ fake-ip-filter:
 2. OpenWrt/Nikki 等客户端可能在防火墙层按 China IP 提前直连。
 3. 流量没有进入 Mihomo，因而无法命中更高意图的 `proxy` / `GEOSITE,google` 规则。
 
-白名单模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口。`nameserver-policy` 为 `proxy`/`geolocation-!cn,google` 指定海外 DoH，为 `cn,private` 指定国内 DoH；两层 DNS 意图分离，不再混用。
+白名单模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口。`nameserver-policy` 为 `proxy`/`geolocation-!cn,google` 指定海外 DoH，为 `cn,private` 指定国内 DoH；只有未分类域名进入国内主解析与海外 fallback 的并发选择流程。
 
 ## 国内域名为什么仍然直连
 
@@ -131,4 +154,4 @@ dns:
 
 ## DNS 泄露判读
 
-对实际直连域名，DNS 测试看到国内解析器是预期行为。对代理测试域名，应由默认海外 DoH 解析，且连接应在 Mihomo 面板中显示代理策略链。
+对实际直连域名，DNS 测试看到国内解析器是预期行为。明确代理域名应由 `nameserver-policy` 指定的海外 DoH 解析，且连接应在 Mihomo 面板中显示代理策略链。未分类域名会同时查询国内外 DoH，不能用它们判断“零 DNS 元数据泄露”。
