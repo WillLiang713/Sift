@@ -50,6 +50,10 @@ Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = a
    - DustinWin and ACL4SSR templates read `rule-providers.*.url` and `behavior`.
    - MetaCubeX templates read `geox-url.geosite`, `geox-url.geoip`, and `geox-url.mmdb`.
    - do not hardcode MetaCubeX or any other upstream in scripts or reasoning.
+   - binary MRS providers are decoded into a local text diagnostic cache by
+     `update_cache.py`, using `mihomo convert-ruleset` when available or the bundled
+     Node.js decoder (with `node:zlib` Zstandard support) otherwise; the
+     template-declared MRS remains the source of truth.
 4. For domain input, MetaCubeX diagnosis defaults to GeoSite only and does not resolve DNS. Mention that runtime may later hit `GEOIP` after DNS resolution.
 5. For IP input, diagnose IP providers or `GEOIP` rules only.
 6. If a misroute is confirmed, update `matrix_route.py` expectations when the product contract changes.

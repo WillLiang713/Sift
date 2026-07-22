@@ -7,6 +7,8 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Tuple
 from urllib.error import HTTPError
@@ -16,6 +18,7 @@ from urllib.request import Request, urlopen
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_CACHE = REPO_ROOT / ".cache" / "sift-route-debug"
+MRS_DUMP = Path(__file__).resolve().parent / "dump_mrs.mjs"
 
 
 def strip_comment(line: str) -> str:
@@ -92,14 +95,19 @@ def filename_from_url(url: str, fallback: str) -> str:
     return name or fallback
 
 
-def download(url: str, dest: Path, manifest_path: Path, force: bool) -> Tuple[bool, str]:
+def download(
+    url: str,
+    dest: Path,
+    manifest_path: Path,
+    force: bool,
+) -> Tuple[bool, str]:
     headers = {"User-Agent": "Sift route debug cache updater"}
     if manifest_path.exists() and not force:
         try:
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-            if manifest.get("etag"):
+            if manifest.get("url") == url and manifest.get("etag"):
                 headers["If-None-Match"] = manifest["etag"]
-            if manifest.get("last_modified"):
+            if manifest.get("url") == url and manifest.get("last_modified"):
                 headers["If-Modified-Since"] = manifest["last_modified"]
         except json.JSONDecodeError:
             pass
@@ -128,7 +136,51 @@ def download(url: str, dest: Path, manifest_path: Path, force: bool) -> Tuple[bo
         raise
 
 
-def iter_sources(parsed: Dict[str, object]) -> Iterable[Tuple[str, str, str]]:
+def is_mrs_source(data: Dict[str, str], url: str) -> bool:
+    return data.get("format", "").lower() == "mrs" or urlparse(url).path.lower().endswith(".mrs")
+
+
+def dump_mrs(source: Path, behavior: str, dest: Path) -> None:
+    """Convert a binary MRS cache into text for deterministic diagnostics."""
+    behavior = behavior.lower()
+    if behavior not in {"domain", "ipcidr"}:
+        raise ValueError(f"unsupported MRS behavior: {behavior or '(missing)'}")
+
+    mihomo = shutil.which("mihomo")
+    tmp = dest.with_suffix(dest.suffix + ".tmp")
+    if mihomo:
+        command = [mihomo, "convert-ruleset", behavior, "mrs", str(source), str(tmp)]
+    else:
+        node = shutil.which("node")
+        if not node:
+            raise RuntimeError("MRS diagnostics require mihomo or Node.js with Zstandard support")
+        command = [node, str(MRS_DUMP), behavior, str(source), str(tmp)]
+
+    proc = subprocess.run(command, capture_output=True, text=True, check=False)
+    if proc.returncode != 0:
+        tmp.unlink(missing_ok=True)
+        detail = proc.stderr.strip() or proc.stdout.strip() or f"exit {proc.returncode}"
+        raise RuntimeError(f"unable to decode MRS: {detail}")
+    os.replace(tmp, dest)
+
+
+def point_manifest_to_text(manifest_path: Path, source: Path, text: Path) -> None:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest.update(
+        {
+            "file": text.name,
+            "source_file": source.name,
+            "source_format": "mrs",
+            "format": "text",
+        }
+    )
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def iter_sources(parsed: Dict[str, object]) -> Iterable[Tuple[str, str, str, str, str]]:
     providers: Dict[str, Dict[str, str]] = parsed["providers"]  # type: ignore[assignment]
     geox: Dict[str, str] = parsed["geox"]  # type: ignore[assignment]
     used_providers = parsed["used_providers"]  # type: ignore[assignment]
@@ -138,12 +190,13 @@ def iter_sources(parsed: Dict[str, object]) -> Iterable[Tuple[str, str, str]]:
             continue
         url = data.get("url", "")
         if url:
-            yield ("ruleset", name, url)
+            source_format = "mrs" if is_mrs_source(data, url) else data.get("format", "")
+            yield ("ruleset", name, url, data.get("behavior", ""), source_format)
 
     for name in ("geosite", "geoip", "mmdb"):
         url = geox.get(name, "")
         if url:
-            yield ("geo", name, url)
+            yield ("geo", name, url, "", "")
 
 
 def main() -> int:
@@ -167,15 +220,26 @@ def main() -> int:
             continue
 
         print(f"== {template.relative_to(REPO_ROOT)} ==")
-        for kind, name, url in sources:
+        for kind, name, url, behavior, source_format in sources:
             key = cache_key(url)
             filename = filename_from_url(url, f"{name}.dat" if kind == "geo" else f"{name}.list")
             dest = args.cache_dir / kind / key / filename
             manifest = args.cache_dir / kind / key / "manifest.json"
             try:
                 changed, status = download(url, dest, manifest, args.force)
+                output = dest
+                conversion = ""
+                if kind == "ruleset" and source_format == "mrs":
+                    output = dest.with_suffix(".list")
+                    if changed or not output.exists():
+                        dump_mrs(dest, behavior, output)
+                        conversion = "; decoded MRS"
+                    point_manifest_to_text(manifest, dest, output)
                 marker = "OK" if changed else "SKIP"
-                print(f"  [{marker}] {kind}:{name} {status} -> {dest.relative_to(REPO_ROOT)}")
+                print(
+                    f"  [{marker}] {kind}:{name} {status}{conversion}"
+                    f" -> {output.relative_to(REPO_ROOT)}"
+                )
             except Exception as exc:  # noqa: BLE001
                 print(f"  [FAIL] {kind}:{name} {url}")
                 print(f"         {exc}")

@@ -2,3 +2,5 @@
 .codex
 repo
 .cache
+__pycache__/
+*.py[cod]

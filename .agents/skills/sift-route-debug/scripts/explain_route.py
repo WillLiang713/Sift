@@ -138,6 +138,14 @@ def cache_file(cache_dir: Path, kind: str, url: str) -> Optional[Path]:
 
 
 def resolve_provider_file(provider: Provider, cache_dir: Path) -> Optional[Path]:
+    is_mrs = provider.format.lower() == "mrs" or provider.url.lower().endswith(".mrs")
+    if is_mrs:
+        if not provider.url:
+            return None
+        candidate = cache_file(cache_dir, "ruleset", provider.url)
+        if candidate and candidate.suffix.lower() != ".mrs":
+            return candidate
+        return None
     if provider.path:
         local = REPO_ROOT / provider.path
         if local.exists():
@@ -228,6 +236,8 @@ def match_ip_entry(ip: ipaddress._BaseAddress, entry: str) -> Optional[str]:
 
 
 def iter_provider_lines(path: Path) -> Iterable[Tuple[int, str]]:
+    if path.suffix.lower() == ".mrs":
+        raise ValueError(f"binary MRS ruleset is not directly readable: {path}")
     with path.open("r", encoding="utf-8", errors="replace") as handle:
         for line_no, line in enumerate(handle, start=1):
             yield line_no, line.rstrip("\n")
