@@ -1,117 +1,83 @@
-# 综合主模板 / Nano：无节点极简；DustinWin MRS；不接管 DNS/嗅探。
-
 proxy-groups:
-- name: 节点选择
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
-  proxies:
-  - 自动测速
-  - 手动切换
-  - DIRECT
+  - name: 节点选择
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+    proxies:
+      - 自动测速
+      - 手动切换
+      - DIRECT
+  - name: 手动切换
+    type: select
+    include-all: true
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+  - name: 自动测速
+    type: url-test
+    include-all: true
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+  - name: 全球直连
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动测速
+  - name: 广告拦截
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+    proxies:
+      - REJECT
+      - DIRECT
+      - 节点选择
+  - name: 漏网之鱼
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 手动切换
+      - DIRECT
 
-- name: 手动切换
-  type: select
-  include-all: true
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
-
-- name: 自动测速
-  type: url-test
-  include-all: true
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  timeout: 3000
-  tolerance: 50
-
-- name: 全球直连
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
-  proxies:
-  - DIRECT
-  - 节点选择
-  - 自动测速
-
-- name: 广告拦截
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
-  proxies:
-  - REJECT
-  - DIRECT
-  - 节点选择
-
-- name: 漏网之鱼
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 手动切换
-  - DIRECT
-
+rule-anchor:
+  mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
+  mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
 rule-providers:
   private:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/private.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
-    interval: 86400
-    proxy: DIRECT
   ads:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/ads.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ads.mrs"
-    interval: 86400
-    proxy: DIRECT
   privateip:
-    type: http
-    behavior: ipcidr
-    format: mrs
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/privateip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
-    interval: 86400
-    proxy: DIRECT
   proxy:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/proxy.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.mrs"
-    interval: 86400
-    proxy: DIRECT
   cn-lite:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/cn-lite.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
-    interval: 86400
-    proxy: DIRECT
   cnip:
-    type: http
-    behavior: ipcidr
-    format: mrs
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/cnip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.mrs"
-    interval: 86400
-    proxy: DIRECT
 
 rules:
-- RULE-SET,private,DIRECT
-- RULE-SET,privateip,DIRECT,no-resolve
-
-- RULE-SET,ads,广告拦截
-
-- RULE-SET,proxy,节点选择
-
-- RULE-SET,cn-lite,全球直连
-
-- RULE-SET,cnip,全球直连
-
-- MATCH,漏网之鱼
-
+  - RULE-SET,private,DIRECT
+  - RULE-SET,privateip,DIRECT,no-resolve
+  - RULE-SET,ads,广告拦截
+  - RULE-SET,proxy,节点选择
+  - RULE-SET,cn-lite,全球直连
+  - RULE-SET,cnip,全球直连
+  - MATCH,漏网之鱼

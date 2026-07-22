@@ -1,7 +1,3 @@
-# 综合主模板 / Full：无节点。
-# 规则层：DustinWin MRS 骨架 + MetaCubeX 品牌/GitHub/DNS MRS（非单源）。
-# microsoft 过宽 → github、onedrive 前置领出；proxy 在 cn-lite 前。
-
 ipv6: true
 unified-delay: true
 tcp-concurrent: true
@@ -10,14 +6,12 @@ profile:
   store-selected: true
   store-fake-ip: true
 
-# GeoIP：fallback-filter 固定使用 MetaCubeX MMDB，并每 24 小时自动更新。
 geodata-mode: false
 geox-url:
   mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
 geo-auto-update: true
 geo-update-interval: 24
 
-# DNS：fake-ip 白名单；高意图域名由 policy 分层；未分类域名国内主解析 + 海外 fallback 校验。
 dns:
   enable: true
   prefer-h3: false
@@ -27,7 +21,6 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: whitelist
   fake-ip-filter:
-    # DustinWin proxy（geolocation-!cn + gfwlist）：含 googleapis.cn 等全球 .cn 例外
     - rule-set:proxy
   nameserver-policy:
     "rule-set:proxy":
@@ -55,7 +48,6 @@ dns:
     ipcidr:
       - 240.0.0.0/4
 
-# 嗅探器：从 HTTP/TLS/QUIC 提取域名；skip-domain 避免内网/连通性/推送误嗅探。
 sniffer:
   enable: true
   force-dns-mapping: true
@@ -77,420 +69,308 @@ sniffer:
     - "+.push.apple.com"
 
 proxy-groups:
-- name: 节点选择
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
-  proxies:
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
+  - name: 节点选择
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+    proxies:
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
+  - name: 手动切换
+    type: select
+    include-all: true
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+  - name: 自动测速
+    type: url-test
+    include-all: true
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+  - name: AI
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
+  - name: 流媒体
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
+  - name: 游戏平台
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
+  - name: Telegram
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
+  - name: 苹果服务
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+  - name: 谷歌服务
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
+  - name: 微软服务
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png"
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+  - name: OneDrive
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/OneDrive.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
+  - name: 香港节点
+    type: url-test
+    include-all: true
+    filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港"
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+  - name: 美国节点
+    type: url-test
+    include-all: true
+    filter: "(?i)🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago"
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/US.png"
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+  - name: 日本节点
+    type: url-test
+    include-all: true
+    filter: "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka"
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+  - name: 新加坡节点
+    type: url-test
+    include-all: true
+    filter: "(?i)🇸🇬|SG|SGP|Singapore|新加坡|狮城"
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png"
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+  - name: 其他节点
+    type: select
+    include-all: true
+    exclude-filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港|🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka|🇸🇬|SG|SGP|Singapore|新加坡|狮城"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
+  - name: 全球直连
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动测速
+  - name: 广告拦截
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+    proxies:
+      - REJECT
+      - DIRECT
+      - 节点选择
+  - name: 漏网之鱼
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
 
-- name: 手动切换
-  type: select
-  include-all: true
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
-
-- name: 自动测速
-  type: url-test
-  include-all: true
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  timeout: 3000
-  tolerance: 50
-
-- name: AI
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
-- name: 流媒体
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
-- name: 游戏平台
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
-- name: Telegram
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
-- name: 苹果服务
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
-  proxies:
-  - DIRECT
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-
-- name: 谷歌服务
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
-- name: 微软服务
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png"
-  proxies:
-  - DIRECT
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-
-- name: OneDrive
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/OneDrive.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
-- name: 香港节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港"
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  timeout: 3000
-  tolerance: 50
-
-- name: 美国节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago"
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/US.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  timeout: 3000
-  tolerance: 50
-
-- name: 日本节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka"
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  timeout: 3000
-  tolerance: 50
-
-- name: 新加坡节点
-  type: url-test
-  include-all: true
-  filter: "(?i)🇸🇬|SG|SGP|Singapore|新加坡|狮城"
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  timeout: 3000
-  tolerance: 50
-
-- name: 其他节点
-  type: select
-  include-all: true
-  exclude-filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港|🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka|🇸🇬|SG|SGP|Singapore|新加坡|狮城"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
-
-- name: 全球直连
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
-  proxies:
-  - DIRECT
-  - 节点选择
-  - 自动测速
-
-- name: 广告拦截
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
-  proxies:
-  - REJECT
-  - DIRECT
-  - 节点选择
-
-- name: 漏网之鱼
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 香港节点
-  - 美国节点
-  - 日本节点
-  - 新加坡节点
-  - 其他节点
-  - 手动切换
-  - DIRECT
-
+rule-anchor:
+  mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
+  mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
 rule-providers:
   private:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/private.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
-    interval: 86400
-    proxy: DIRECT
   ads:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/ads.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ads.mrs"
-    interval: 86400
-    proxy: DIRECT
   privateip:
-    type: http
-    behavior: ipcidr
-    format: mrs
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/privateip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
-    interval: 86400
-    proxy: DIRECT
   github:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/metacubex/github.mrs
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs"
-    interval: 86400
-    proxy: DIRECT
   apple-cn:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/apple-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/apple-cn.mrs"
-    interval: 86400
-    proxy: DIRECT
   apple:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/metacubex/apple.mrs
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs"
-    interval: 86400
-    proxy: DIRECT
   microsoft-cn:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/microsoft-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/microsoft-cn.mrs"
-    interval: 86400
-    proxy: DIRECT
   onedrive:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/metacubex/onedrive.mrs
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs"
-    interval: 86400
-    proxy: DIRECT
   microsoft:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/metacubex/microsoft.mrs
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"
-    interval: 86400
-    proxy: DIRECT
   games-cn:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/games-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs"
-    interval: 86400
-    proxy: DIRECT
   ai:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/ai.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.mrs"
-    interval: 86400
-    proxy: DIRECT
   mediaip:
-    type: http
-    behavior: ipcidr
-    format: mrs
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/mediaip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/mediaip.mrs"
-    interval: 86400
-    proxy: DIRECT
   games:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/games.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.mrs"
-    interval: 86400
-    proxy: DIRECT
   telegramip:
-    type: http
-    behavior: ipcidr
-    format: mrs
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/telegramip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/telegramip.mrs"
-    interval: 86400
-    proxy: DIRECT
   google:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/metacubex/google.mrs
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"
-    interval: 86400
-    proxy: DIRECT
   proxy:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/proxy.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.mrs"
-    interval: 86400
-    proxy: DIRECT
   cn-lite:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/cn-lite.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
-    interval: 86400
-    proxy: DIRECT
   cnip:
-    type: http
-    behavior: ipcidr
-    format: mrs
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/cnip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.mrs"
-    interval: 86400
-    proxy: DIRECT
-  # DNS-only：MetaCubeX geosite cn；勿用于路由（路由用 cn-lite）
   cn:
-    type: http
-    behavior: domain
-    format: mrs
+    <<: *mrs-domain
     path: ./ruleset/metacubex/cn.mrs
     url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
-    interval: 86400
-    proxy: DIRECT
 
 rules:
-- RULE-SET,private,DIRECT
-- RULE-SET,privateip,DIRECT,no-resolve
-
-# 广告域名默认拒绝；误伤时可在面板临时切换为直连或节点
-- RULE-SET,ads,广告拦截
-
-# GitHub/Copilot：MetaCubeX microsoft 过宽，须在 microsoft 前领出
-- RULE-SET,github,节点选择
-
-- RULE-SET,apple-cn,全球直连
-- RULE-SET,microsoft-cn,全球直连
-- RULE-SET,games-cn,全球直连
-
-- RULE-SET,apple,苹果服务
-
-- RULE-SET,ai,AI
-
-- RULE-SET,games,游戏平台
-
-- RULE-SET,mediaip,流媒体
-
-# OneDrive 须在 microsoft 前
-- RULE-SET,onedrive,OneDrive
-
-- RULE-SET,microsoft,微软服务
-
-- RULE-SET,telegramip,Telegram
-
-# Google 全品牌进入谷歌服务（须在 proxy / cn-lite 前）
-- RULE-SET,google,谷歌服务
-
-# 明确非中国域名进入节点选择（须在场景组之后、cn-lite 前）
-- RULE-SET,proxy,节点选择
-
-- RULE-SET,cn-lite,全球直连
-
-- RULE-SET,cnip,全球直连
-
-- MATCH,漏网之鱼
+  - RULE-SET,private,DIRECT
+  - RULE-SET,privateip,DIRECT,no-resolve
+  - RULE-SET,ads,广告拦截
+  - RULE-SET,github,节点选择
+  - RULE-SET,apple-cn,全球直连
+  - RULE-SET,microsoft-cn,全球直连
+  - RULE-SET,games-cn,全球直连
+  - RULE-SET,apple,苹果服务
+  - RULE-SET,ai,AI
+  - RULE-SET,games,游戏平台
+  - RULE-SET,mediaip,流媒体
+  - RULE-SET,onedrive,OneDrive
+  - RULE-SET,microsoft,微软服务
+  - RULE-SET,telegramip,Telegram
+  - RULE-SET,google,谷歌服务
+  - RULE-SET,proxy,节点选择
+  - RULE-SET,cn-lite,全球直连
+  - RULE-SET,cnip,全球直连
+  - MATCH,漏网之鱼

@@ -51,7 +51,6 @@ The `rules/variants/MetaCubeX-*.yaml` templates intentionally use MetaCubeX `met
 
 There is no package manager manifest and no generated build step. Use lightweight validation before committing:
 
-- `bash .claude/skills/sift-check/check.sh` (or `/sift-check` in Claude Code) checks project invariants: strategy-group / rule-set referential integrity, node-free rules, DNS allowance per template, fake-IP whitelist selectors, canonical group scopes, geodata purity, and optional `mihomo` / `yamllint` validation when installed.
 - `mihomo -t -f rules/full.yaml` (also `core`/`nano` and `rules/variants/*.yaml`) validate templates when the Mihomo binary is installed locally.
 - `yamllint rules/*.yaml rules/variants/*.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
 - `git diff --check` catches trailing whitespace and common patch formatting issues.
@@ -81,7 +80,7 @@ In full templates, the `其他节点` group is the complement of the region node
 
 ## Testing Guidelines
 
-No automated test suite is currently checked in. For configuration edits, validate changed templates with `sift-check`, `mihomo` when available, and manual comparison against `demo/` examples where relevant. When editing MetaCubeX templates, additionally check that routing rules stay `GEOSITE`/`GEOIP` only and that no `rule-providers:` block is present.
+No automated test suite is currently checked in. For configuration edits, validate changed templates with `mihomo` and `yamllint` when available, plus manual comparison against `demo/` examples where relevant. When editing MetaCubeX templates, additionally check that routing rules stay `GEOSITE`/`GEOIP` only and that no `rule-providers:` block is present.
 
 ## Commit & Pull Request Guidelines
 

@@ -1,134 +1,92 @@
-# ACL4SSR / Nano：无节点极简规则和策略组。
-
 proxy-groups:
-- name: 节点选择
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
-  proxies:
-  - 自动测速
-  - 手动切换
-  - DIRECT
+  - name: 节点选择
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+    proxies:
+      - 自动测速
+      - 手动切换
+      - DIRECT
+  - name: 手动切换
+    type: select
+    include-all: true
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+  - name: 自动测速
+    type: url-test
+    include-all: true
+    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+    url: https://cp.cloudflare.com/generate_204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+  - name: 全球直连
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动测速
+  - name: 广告拦截
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+    proxies:
+      - REJECT
+      - DIRECT
+      - 节点选择
+  - name: 漏网之鱼
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 手动切换
+      - DIRECT
 
-- name: 手动切换
-  type: select
-  include-all: true
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
-
-- name: 自动测速
-  type: url-test
-  include-all: true
-  exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
-  url: https://cp.cloudflare.com/generate_204
-  interval: 300
-  timeout: 3000
-  tolerance: 50
-
-- name: 全球直连
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
-  proxies:
-  - DIRECT
-  - 节点选择
-  - 自动测速
-
-- name: 广告拦截
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
-  proxies:
-  - REJECT
-  - DIRECT
-  - 节点选择
-
-- name: 漏网之鱼
-  type: select
-  icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
-  proxies:
-  - 节点选择
-  - 自动测速
-  - 手动切换
-  - DIRECT
+rule-anchor:
+  classical: &classical {type: http, behavior: classical, format: text, interval: 86400, proxy: DIRECT}
 
 rule-providers:
   LocalAreaNetwork:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/LocalAreaNetwork.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
-    interval: 86400
-    proxy: DIRECT
   UnBan:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/UnBan.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
-    interval: 86400
-    proxy: DIRECT
   BanAD:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/BanAD.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
-    interval: 86400
-    proxy: DIRECT
   BanProgramAD:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/BanProgramAD.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
-    interval: 86400
-    proxy: DIRECT
   ProxyLite:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/ProxyLite.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyLite.list"
-    interval: 86400
-    proxy: DIRECT
   ChinaDomain:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/ChinaDomain.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
-    interval: 86400
-    proxy: DIRECT
   ChinaIp:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/ChinaIp.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list"
-    interval: 86400
-    proxy: DIRECT
   ChinaIpV6:
-    type: http
-    behavior: classical
-    format: text
+    <<: *classical
     path: ./ruleset/acl4ssr/ChinaIpV6.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIpV6.list"
-    interval: 86400
-    proxy: DIRECT
 
 rules:
-- RULE-SET,LocalAreaNetwork,DIRECT
-
-# ACL4SSR 官方广告白名单优先；广告误伤时也可在面板临时放行全部广告域名
-- RULE-SET,UnBan,DIRECT
-- RULE-SET,BanAD,广告拦截
-- RULE-SET,BanProgramAD,广告拦截
-
-- RULE-SET,ProxyLite,节点选择
-
-- RULE-SET,ChinaDomain,全球直连
-
-- RULE-SET,ChinaIp,全球直连
-- RULE-SET,ChinaIpV6,全球直连
-
-- MATCH,漏网之鱼
+  - RULE-SET,LocalAreaNetwork,DIRECT
+  - RULE-SET,UnBan,DIRECT
+  - RULE-SET,BanAD,广告拦截
+  - RULE-SET,BanProgramAD,广告拦截
+  - RULE-SET,ProxyLite,节点选择
+  - RULE-SET,ChinaDomain,全球直连
+  - RULE-SET,ChinaIp,全球直连
+  - RULE-SET,ChinaIpV6,全球直连
+  - MATCH,漏网之鱼
