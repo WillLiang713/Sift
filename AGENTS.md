@@ -1,93 +1,248 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+面向 agent / 维护者的仓库规范。先读**主文**；改规则或 DNS 时再查**附录**。用户可见行为以 `README.md` 为准。
 
-This repository is a compact Mihomo configuration template project.
+---
 
-- **Default hybrid templates** (MRS-first, not locked to one upstream):
-  - `rules/full.yaml` — Full scene groups + region groups + DNS/sniffer. DustinWin MRS skeleton (`ads`, `proxy`, `cn-lite`, scene sets) + MetaCubeX geosite MRS brands (`google`, `apple`, `microsoft`, `onedrive`, `github`) and DNS-only `cn.mrs`. Hard order: `github` and `onedrive` before `microsoft` (MetaCubeX microsoft is broad); `google`/`proxy` before `cn-lite`.
-  - `rules/core.yaml` — 5-group Core; Apple/Microsoft → `全球直连`; `github`/`onedrive` → `节点选择` before microsoft; `MATCH,节点选择`.
-  - `rules/nano.yaml` — 6-group Nano; DustinWin MRS only; DNS-free / sniffer-free.
-  - Full/Core share runtime hardenings: `prefer-h3: false`, sniffer `skip-domain`, url-test `timeout: 3000`, info-node `exclude-filter`, rule-provider `proxy: DIRECT`. Full/Core use overseas-default DNS for domains not matched by `nameserver-policy`; explicit `cn,private` policy and direct lookups remain on domestic DoH. They do not use concurrent DNS `fallback`, preventing unclassified queries from being sent to domestic resolvers. GeoIP data remains pinned to MetaCubeX `geoip.metadb` in MMDB mode with 24-hour auto-update.
-- **Optional single-source variants** under `rules/variants/` (original formats kept; same runtime hardenings; **not** force-MRS):
-  - `rules/variants/DustinWin-*.yaml` — text `.list` + blackmatrix7 classical brands.
-  - `rules/variants/MetaCubeX-*.yaml` — pure `GEOSITE`/`GEOIP`, `geox-url`, no routing `rule-providers`.
-  - `rules/variants/ACL4SSR-*.yaml` — ACL Clash `.list`; DNS-only DustinWin `proxy`; UnBan+Ban ads; Full streaming split lists.
-- `demo/` stores example Mihomo YAML files used for reference and manual comparison.
-- `docs/` stores rule-source notes, DNS/fake-ip notes, icon references, and other supporting documentation.
-- `README.md` documents user-facing behavior and must be updated when routing logic, template selection, visible strategy groups, or rule-provider sets change.
-- `LICENSE` covers this repository's own template content; remotely referenced icons, demo rules, and third-party rules remain under their upstream terms.
+## 这是什么
 
-## Rule Sources
+Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规则与分流顺序，不内置订阅/节点。
 
-**Hybrid main templates** prefer MRS (`format: mrs`): DustinWin `mihomo-ruleset/*.mrs` for domain/ipcidr sets; MetaCubeX `meta/geo/geosite/*.mrs` for brand/github/DNS `cn`. blackmatrix7 classical `.list` is not used on the hybrid path (classical cannot encode into MRS).
+- **默认推荐**：根目录 hybrid 主模板（多源混合 + 优先 MRS）。
+- **可选**：`rules/variants/` 单源变体（保留各源原格式，不强行 MRS）。
 
-**variants** keep prior formats and do not force MRS. Variant DustinWin/ACL4SSR sets come from [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) as `format: text` `.list` (and blackmatrix7 classical where needed). Full/Core fake-IP whitelist mode makes unlisted private, CN, Tracker, and compatibility domains return real IP naturally. DustinWin/ACL4SSR retain MetaCubeX `cn.mrs` only for domestic `nameserver-policy`; ACL4SSR additionally uses DustinWin `proxy` as a DNS-only domain whitelist.
+---
 
-Do not re-add `trackerslist` to Full/Core `dns.fake-ip-filter`: under whitelist mode, Tracker domains already receive real IP because they are absent from the proxy whitelist. Never add a routing `RULE-SET,trackerslist,...` rule.
+## 目录一览
 
-The exceptions are the complete Google/Apple/Microsoft/OneDrive sets from [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script), because DustinWin publishes no equivalent complete brand sets. They are wired as `classical`/`text` `.list` providers:
+| 路径 | 用途 |
+| --- | --- |
+| `rules/full.yaml` / `core.yaml` / `nano.yaml` | 默认 hybrid 主模板 |
+| `rules/variants/` | DustinWin / MetaCubeX / ACL4SSR 单源变体 |
+| `demo/` | 对照示例 |
+| `docs/` | 规则源、DNS、图标等说明 |
+| `README.md` | 用户文档（分流/策略组变更时必须同步） |
+| `.agents/skills/sift-route-debug/` | 路由矩阵与诊断脚本 |
 
-- `google` ← `rule/Clash/Google/Google.list` (Full only → `谷歌服务`; also used by ACL4SSR Full)
-- `apple` ← `rule/Clash/Apple/Apple.list`
-- `microsoft` ← `rule/Clash/Microsoft/Microsoft.list`
-- `onedrive` ← `rule/Clash/OneDrive/OneDrive.list`
+---
 
-Google, Microsoft, and OneDrive require `classical`: their lists include important keyword, IP, or process rules that domain-only formats cannot store.
+## 三档模板（产品合同）
 
-All three DustinWin templates also use DustinWin `proxy` (domain/text, `geolocation-!cn` + gfwlist) as the explicit non-CN proxy layer, placed like MetaCubeX `GEOSITE,geolocation-!cn`: after service/brand direct-or-group rules and before `cn-lite`.
+| | Full | Core | Nano |
+| --- | --- | --- | --- |
+| 代表文件 | `rules/full.yaml` | `rules/core.yaml` | `rules/nano.yaml` |
+| UI 策略组 | 场景 + 品牌 + 地区 + 广告 | 基础组 + `全球直连` + 广告 | 极简 + 广告 |
+| DNS / sniffer | 有 | 有 | **无** |
+| Apple / Microsoft | 独立服务组（Full） | → `全球直连` | 无独立组 |
+| OneDrive | `OneDrive` 组 | → `节点选择`（无 UI 组） | 无 |
+| 未命中 | `漏网之鱼` | `MATCH,节点选择` | `漏网之鱼` |
 
-Template-specific usage:
+**所有模板**保留 `广告拦截`：`REJECT` 优先，其后 `DIRECT`、`节点选择`（默拦截，误伤时可改）。
 
-- `rules/variants/DustinWin-full.yaml`: `ads` routes to `广告拦截` immediately after private rules; `apple-cn` / `microsoft-cn` / `games-cn` are domestic direct supplements; full `apple`, `microsoft`, `onedrive`, and blackmatrix7 `google` route to dedicated service groups (`谷歌服务` for Google); `proxy` routes to `节点选择` after those service/scene rules and before `cn-lite`. Keep `onedrive` before `microsoft`, because OneDrive domains also appear in Microsoft's broad list. Keep `google` before `proxy` / `cn-lite` so `googleapis.cn` is not mis-directed. DNS-only `cn` is MetaCubeX `cn.mrs` (not DustinWin `cn.list` / not routing).
-- `rules/variants/DustinWin-core.yaml`: full `apple` and full `microsoft` route to `全球直连`; blackmatrix7 `onedrive` routes to `节点选择` immediately before `microsoft` (same ordering as Full; no OneDrive UI group). `proxy` routes to `节点选择` after those direct-service rules and before `cn-lite`. Core's `全球直连` contains `DIRECT`, `节点选择`, and `自动测速`, with `DIRECT` first. There are no Google/Apple/Microsoft/OneDrive UI strategy groups or region node strategy groups. Do not re-add CN-only Google/Apple/Microsoft brand supplements unless the Core design changes back to CN-only brand supplements. Same DNS-only MetaCubeX `cn.mrs` as Full.
-- `rules/variants/DustinWin-nano.yaml`: uses DustinWin `private`, `privateip`, `ads`, `proxy`, `cn-lite`, and `cnip` only; `ads` precedes `proxy`, which remains the sole explicit non-CN proxy layer before `cn-lite`.
+**不要随意扩档位**：
 
-This project does **not** work around ShellCrash heuristics that treat `geosite`/`geoip` URL substrings as “must download Geo databases”. MetaCubeX `meta-rules-dat` paths (including `.../geosite/cn.mrs`) are allowed when they are the correct source. ShellCrash-side false positives are out of scope.
+- Core：不要加回服务/品牌 UI、地区节点组、独立 `漏网之鱼`。
+- Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
 
-The `rules/variants/MetaCubeX-*.yaml` templates intentionally use MetaCubeX `meta-rules-dat` via top-level `geox-url`. Keep routing rules as `GEOSITE,...` / `GEOIP,...` only and do not define `rule-providers`; Full/Core fake-IP whitelist and domestic DNS policy use geosite selectors directly. Public filenames are `rules/variants/MetaCubeX-full.yaml`, `rules/variants/MetaCubeX-core.yaml`, and `rules/variants/MetaCubeX-nano.yaml`.
+常用组名保持稳定：`节点选择`、`手动切换`、`自动测速`、`全球直连`、`漏网之鱼`、`广告拦截`。
 
-## Build, Test, and Development Commands
+---
 
-There is no package manager manifest and no generated build step. Use lightweight validation before committing:
+## 改规则时的硬约束（先看这里）
 
-- `mihomo -t -f rules/full.yaml` (also `core`/`nano` and `rules/variants/*.yaml`) validate templates when the Mihomo binary is installed locally.
-- `yamllint rules/*.yaml rules/variants/*.yaml demo/*.yaml` checks YAML formatting when `yamllint` is available.
-- `git diff --check` catches trailing whitespace and common patch formatting issues.
+规则**自上而下，先命中先生效**。重叠时更具体 / 更高意图的写在前面。
 
-## Coding Style & Naming Conventions
+### 1. 必须守住的顺序
 
-Keep YAML indentation at two spaces and group rules by routing intent, with short comments explaining each block. Preserve established strategy-group names such as `节点选择`, `手动切换`, `自动测速`, `全球直连`, and `漏网之鱼` unless a routing change requires renaming them.
+| 顺序 | 原因（人话） |
+| --- | --- |
+| `github`、`onedrive` **在** `microsoft` **前** | Microsoft 集合过宽，会吞掉 GitHub / OneDrive |
+| `google`、`proxy`（或 `geolocation-!cn`）**在** `cn-lite` / 宽 `cn` **前** | 否则 `googleapis.cn` 等会被国内直连误伤 |
+| 游戏相关 **在** 娱乐分类前（MetaCubeX Full） | `category-entertainment` 与游戏重叠 |
 
-Template scope rules:
+### 2. Google / Play 产品锚点
 
-- All templates keep the common `广告拦截` select group with `REJECT` first, followed by `DIRECT` and `节点选择`, so blocking is enabled by default and can be temporarily bypassed from the UI when a false positive occurs.
-- Full templates may contain the full service/scene groups: `AI`, `流媒体`, `游戏平台`, `Telegram`, `苹果服务`, `谷歌服务`, `微软服务`, `OneDrive`, plus region groups and the common `广告拦截` group.
-- Core templates keep only the base selector groups, `全球直连`, and `广告拦截`, and intentionally remove service/brand UI groups, region node groups, and the separate `漏网之鱼` fallback group. Their special case is full `apple` and full `microsoft` routed to `全球直连`, while OneDrive is split out ahead of Microsoft and routes to `节点选择` (no OneDrive UI group; keeps Store/Xbox-style Microsoft downloads direct-capable while OneDrive can use the proxy). Core's `全球直连` is `DIRECT` first, then `节点选择` and `自动测速`, and final fallback is `MATCH,节点选择`.
-- Nano templates must stay DNS-free and rule-light: they may keep the single common advertising layer (`ads`, `category-ads-all`, or ACL4SSR `UnBan` + `BanAD` / `BanProgramAD` according to source family); DustinWin Nano may use the `proxy` provider as the explicit non-CN proxy layer (MetaCubeX uses `geolocation-!cn`, ACL4SSR uses `ProxyLite`), but do not add Google UI groups, AI, entertainment, gaming, Telegram, Apple/Microsoft/OneDrive, DNS, or region node groups unless the template goal is explicitly changed.
-- `rules/variants/MetaCubeX-full.yaml` mirrors Full's visible groups but uses MetaCubeX geosite categories. Keep `GEOSITE,category-ads-all,广告拦截` immediately after private rules, then `GEOSITE,github,节点选择`, because MetaCubeX's Microsoft and scenario categories include GitHub / Copilot-related domains that should keep using the proxy path. Route full `GEOSITE,apple` to `苹果服务` before entertainment scenarios; `apple@cn` remains a domestic direct supplement. Keep game rules (`category-game-platforms-download`, `category-games`) before `category-entertainment`, because the entertainment category overlaps games and would otherwise capture gaming-platform traffic too early. Route full `GEOSITE,microsoft` to `微软服务`; `microsoft@cn` remains a domestic direct supplement. Route `GEOSITE,google` to `谷歌服务` after scene/brand groups and before `geolocation-!cn` / `cn`, so Google (including `googleapis.cn`) is selectable while YouTube can still hit `category-entertainment` first.
-- `rules/variants/MetaCubeX-core.yaml` keeps the 5-group Core contract and routes full `GEOSITE,apple` and full `GEOSITE,microsoft` to `全球直连`; keep `GEOSITE,category-ads-all,广告拦截` immediately after private rules and `GEOSITE,github,节点选择` after the advertising layer. Keep `GEOSITE,onedrive,节点选择` immediately before `GEOSITE,microsoft` (no OneDrive UI group). Keep `GEOSITE,geolocation-!cn,节点选择` after the explicit Core direct-service rules and before `GEOSITE,cn,全球直连`. Final fallback remains `MATCH,节点选择`.
-- MetaCubeX Core/Nano keep a routing-only `GEOSITE,google,节点选择` immediately after `geolocation-!cn` and before `GEOSITE,cn` (no Google UI group). MetaCubeX Full routes the same tag to the `谷歌服务` strategy group before `geolocation-!cn`. Product anchors for Google/Play are **`googleapis.cn`** and **`play.googleapis.com`** (must proxy: Full `谷歌服务`, Core/Nano `节点选择`, plus Full/Core DNS fake-IP whitelist). MetaCubeX `geolocation-!cn` covers `play.googleapis.com` but not `googleapis.cn` (the latter is `google`+`cn`/`tld-cn` only); the `GEOSITE,google` / DNS `geosite:google` patch exists primarily so **`googleapis.cn` does not fall through to broad CN direct**. `gstatic.cn` is not a hard contract anchor (HY/DW may direct via `cn-lite` `+.cn`). Do not re-add `GEOSITE,google@cn,全球直连` by default: Play/API domains can fail when mis-directed on domestic networks.
+硬锚点（必须代理；回归以此为准）：
 
-Keep each `rule-providers` key synchronized with the upstream rule-set file basename when practical. Use `cn-lite` for DustinWin **routing** domain fallback. Full/Core DNS uses fake-IP whitelist mode: DustinWin uses `rule-set:proxy`, ACL4SSR uses a DNS-only DustinWin `proxy`, and MetaCubeX uses `geosite:geolocation-!cn` plus `geosite:google`. Unlisted private, CN, Tracker, and compatibility domains return real IP. `nameserver-policy` has two layers: `proxy` (DustinWin/ACL4SSR) or `geolocation-!cn,google` (MetaCubeX) forced to overseas DoH; `cn,private` forced to domestic DoH (DustinWin/ACL4SSR: `rule-set:cn,private`; MetaCubeX: `geosite:cn,private`). Domains unmatched by policy use overseas `nameserver` only; do not add DNS `fallback` / `fallback-filter`, because concurrent domestic queries expose unclassified domains even when their final traffic uses a proxy. All DNS-enabled Full/Core templates must explicitly manage GeoIP data with `geodata-mode: false`, MetaCubeX `geoip.metadb` as `geox-url.mmdb`, `geo-auto-update: true`, and a 24-hour interval. This prevents `.cn` proxy domains like `googleapis.cn` from receiving polluted or CDN-locked Chinese DNS answers via the `cn` policy. Do **not** put DNS MetaCubeX `cn` into DustinWin routing in place of `cn-lite`. Broader non-matching DIRECT traffic still uses `respect-rules` + `direct-nameserver`. Deliberate exceptions:
+- `googleapis.cn`
+- `play.googleapis.com`
 
-- blackmatrix7 service keys (`google`, `apple`, `microsoft`, `onedrive`) map to capitalized upstream paths.
-- DustinWin / ACL4SSR Full/Core define MetaCubeX `cn` as a nameserver-policy-only MRS provider; ACL4SSR also defines DustinWin `proxy` as a DNS-only fake-IP whitelist (routing stays `cn-lite` / `ChinaDomain`).
+出口约定：Full → `谷歌服务`；Core / Nano → `节点选择`；Full/Core DNS fake-IP 白名单须覆盖。
 
-Do not replace the routing `cn-lite` provider with full DustinWin `cn.list` or MetaCubeX DNS `cn`; the broader set can over-direct domains that should fall through to proxy. For overlapping rules, place the more specific or higher-intent rule first.
+- `gstatic.cn` **不是**硬锚点（展示可以，失败不判契约破）。
+- 默认**不要**加 `google@cn → 全球直连`（Play/API 国内直连易挂）。
 
-In full templates, the `其他节点` group is the complement of the region node groups (`香港节点`, `美国节点`, `日本节点`, `新加坡节点`). It uses `include-all: true` + `exclude-filter`; its `exclude-filter` must stay the exact union of those region groups' `filter` keywords, including emoji flags and the `(?i)` case-insensitive flag.
+### 3. DNS（仅 Full/Core）
 
-## Testing Guidelines
+| 原则 | 做法 |
+| --- | --- |
+| 默认解析 | 海外 DoH（`nameserver`） |
+| 明确国内/内网 | `nameserver-policy` → 国内 DoH（`cn` + `private`） |
+| 明确代理域 | policy → 海外 DoH（见附录 B） |
+| **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
+| fake-IP | **白名单**模式；名单外（国内、Tracker 等）自然真 IP |
+| GeoIP | `geodata-mode: false` + MetaCubeX `geoip.metadb`，24h 自动更新 |
 
-No automated test suite is currently checked in. For configuration edits, validate changed templates with `mihomo` and `yamllint` when available, plus manual comparison against `demo/` examples where relevant. When editing MetaCubeX templates, additionally check that routing rules stay `GEOSITE`/`GEOIP` only and that no `rule-providers:` block is present.
+**禁止**：
 
-## Commit & Pull Request Guidelines
+- 把 `trackerslist` 写回 `dns.fake-ip-filter` 或加路由 `RULE-SET,trackerslist,...`
+- 用宽 `cn`（完整 DustinWin `cn.list` / DNS 用的 MetaCubeX `cn`）替换路由 `cn-lite`
+- 提交订阅链接、节点、密钥、含私有端点的生成配置
 
-Recent history mostly follows Conventional Commit style with optional scopes, for example `chore(rules): ...`, `feat(config): ...`, and `refactor(config): ...`. Use concise Chinese or English summaries, and choose scopes such as `config`, `rules`, `docs`, or `scripts`.
+### 4. Full/Core 运行时加固（保持一致）
 
-Pull requests should describe the routing behavior changed, list validation commands run, and mention compatibility risks for existing Mihomo clients. For template changes, state whether the change affects DustinWin, MetaCubeX, ACL4SSR, or docs/check tooling. Include screenshots only when UI panel behavior or strategy-group ordering is relevant.
+`prefer-h3: false`、sniffer `skip-domain`、url-test `timeout: 3000`、信息节点 `exclude-filter`、rule-provider `proxy: DIRECT`。
 
-## Security & Configuration Tips
+Full 的 `其他节点`：`exclude-filter` 必须是各地区组 `filter` 的**精确并集**（含 emoji 与 `(?i)`）。
 
-Do not commit personal proxy nodes, subscription URLs, credentials, API tokens, or generated configs containing private endpoints. Keep `rules/*.yaml` as reusable public templates. Do not vendor third-party icon assets or rulesets unless their license and attribution requirements are checked and documented; remote icon references currently point to `Koolson/Qure`.
+### 5. 范围外
+
+不修 ShellCrash 对 URL 里 `geosite`/`geoip` 子串的误判；MetaCubeX `meta-rules-dat` 路径在源正确时允许使用。
+
+---
+
+## 验证
+
+无构建步骤。提交前尽量：
+
+```bash
+mihomo -t -f rules/full.yaml   # 同步检查 core/nano 与 variants
+yamllint rules/*.yaml rules/variants/*.yaml demo/*.yaml
+git diff --check
+```
+
+- MetaCubeX 变体：路由只能是 `GEOSITE`/`GEOIP`，**不能**出现 `rule-providers:`。
+- 路由矩阵 / 域名诊断：见 skill `sift-route-debug`。
+
+YAML：两空格缩进；按意图分块并加短注释。
+
+---
+
+## 提交与 PR
+
+- Conventional Commits，可带 scope：`config` / `rules` / `docs` / `scripts`（中英摘要均可）。
+- PR 写清：分流行为变化、验证命令、对旧客户端的兼容风险；模板改动注明影响 hybrid 还是哪家 variants。
+- 仅策略组 UI/顺序相关时才需要截图。
+
+图标：远程引用仅限 `Koolson/Qure`；勿随意 vendoring 第三方图标/规则集（先核授权与署名）。
+
+---
+
+# 附录 A — 规则源与接线
+
+## Hybrid 主模板（MRS 优先）
+
+| 用途 | 来源 |
+| --- | --- |
+| 域名/IP 骨架（ads、proxy、cn-lite、场景等） | DustinWin `mihomo-ruleset/*.mrs` |
+| 品牌 + github + **DNS-only** `cn` | MetaCubeX `meta/geo/geosite/*.mrs` |
+
+主路径**不用** blackmatrix7 classical（classical 无法编进 MRS）。
+
+## 单源变体（不强制 MRS）
+
+| 变体 | 格式要点 |
+| --- | --- |
+| `DustinWin-*.yaml` | text `.list` + 品牌用 blackmatrix7 classical |
+| `MetaCubeX-*.yaml` | 纯 `GEOSITE`/`GEOIP` + 顶层 `geox-url`，无 routing `rule-providers` |
+| `ACL4SSR-*.yaml` | ACL Clash `.list`；DNS-only DustinWin `proxy`；UnBan+Ban 广告；Full 流媒体拆分 |
+
+DustinWin / ACL 的 list 来自 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata)。  
+DustinWin 无完整品牌集时，variants 可用 blackmatrix7：
+
+| key | 上游 | 备注 |
+| --- | --- | --- |
+| `google` | `rule/Clash/Google/Google.list` | Full → `谷歌服务`；ACL Full 也用 |
+| `apple` | `rule/Clash/Apple/Apple.list` | |
+| `microsoft` | `rule/Clash/Microsoft/Microsoft.list` | 需 `classical`（含 keyword/IP/process） |
+| `onedrive` | `rule/Clash/OneDrive/OneDrive.list` | 需 `classical` |
+
+`rule-providers` 的 key 尽量与上游文件 basename 一致；blackmatrix7 路径大小写按上游。
+
+## 非 CN 代理层
+
+| 家族 | 提供者 | 位置 |
+| --- | --- | --- |
+| DustinWin（含 hybrid 骨架） | `proxy`（≈ geolocation-!cn + gfwlist） | 服务/品牌规则之后、`cn-lite` 之前 |
+| MetaCubeX | `GEOSITE,geolocation-!cn` | 同上逻辑 |
+| ACL4SSR Nano 等 | `ProxyLite` 等 | 见对应 yaml |
+
+**路由**国内域名兜底用 `cn-lite`（DustinWin），不要换成完整 `cn`。  
+MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-policy`**，不进 routing 替代 `cn-lite`。
+
+---
+
+# 附录 B — DNS / fake-IP 细节
+
+仅 Full/Core（含对应 variants）。
+
+### fake-IP 白名单
+
+| 家族 | 白名单 |
+| --- | --- |
+| Hybrid / DustinWin | `rule-set:proxy` |
+| ACL4SSR | DNS-only 的 DustinWin `proxy`（路由仍用自家 China 域规则） |
+| MetaCubeX | `geosite:geolocation-!cn` + `geosite:google` |
+
+未进白名单的 private / CN / Tracker / 兼容域 → 真 IP。故无需、也不应再塞 `trackerslist`。
+
+### nameserver-policy 两层
+
+| 匹配 | 解析器 |
+| --- | --- |
+| 代理域：`proxy` 或 `geolocation-!cn,google` | 海外 DoH |
+| 国内/内网：`cn,private` | 国内 DoH |
+
+未命中 policy → 只用海外 `nameserver`。  
+DIRECT 侧更广流量：`respect-rules` + `direct-nameserver`。
+
+`googleapis.cn` 等 `.cn` 代理域若误走 `cn` policy，会吃到污染或 CDN 锁定解析，故默认海外 + 代理域 policy 强制海外。
+
+---
+
+# 附录 C — 变体与模板特例
+
+## DustinWin variants
+
+**Full**：private 后立刻 `ads → 广告拦截`；`apple-cn` / `microsoft-cn` / `games-cn` 补国内直连；完整 apple/microsoft/onedrive/google 进服务组；`proxy` 在服务/场景后、`cn-lite` 前；`onedrive` 先于 `microsoft`；`google` 先于 `proxy`/`cn-lite`。
+
+**Core**：完整 apple/microsoft → `全球直连`；onedrive → `节点选择`（紧挨 microsoft 前）；`proxy` 在直连服务规则后、`cn-lite` 前；`全球直连` 成员顺序：`DIRECT`、`节点选择`、`自动测速`。不要默认加回「仅 CN 品牌补充」除非产品改回旧设计。
+
+**Nano**：仅 `private` / `privateip` / `ads` / `proxy` / `cn-lite` / `cnip`；`ads` 在 `proxy` 前。
+
+## MetaCubeX variants
+
+**Full**：可见组对齐 hybrid Full，分类用 geosite。顺序要点：
+
+1. private 后 `category-ads-all → 广告拦截`
+2. 随即 `github → 节点选择`（避免被 microsoft/场景吞）
+3. 完整 `apple → 苹果服务`（娱乐场景前）；`apple@cn` 国内直连补充
+4. 游戏规则在 `category-entertainment` 前
+5. 完整 `microsoft → 微软服务`；`microsoft@cn` 补充
+6. `google → 谷歌服务`：场景/品牌之后、`geolocation-!cn` / `cn` 之前（YouTube 仍可先中娱乐）
+
+**Core**：5 组合同；ads 后 github；onedrive 紧挨 microsoft 前 → `节点选择`；apple/microsoft → `全球直连`；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,节点选择`。
+
+**Core/Nano Google**：`GEOSITE,google → 节点选择`（无 UI 组），放在 `geolocation-!cn` 后、`cn` 前。  
+**说明**：`geolocation-!cn` 含 `play.googleapis.com` 但不含 `googleapis.cn`；`GEOSITE,google` / DNS `geosite:google` 主要是防止 `googleapis.cn` 掉进宽 CN 直连。
+
+## ACL4SSR
+
+广告链：UnBan + BanAD / BanProgramAD。Full 流媒体按源拆 list。DNS-only `proxy` 仅服务 fake-IP/policy，路由仍走 ACL 域规则 + 国内集。
+
+---
+
+# 附录 D — 速查：hybrid Full 意图链
+
+与 `README` 分流表一致，改 yaml 时对照：
+
+1. 局域网 / 私有 → `DIRECT`
+2. 广告 → `广告拦截`
+3. Tracker 等 → `全球直连`（按模板）
+4. 国内 Apple / Microsoft / 游戏补充 → `全球直连`
+5. 海外 Apple / AI / 游戏 / 流媒体 / OneDrive / Microsoft / TG / Google → 对应组
+6. `proxy`（明确非 CN）→ `节点选择`
+7. `cn-lite` / 国内 IP → `全球直连`
+8. 其余 → `漏网之鱼`（Core 则为 `节点选择`）
+
+细节与域名矩阵以当前 yaml + `sift-route-debug` 为准；本附录描述**意图**，不是逐行拷贝源。
