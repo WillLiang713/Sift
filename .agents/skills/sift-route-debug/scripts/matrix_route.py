@@ -155,7 +155,7 @@ def default_expectations() -> List[Expectation]:
     exp.append(("challenges.cloudflare.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
 
     exp.append(("chatgpt.com", FULLS, {"AI"}, "FAIL"))
-    exp.append(("chatgpt.com", CORES, {"节点选择"}, "FAIL"))
+    exp.append(("chatgpt.com", CORES, {"节点选择", "漏网之鱼"}, "FAIL"))
     exp.append(("chatgpt.com", ["HY-n", "DW-n", "MC-n"], {"节点选择"}, "FAIL"))
     exp.append(("chatgpt.com", ["AC-n"], {"节点选择", "漏网之鱼"}, "WARN"))
 

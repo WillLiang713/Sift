@@ -35,13 +35,13 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | → `全球直连` | 无独立组 |
 | OneDrive | `OneDrive` 组 | → `节点选择`（无 UI 组） | 无 |
-| 未命中 | `漏网之鱼` | `MATCH,节点选择` | `漏网之鱼` |
+| 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
 **所有模板**保留 `广告拦截`：`REJECT` 优先，其后 `DIRECT`、`节点选择`（默拦截，误伤时可改）。
 
 **不要随意扩档位**：
 
-- Core：不要加回服务/品牌 UI、地区节点组、独立 `漏网之鱼`。
+- Core：不要加回服务/品牌 UI、地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
 
 常用组名保持稳定：`节点选择`、`手动切换`、`自动测速`、`全球直连`、`漏网之鱼`、`广告拦截`。
@@ -221,7 +221,7 @@ DIRECT 侧更广流量：`respect-rules` + `direct-nameserver`。
 5. 完整 `microsoft → 微软服务`；`microsoft@cn` 补充
 6. `google → 谷歌服务`：场景/品牌之后、`geolocation-!cn` / `cn` 之前（YouTube 仍可先中娱乐）
 
-**Core**：5 组合同；ads 后 github；onedrive 紧挨 microsoft 前 → `节点选择`；apple/microsoft → `全球直连`；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,节点选择`。
+**Core**：6 组合同（含 `漏网之鱼`）；ads 后 github；onedrive 紧挨 microsoft 前 → `节点选择`；apple/microsoft → `全球直连`；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
 
 **Core/Nano Google**：`GEOSITE,google → 节点选择`（无 UI 组），放在 `geolocation-!cn` 后、`cn` 前。  
 **说明**：`geolocation-!cn` 含 `play.googleapis.com` 但不含 `googleapis.cn`；`GEOSITE,google` / DNS `geosite:google` 主要是防止 `googleapis.cn` 掉进宽 CN 直连。
@@ -243,6 +243,6 @@ DIRECT 侧更广流量：`respect-rules` + `direct-nameserver`。
 5. 海外 Apple / AI / 游戏 / 流媒体 / OneDrive / Microsoft / TG / Google → 对应组
 6. `proxy`（明确非 CN）→ `节点选择`
 7. `cn-lite` / 国内 IP → `全球直连`
-8. 其余 → `漏网之鱼`（Core 则为 `节点选择`）
+8. 其余 → `漏网之鱼`
 
 细节与域名矩阵以当前 yaml + `sift-route-debug` 为准；本附录描述**意图**，不是逐行拷贝源。

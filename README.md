@@ -20,7 +20,7 @@
 | 文件 | 策略组 | 说明 |
 | --- | ---: | --- |
 | [`rules/full.yaml`](./rules/full.yaml) | 19 | 完整场景：DustinWin MRS 骨架 + MetaCubeX 品牌/GitHub/DNS MRS；含 DNS、嗅探、地区与服务组；`github`/`onedrive` 先于 `microsoft` |
-| [`rules/core.yaml`](./rules/core.yaml) | 5 | 核心白名单：Apple/Microsoft 进全球直连；GitHub/OneDrive 先于 Microsoft 进节点选择；`MATCH → 节点选择` |
+| [`rules/core.yaml`](./rules/core.yaml) | 6 | 核心白名单：Apple/Microsoft 进全球直连；GitHub/OneDrive 先于 Microsoft 进节点选择；`MATCH → 漏网之鱼`（默认 `节点选择`） |
 | [`rules/nano.yaml`](./rules/nano.yaml) | 6 | 极简：DustinWin MRS；广告 + proxy + 国内兜底；不接管 DNS |
 
 ```text
@@ -53,9 +53,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 - **域名嗅探**：Full/Core 启用 sniffer，并 `skip-domain` 跳过 lan/local/米家/Windows 连通性/Apple Push 等。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
 - **可切换直连**：Full / Nano 的国内服务与国内兜底默认进入 `全球直连`，保持直连优先，同时允许临时切到总控或自动策略排障；Core 的 `全球直连` 保留 `DIRECT`、`节点选择` 与 `自动测速`，且 `DIRECT` 排第一。
-- **兜底出口**：Full / Nano 未命中规则进入 `漏网之鱼`；Core 不保留独立兜底组，未命中规则直接进入 `节点选择`。
+- **兜底出口**：Full / Core / Nano 未命中规则均进入 `漏网之鱼`（默认 `节点选择`，可改测速/手动/直连）。
 - **Full 场景分流**：主模板保留 AI/流媒体/游戏/Telegram/苹果/谷歌/微软/OneDrive 与地区组；`github` 与 `onedrive` 先于过宽的 `microsoft`；`google` 与 `proxy` 先于 `cn-lite`。
-- **Core 白名单分流**：无服务/地区 UI；主模板 Apple/Microsoft → 全球直连，GitHub/OneDrive → 节点选择（均在 microsoft 前），proxy 在 cn-lite 前，`MATCH → 节点选择`。
+- **Core 白名单分流**：无服务/地区 UI；主模板 Apple/Microsoft → 全球直连，GitHub/OneDrive → 节点选择（均在 microsoft 前），proxy 在 cn-lite 前，`MATCH → 漏网之鱼`。
 - **Nano 极简代理**：主模板 DustinWin MRS（ads + proxy + cn-lite/cnip）；无 DNS/嗅探/地区/服务组。
 
 ## 分流顺序
@@ -131,7 +131,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 | 6 | 国内游戏 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
 | 7 | 明确非中国域名（`proxy`） | `节点选择` |
 | 8 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 9 | 未命中流量 | `节点选择` |
+| 9 | 未命中流量 | `漏网之鱼` |
 
 ### MetaCubeX / Core
 
@@ -146,7 +146,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 | 7 | 明确非中国域名 | `节点选择` |
 | 8 | Google 路由例外（`.cn` 全球服务） | `节点选择` |
 | 9 | 国内域名 / IP 兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 10 | 未命中流量 | `节点选择` |
+| 10 | 未命中流量 | `漏网之鱼` |
 
 ### ACL4SSR / Core
 
@@ -160,7 +160,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 | 6 | 完整 Microsoft | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
 | 7 | ProxyLite 明确代理域名 | `节点选择` |
 | 8 | 国内域名 / IPv4 / IPv6 规则集兜底 | `全球直连`（默认 `DIRECT`，可切 `节点选择` / `自动测速`） |
-| 9 | 未命中流量 | `节点选择` |
+| 9 | 未命中流量 | `漏网之鱼` |
 
 ### DustinWin / Nano
 
@@ -197,7 +197,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 
 **Full / MetaCubeX Full / ACL4SSR Full**：`节点选择` · `手动切换` · `自动测速` · `AI` · `流媒体` · `游戏平台` · `Telegram` · `苹果服务` · `谷歌服务` · `微软服务` · `OneDrive` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点` · `全球直连` · `广告拦截` · `漏网之鱼`
 
-**Core / MetaCubeX Core / ACL4SSR Core**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `广告拦截`
+**Core / MetaCubeX Core / ACL4SSR Core**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `广告拦截` · `漏网之鱼`
 
 **Nano / MetaCubeX Nano / ACL4SSR Nano**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `广告拦截` · `漏网之鱼`
 
