@@ -16,7 +16,7 @@
 - 当前模板通常优先使用 DustinWin `.list` 文件并配置为 `format: text`，`behavior` 使用表中列出的 `domain` / `ipcidr`。blackmatrix7 Clash `.list` 文件最安全的方式是使用 `behavior: classical`。
 - `rules/variants/DustinWin-*.yaml` 使用 DustinWin `ads` 进入可切换的 `广告拦截`，并使用 `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。不再默认使用 blackmatrix7 完整 `Google.list`。
 - `rules/variants/ACL4SSR-*.yaml` 模板使用 ACL4SSR Clash `.list` 文件作为 `classical`/`text` 路由 provider；Full/Core 另用 DNS-only DustinWin `proxy` domain provider 作为 fake-IP 白名单，MetaCubeX `cn.mrs` + `private` 只用于国内 `nameserver-policy`；路由国内域名仍用 `ChinaDomain`。
-- `rules/variants/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`，Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。Full/Core DNS 用 `geosite:geolocation-!cn` + `geosite:google` 作为 fake-IP 白名单，以覆盖 `googleapis.cn` / `gstatic.cn` 等 Google 全球 `.cn` 例外；不定义 `rule-providers`。
+- `rules/variants/MetaCubeX-*.yaml`：三档模板均在私有规则后用 `GEOSITE,category-ads-all,广告拦截`；Full 将 `GEOSITE,google` 导入 `谷歌服务`，Core/Nano 在 `geolocation-!cn` 与 `cn` 之间保留 `GEOSITE,google,节点选择`。Full/Core DNS 用 `geosite:geolocation-!cn` + `geosite:google` 作为 fake-IP 白名单。Google/Play 硬锚点为 `googleapis.cn` 与 `play.googleapis.com`；`google` 补丁主要覆盖前者（后者已在 `geolocation-!cn`）。`gstatic.cn` 不作硬合同；不定义 `rule-providers`。
 - 本仓库不规避 ShellCrash 对 URL 中 `geosite`/`geoip` 子串的启发式误判；MetaCubeX DNS `cn.mrs` 路径含 `geosite` 为预期。
 
 ## URL 模板

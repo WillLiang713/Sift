@@ -115,7 +115,7 @@ fake-ip-filter:
   - geosite:google
 ```
 
-`geosite:google` 用于补足 `geolocation-!cn` 不包含的 `googleapis.cn` / `gstatic.cn` 等 Google 全球 `.cn` 例外。MetaCubeX 模板直接使用 geosite，不定义 `rule-providers`。
+`geosite:google` 用于补足 `geolocation-!cn` 不包含的 Google 全球 `.cn` 例外，**产品锚点是 `googleapis.cn`**（`play.googleapis.com` 已在 `geolocation-!cn` 内）。`gstatic.cn` 等同族域名不是硬合同。MetaCubeX 模板直接使用 geosite，不定义 `rule-providers`。
 
 ## 为什么 Google `.cn` 需要 fake-IP
 

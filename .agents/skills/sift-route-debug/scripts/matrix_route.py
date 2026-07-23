@@ -133,9 +133,15 @@ def default_expectations() -> List[Expectation]:
     for ad_domain in ("ad.doubleclick.net", "pagead2.googlesyndication.com"):
         exp.append((ad_domain, ALL, {"广告拦截"}, "FAIL"))
 
-    # Google .cn global services must not fall through to broad CN direct on Full.
+    # Google/Play hard anchors (routing contract). Pair with Full/Core DNS whitelist
+    # (rule-set:proxy or geosite:geolocation-!cn+google) so these domains enter Mihomo
+    # with overseas DoH — DNS is not re-asserted by this domain matrix.
+    # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN): HY/DW may
+    # direct via cn-lite +.cn while MC/AC proxy; that is family variance, not a contract break.
     exp.append(("googleapis.cn", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("googleapis.cn", CORES + NANOS, {"节点选择"}, "FAIL"))
+    exp.append(("play.googleapis.com", FULLS, {"谷歌服务"}, "FAIL"))
+    exp.append(("play.googleapis.com", CORES + NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.google.com", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))
@@ -439,6 +445,7 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
+    print("  - Google/Play FAIL anchors: googleapis.cn + play.googleapis.com (gstatic.cn display-only).")
     print("  - In-process RouteEngine reuses provider indexes and MetaCubeX geo lookups.")
     print("  - geo look results persist under cache_dir/geo-look/ (invalidated when geodata files change).")
     print(f"  - geo-bin={geo_bin}")

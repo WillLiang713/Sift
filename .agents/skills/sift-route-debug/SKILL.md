@@ -114,8 +114,8 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 | Area | Contract (summary) |
 | --- | --- |
 | Advertising | `ad.doubleclick.net` / `pagead2.googlesyndication.com` → `广告拦截` on all 12 templates |
-| Full Google | `www.google.com` / `googleapis.cn` → `谷歌服务` on HY/DW/MC/AC Full |
-| Core/Nano Google | → `节点选择` (not broad CN direct for `googleapis.cn`) |
+| **Google/Play anchors** | **`googleapis.cn`** + **`play.googleapis.com`**: Full → `谷歌服务`; Core/Nano → `节点选择`. Must not fall through to broad CN direct. DNS half of the same contract is Full/Core fake-IP whitelist (`rule-set:proxy` or MetaCubeX `geolocation-!cn`+`google`). |
+| Other Google | `www.google.com` same policy split as anchors (Full `谷歌服务` / Core-Nano `节点选择`) |
 | CF challenge | `challenges.cloudflare.com` → `节点选择` or `漏网之鱼`, **never** `流媒体` |
 | Full AI | `chatgpt.com` → `AI` |
 | Full streaming | MC/AC: YouTube/Netflix → `流媒体`; AC brand packs (not ProxyMedia) |
@@ -124,11 +124,14 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 | Domestic | baidu/qq/taobao/bilibili → `全球直连` on all 12 |
 | Private | localhost → `DIRECT` |
 
+Display-only (not FAIL/WARN):
+
+- `gstatic.cn` may → `全球直连` on HY/DW Core/Nano (`cn-lite` `+.cn`) or proxy on MC/AC — family variance; **not** a Play/API contract anchor.
+
 WARN-level examples (do not treat as hard failures unless design changes):
 
 - DustinWin Full YouTube/Netflix often → `节点选择` (domain media light; `mediaip` is IP).
 - ACL4SSR Nano may send some overseas hosts to `漏网之鱼` (narrow ProxyLite).
-- DustinWin Core/Nano `gstatic.cn` may → `全球直连` via `cn-lite` `+.cn` (no Google classical list).
 
 Edit `default_expectations()` in `matrix_route.py` when the product contract changes.
 
