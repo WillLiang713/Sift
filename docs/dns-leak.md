@@ -4,13 +4,14 @@
 
 ## 解析与出口分工
 
-`respect-rules: true` 使 DNS 查询按最终分流结果选择解析路径。`nameserver-policy` 优先于 `respect-rules`，因此必须按意图明确分层：
+`respect-rules: true` 使 DNS 查询可按最终分流结果选择解析路径。`nameserver-policy` 优先于 `respect-rules`，因此必须按意图明确分层：
 
 - 明确代理域名（`proxy` / `geolocation-!cn` + `google`）通过 `nameserver-policy` 强制使用海外 DoH（优先于 cn）。
 - `cn` + `private` 域名通过 `nameserver-policy` 使用国内 DoH。
-- 未命中 `nameserver-policy` 的域名由国内 `nameserver` 与海外 `fallback` 并发查询，再由 `fallback-filter` 选择结果。
+- 未命中 `nameserver-policy` 的域名只使用海外 `nameserver`，**不**启用 `fallback` / `fallback-filter`。
 - 实际命中 `DIRECT` 的域名使用 `direct-nameserver` 国内 DoH。
 - `proxy-server-nameserver` 使用国内 DoH 解析代理节点域名，避免启动环路。
+
 ```yaml
 nameserver-policy:
   # 明确代理域名使用海外 DoH
@@ -28,44 +29,41 @@ direct-nameserver:
   - https://223.5.5.5/dns-query
   - https://1.12.12.12/dns-query
 
-nameserver:
-  - https://223.5.5.5/dns-query
-  - https://1.12.12.12/dns-query
-
-fallback:
-  - https://1.1.1.1/dns-query
-  - https://8.8.8.8/dns-query
-
-fallback-filter:
-  geoip: true
-  geoip-code: CN
-  ipcidr:
-    - 240.0.0.0/4
-
 proxy-server-nameserver:
   - https://223.5.5.5/dns-query
   - https://1.12.12.12/dns-query
+
+# 默认解析：仅海外 DoH（无 fallback）
+nameserver:
+  - https://1.1.1.1/dns-query
+  - https://8.8.8.8/dns-query
 ```
 
 Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡顿）。
 
 主模板与 DustinWin/ACL 变体的 policy key 为 `rule-set:proxy` / `rule-set:cn,private`。MetaCubeX 变体的 policy key 为 `"geosite:geolocation-!cn,google"`（海外 DoH）与 `"geosite:cn,private"`（国内 DoH）。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
 
-## 未分类域名的 fallback
+## 为什么禁止 fallback
 
-`nameserver-policy` 已命中的查询不会进入 `fallback`。只有未分类域名才会同时查询国内 `nameserver` 和海外 `fallback`：
+旧方案曾用「国内 `nameserver` + 海外 `fallback` + `fallback-filter`」并发查询未分类域名：国内结果为 CN 则采用国内结果，否则采用海外结果。
 
-- 国内结果属于 CN 时，采用国内结果。
-- 国内结果不属于 CN 时，采用海外结果。
-- 国内结果落入保留地址 `240.0.0.0/4` 时，明确视为异常并采用海外结果。
+该模式的问题是：`fallback-filter` 只选择最终采用哪一侧结果，**不阻止**并发查询本身。未分类域名即使最终走代理出口，国内 DoH 服务商仍可能看到该查询。对「最终会代理、但未落入 `proxy` / `geolocation-!cn` / `google` 策略」的域名，这会额外暴露 DNS 元数据。
 
-这里不再添加 `fallback-filter.geosite:gfw` 或 Google/Facebook/YouTube 手写域名：DustinWin/ACL 的 `rule-set:proxy` 与 MetaCubeX 的 `geosite:geolocation-!cn,google` 已在更高优先级的 `nameserver-policy` 中处理这些明确代理域名，避免为 DustinWin/ACL 模板额外引入 GeoSite 数据库依赖。
+当前模板因此改为：
 
-`fallback-filter` 只选择结果，不阻止并发查询。未分类域名即使最终采用海外结果，国内 DoH 服务商仍可能看到该查询；这是换取未分类域名国内解析/CDN 优先能力的隐私取舍。
+| 域名意图 | 解析器 |
+| --- | --- |
+| 明确代理（`proxy` / `geolocation-!cn,google`） | 海外 DoH（`nameserver-policy`） |
+| 明确国内 / 内网（`cn,private`） | 国内 DoH（`nameserver-policy`） |
+| 未分类 | 仅海外 `nameserver` |
+| 实际 `DIRECT` 流量 | `direct-nameserver` 国内 DoH |
+| 代理节点域名 | `proxy-server-nameserver` 国内 DoH |
+
+代价：未分类的国内兼容域名若未进 `cn` policy，会走海外解析，可能得到非最优 CDN。Sift 优先避免「未分类却并发打国内 DNS」的泄露面；国内体验主要依赖 `cn` / `private` policy 与路由侧 `cn-lite` 等直连规则。
 
 ### GeoIP 数据库管理
 
-所有 DNS-enabled Full/Core 模板都显式固定 `fallback-filter.geoip-code` 使用的数据库：
+所有 DNS-enabled Full/Core 模板仍固定 GeoIP 数据源（MMDB，24 小时自动更新）。hybrid 主模板与 DustinWin/ACL 变体为：
 
 ```yaml
 geodata-mode: false
@@ -75,7 +73,9 @@ geo-auto-update: true
 geo-update-interval: 24
 ```
 
-`geodata-mode: false` 选择 MMDB 模式；`geo-auto-update` 每 24 小时更新一次。综合主模板及 DustinWin/ACL4SSR 的国内路由仍使用各自的 `cnip` / `ChinaIp` provider，MMDB 只负责 Mihomo 内置 GeoIP 查询（包括 `fallback-filter`），不替换路由规则集。
+`geodata-mode: false` 选择 MMDB 模式。该数据库服务 Mihomo 内置 GeoIP 查询（例如 MetaCubeX 变体路由中的 `GEOIP,CN` / `GEOIP,telegram`），**不再**服务于已移除的 `fallback-filter`。
+
+综合主模板及 DustinWin/ACL4SSR 的国内 IP 路由仍使用各自的 `cnip` / `ChinaIp` provider，不依赖上述 MMDB 替换路由规则集。MetaCubeX 变体额外通过顶层 `geox-url` 拉取 `geoip.dat` / `geosite.dat` / `geoip.metadb`。
 
 ## Fake-IP 白名单
 
@@ -87,7 +87,7 @@ fake-ip-filter-mode: whitelist
 
 在 whitelist 模式下，`fake-ip-filter` 中列出的域名返回 `198.18.0.0/16` fake-IP；未列入的私有、国内、Tracker、NTP 和其他兼容域名默认返回 real-IP。
 
-### DustinWin Full/Core
+### 主模板 / DustinWin Full/Core
 
 ```yaml
 fake-ip-filter:
@@ -115,7 +115,7 @@ fake-ip-filter:
   - geosite:google
 ```
 
-`geosite:google` 用于补足 `geolocation-!cn` 不包含的 Google 全球 `.cn` 例外，**产品锚点是 `googleapis.cn`**（`play.googleapis.com` 已在 `geolocation-!cn` 内）。`gstatic.cn` 等同族域名不是硬合同。MetaCubeX 模板直接使用 geosite，不定义 `rule-providers`。
+`geosite:google` 用于补足 `geolocation-!cn` 不包含的 Google 全球 `.cn` 例外，**产品锚点是 `googleapis.cn`**（`play.googleapis.com` 已在 `geolocation-!cn` 内）。`gstatic.cn` 等同族域名不是硬合同。MetaCubeX 模板直接使用 geosite，路由侧不定义 `rule-providers`。
 
 ## 为什么 Google `.cn` 需要 fake-IP
 
@@ -125,13 +125,13 @@ fake-ip-filter:
 2. OpenWrt/Nikki 等客户端可能在防火墙层按 China IP 提前直连。
 3. 流量没有进入 Mihomo，因而无法命中更高意图的 `proxy` / `GEOSITE,google` 规则。
 
-白名单模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口。`nameserver-policy` 为 `proxy`/`geolocation-!cn,google` 指定海外 DoH，为 `cn,private` 指定国内 DoH；只有未分类域名进入国内主解析与海外 fallback 的并发选择流程。
+白名单模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口。`nameserver-policy` 为 `proxy` / `geolocation-!cn,google` 指定海外 DoH，为 `cn,private` 指定国内 DoH；未分类域名只走海外 `nameserver`，不再进入国内主解析与海外 fallback 的并发选择流程。
 
 ## 国内域名为什么仍然直连
 
 国内域名未列入 fake-IP 白名单，因此返回 real-IP，并由 `nameserver-policy` 的国内 DoH 解析。路由侧仍使用：
 
-- DustinWin：`cn-lite` + `cnip`
+- DustinWin / hybrid：`cn-lite` + `cnip`
 - ACL4SSR：`ChinaDomain` + `ChinaIp` / `ChinaIpV6`
 - MetaCubeX：`GEOSITE,cn` + `GEOIP,CN`
 
@@ -170,14 +170,21 @@ dns:
 
 ### 检测网站出现中国 IP 不等于代理泄露
 
-DNS 泄露检测网站通常会发起一批随机域名查询，再把收到查询的递归 DNS 服务器出口 IP、所属地区或运营商展示出来。Sift 的 Full/Core 模板有意保留国内 DNS：国内及私有域名使用国内 DoH，未分类域名也会向国内 `nameserver` 与海外 `fallback` 并发查询。因此，检测结果中出现阿里、腾讯或其他中国大陆 DNS 出口 IP 是这套混合解析模式的预期现象，单凭这一项不能判定 DNS 绕过了 Mihomo，也不能说明网站连接本身使用中国 IP 直连。
+DNS 泄露检测网站通常会发起一批随机域名查询，再把收到查询的递归 DNS 服务器出口 IP、所属地区或运营商展示出来。
 
-这不等于“没有任何隐私代价”。进入国内 `nameserver` 的查询仍会向国内 DNS 服务商暴露域名查询元数据；本模板接受这一取舍，以换取国内域名和未分类域名更合适的解析结果及 CDN 访问体验。它追求的是按域名意图分配解析器，而不是让所有查询只从代理所在地的 DNS 出口发出。
+当前 Full/Core 模板**默认解析是海外 DoH**，未分类域名不会并发打国内解析器。检测结果中仍可能出现阿里、腾讯等中国大陆 DNS 出口 IP，常见原因包括：
 
-判读检测结果时应同时检查：
+- 查询命中了 `nameserver-policy` 的 `cn` / `private`（国内 DoH）。
+- 连接最终 `DIRECT`，经 `direct-nameserver` 用国内 DoH 重新解析。
+- `proxy-server-nameserver` 在解析代理节点域名时使用国内 DoH。
+- 系统、浏览器安全 DNS、其他应用或 IPv6 绕过了 Mihomo（这才属于需要排查的真实泄露）。
 
-- 检测页列出的是否是 **DNS 服务器 IP**，而不是浏览器实际公网出口 IP；前者出现中国 IP 在本模式下可以是正常的，后者若与预期代理出口不符则需要继续排查。
-- 明确代理域名是否由 `nameserver-policy` 指定的海外 DoH 处理，并在 Mihomo 面板中命中预期的代理策略链。
-- 系统、浏览器安全 DNS、其他应用或 IPv6 是否绕过 Mihomo；只有存在这类非预期解析路径，才属于本模板要排查的 DNS 泄露。
+因此：
 
-因此，常见检测网站给出“发现中国 DNS”或类似警告，只说明检测查询曾到达中国 DNS 出口，不足以单独证明配置泄露。若用户的目标是严格隐藏所有 DNS 查询元数据，则不应使用当前国内主解析 + 海外 fallback 的混合模式，而应改为只使用可信海外 DNS，并接受国内解析和 CDN 体验可能下降的代价。
+- 检测页列出的是 **DNS 服务器 IP** 时：出现中国 IP 可能只是国内意图域名 / 直连重解析 / 节点域名解析的预期行为，不能单凭此项判定整站连接使用中国 IP 直连，也不能说明代理域名的 DNS 被国内解析器看到。
+- 检测页或网络面板中的 **浏览器实际公网出口 IP** 若与预期代理出口不符，需要继续排查路由与客户端劫持。
+- 明确代理域名应命中 `nameserver-policy` 的海外 DoH，并在 Mihomo 面板中进入预期的代理策略链。
+
+本模板对国内 DoH 的使用范围刻意收窄为「明确国内/内网 policy、明确直连重解析、代理节点域名解析」。它追求的是按域名意图分配解析器，并避免未分类查询再并发暴露给国内 DNS；并不是把所有 DNS 元数据都隐藏到代理所在地（国内意图流量仍会使用国内 DoH）。
+
+若用户的目标是严格隐藏**所有** DNS 查询元数据（包括国内域名），则应自行改为全程可信海外 DNS，并去掉或改写 `cn,private` policy 与 `direct-nameserver`，同时接受国内解析与 CDN 体验可能下降的代价。
