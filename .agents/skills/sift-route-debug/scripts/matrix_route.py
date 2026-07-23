@@ -173,21 +173,26 @@ def default_expectations() -> List[Expectation]:
 
 
 def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> None:
-    for rel in (TEMPLATES[label] for label in labels):
-        print(f"== update_cache {rel} ==")
-        proc = subprocess.run(
-            [
-                sys.executable,
-                str(UPDATE_CACHE),
-                str(REPO_ROOT / rel),
-                "--cache-dir",
-                str(cache_dir),
-            ],
-            cwd=str(REPO_ROOT),
-            env=utf8_python_env(),
+    """Refresh rule/geox caches once for all selected templates (URL-deduped, parallel)."""
+    templates = [str(REPO_ROOT / TEMPLATES[label]) for label in labels]
+    if not templates:
+        return
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(UPDATE_CACHE),
+            *templates,
+            "--cache-dir",
+            str(cache_dir),
+        ],
+        cwd=str(REPO_ROOT),
+        env=utf8_python_env(),
+    )
+    if proc.returncode != 0:
+        print(
+            f"  [WARN] update_cache exited {proc.returncode} for {len(templates)} template(s)",
+            file=sys.stderr,
         )
-        if proc.returncode != 0:
-            print(f"  [WARN] update_cache exited {proc.returncode} for {rel}", file=sys.stderr)
 
 
 def ensure_geo_bin(preferred: str) -> str:
@@ -435,6 +440,7 @@ def main() -> int:
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
     print("  - In-process RouteEngine reuses provider indexes and MetaCubeX geo lookups.")
+    print("  - geo look results persist under cache_dir/geo-look/ (invalidated when geodata files change).")
     print(f"  - geo-bin={geo_bin}")
     if fails:
         print("FAIL")

@@ -79,6 +79,58 @@ class DomainProviderIndexTest(unittest.TestCase):
             self.assertEqual(hit.get("policy"), "广告拦截")
             self.assertEqual(miss.get("policy"), "节点选择")
 
+    def test_geo_output_disk_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            cache = root / "cache"
+            data_dir = root / "geo-data"
+            data_dir.mkdir()
+            (data_dir / "geosite.dat").write_bytes(b"fake-geosite-v1")
+
+            engine = er.RouteEngine(cache, geo_bin="geo-not-used")
+            calls = {"n": 0}
+
+            def fake_look(
+                data_dir_arg: Path, target: str, no_resolve: bool
+            ) -> tuple[int, str, str, list[str]]:
+                calls["n"] += 1
+                return 0, f"tags: google\ntarget={target}\n", "", ["fake"]
+
+            engine.run_geo_look = fake_look  # type: ignore[method-assign]
+
+            code1, out1, _, tried1 = engine.geo_output(data_dir, "www.google.com", True)
+            self.assertEqual(code1, 0)
+            self.assertEqual(calls["n"], 1)
+            self.assertNotIn("cache", tried1[0])
+
+            disk = engine.geo_look_disk_path(data_dir, "www.google.com", True)
+            self.assertTrue(disk.is_file())
+            self.assertIn("google", disk.read_text(encoding="utf-8"))
+
+            # New engine: memory empty, must hit disk without calling geo.
+            engine2 = er.RouteEngine(cache, geo_bin="geo-not-used")
+            engine2.run_geo_look = fake_look  # type: ignore[method-assign]
+            code2, out2, _, tried2 = engine2.geo_output(data_dir, "www.google.com", True)
+            self.assertEqual(code2, 0)
+            self.assertEqual(out2, out1)
+            self.assertEqual(calls["n"], 1)
+            self.assertEqual(tried2, ["(disk-cache)"])
+
+            # Same process memory hit.
+            code3, _, _, tried3 = engine2.geo_output(data_dir, "www.google.com", True)
+            self.assertEqual(code3, 0)
+            self.assertEqual(tried3, ["(mem-cache)"])
+            self.assertEqual(calls["n"], 1)
+
+            # Changing geosite bytes/mtime invalidates fingerprint → re-run geo.
+            (data_dir / "geosite.dat").write_bytes(b"fake-geosite-v2")
+            engine3 = er.RouteEngine(cache, geo_bin="geo-not-used")
+            engine3.run_geo_look = fake_look  # type: ignore[method-assign]
+            code4, _, _, tried4 = engine3.geo_output(data_dir, "www.google.com", True)
+            self.assertEqual(code4, 0)
+            self.assertEqual(calls["n"], 2)
+            self.assertEqual(tried4, ["fake"])
+
 
 if __name__ == "__main__":
     unittest.main()

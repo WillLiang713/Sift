@@ -63,7 +63,7 @@ python .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache \
   --domain googleapis.cn --domain challenges.cloudflare.com
 ```
 
-`matrix_route.py` resolves MetaCubeX `geo` from PATH or downloads the official v1.1 build for the current platform into `.cache/tools/geo-bin/`. The matrix itself runs fully in-process via `RouteEngine`: provider files are indexed once (exact/suffix/keyword/regex), MetaCubeX `geo look` results are shared across MC templates and prefetched in parallel, and no per-cell Python subprocess is spawned. The shell wrapper remains a Linux convenience only.
+`matrix_route.py` resolves MetaCubeX `geo` from PATH or downloads the official v1.1 build for the current platform into `.cache/tools/geo-bin/`. The matrix itself runs fully in-process via `RouteEngine`: provider files are indexed once (exact/suffix/keyword/regex), MetaCubeX `geo look` results are shared across MC templates and prefetched in parallel, and no per-cell Python subprocess is spawned. Successful `geo look` output is also written under `.cache/sift-route-debug/geo-look/<data-fingerprint>/` so later runs reuse disk when geosite/geoip files are unchanged. Cache refresh (`--update-cache` / `update_cache.py`) deduplicates URLs across templates and downloads/decodes MRS in parallel (`--jobs N`, default 12). The shell wrapper remains a Linux convenience only.
 
 Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = at least one FAIL.
 

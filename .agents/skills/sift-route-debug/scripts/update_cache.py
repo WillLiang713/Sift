@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
-"""Download route-debug cache from URLs declared in a Sift template."""
+"""Download route-debug cache from URLs declared in Sift templates.
+
+Collects rule-provider and geox-url sources across all given templates,
+deduplicates by URL, then downloads (and decodes MRS) in parallel.
+"""
 
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import os
 import shutil
 import subprocess
+import sys
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Iterable, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
@@ -19,6 +26,7 @@ from urllib.request import Request, urlopen
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_CACHE = REPO_ROOT / ".cache" / "sift-route-debug"
 MRS_DUMP = Path(__file__).resolve().parent / "dump_mrs.mjs"
+DEFAULT_WORKERS = 12
 
 
 def strip_comment(line: str) -> str:
@@ -208,53 +216,201 @@ def iter_sources(parsed: Dict[str, object]) -> Iterable[Tuple[str, str, str, str
             yield ("geo", name, url, "", "")
 
 
+@dataclass
+class CacheJob:
+    """One unique downloadable URL (possibly referenced by many templates)."""
+
+    kind: str
+    url: str
+    behavior: str
+    source_format: str
+    names: List[str] = field(default_factory=list)
+    templates: List[str] = field(default_factory=list)
+
+    @property
+    def label(self) -> str:
+        primary = self.names[0] if self.names else "unknown"
+        if len(self.names) > 1:
+            return f"{primary}(+{len(self.names) - 1})"
+        return primary
+
+
+@dataclass
+class JobResult:
+    job: CacheJob
+    ok: bool
+    marker: str
+    status: str
+    output: Optional[Path] = None
+    error: str = ""
+
+
+def resolve_template(template_arg: str) -> Path:
+    template = Path(template_arg)
+    if not template.is_absolute():
+        template = REPO_ROOT / template
+    return template
+
+
+def collect_jobs(templates: Sequence[Path]) -> Tuple[List[CacheJob], List[str]]:
+    """Deduplicate sources by (kind, url). Return jobs and empty-template warnings."""
+    by_key: Dict[Tuple[str, str], CacheJob] = {}
+    empty: List[str] = []
+
+    for template in templates:
+        rel = str(template.relative_to(REPO_ROOT)) if template.is_relative_to(REPO_ROOT) else str(template)
+        sources = list(iter_sources(parse_template(template)))
+        if not sources:
+            empty.append(rel)
+            continue
+        for kind, name, url, behavior, source_format in sources:
+            key = (kind, url)
+            job = by_key.get(key)
+            if job is None:
+                by_key[key] = CacheJob(
+                    kind=kind,
+                    url=url,
+                    behavior=behavior,
+                    source_format=source_format,
+                    names=[name],
+                    templates=[rel],
+                )
+                continue
+            if name not in job.names:
+                job.names.append(name)
+            if rel not in job.templates:
+                job.templates.append(rel)
+            # Prefer a concrete MRS behavior if one reference has it.
+            if not job.behavior and behavior:
+                job.behavior = behavior
+            if job.source_format.lower() != "mrs" and source_format.lower() == "mrs":
+                job.source_format = source_format
+
+    jobs = sorted(by_key.values(), key=lambda j: (j.kind, j.names[0] if j.names else "", j.url))
+    return jobs, empty
+
+
+def process_job(job: CacheJob, cache_dir: Path, force: bool) -> JobResult:
+    primary = job.names[0] if job.names else "asset"
+    key = cache_key(job.url)
+    filename = filename_from_url(job.url, f"{primary}.dat" if job.kind == "geo" else f"{primary}.list")
+    dest = cache_dir / job.kind / key / filename
+    manifest = cache_dir / job.kind / key / "manifest.json"
+    try:
+        changed, status = download(job.url, dest, manifest, force)
+        output = dest
+        conversion = ""
+        if job.kind == "ruleset" and job.source_format.lower() == "mrs":
+            output = dest.with_suffix(".list")
+            if changed or not output.exists():
+                dump_mrs(dest, job.behavior, output)
+                conversion = "; decoded MRS"
+            point_manifest_to_text(manifest, dest, output)
+        marker = "OK" if changed else "SKIP"
+        return JobResult(
+            job=job,
+            ok=True,
+            marker=marker,
+            status=f"{status}{conversion}",
+            output=output,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return JobResult(job=job, ok=False, marker="FAIL", status="error", error=str(exc))
+
+
+def run_jobs(
+    jobs: Sequence[CacheJob],
+    cache_dir: Path,
+    force: bool,
+    workers: int,
+) -> List[JobResult]:
+    if not jobs:
+        return []
+    worker_count = max(1, min(workers, len(jobs)))
+    if worker_count == 1:
+        return [process_job(job, cache_dir, force) for job in jobs]
+
+    results: List[Optional[JobResult]] = [None] * len(jobs)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=worker_count) as pool:
+        future_map = {
+            pool.submit(process_job, job, cache_dir, force): index for index, job in enumerate(jobs)
+        }
+        for future in concurrent.futures.as_completed(future_map):
+            index = future_map[future]
+            results[index] = future.result()
+    return [result for result in results if result is not None]
+
+
+def print_results(results: Sequence[JobResult], cache_dir: Path) -> int:
+    failed = 0
+    for result in results:
+        job = result.job
+        if result.ok and result.output is not None:
+            try:
+                rel_out = result.output.relative_to(REPO_ROOT)
+            except ValueError:
+                rel_out = result.output
+            print(
+                f"  [{result.marker}] {job.kind}:{job.label} {result.status}"
+                f" -> {rel_out}"
+            )
+        else:
+            failed += 1
+            print(f"  [FAIL] {job.kind}:{job.label} {job.url}")
+            if result.error:
+                print(f"         {result.error}")
+    return failed
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("templates", nargs="+", help="Template YAML files to cache")
     parser.add_argument("--cache-dir", type=Path, default=DEFAULT_CACHE)
     parser.add_argument("--force", action="store_true", help="Ignore conditional cache headers")
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=DEFAULT_WORKERS,
+        metavar="N",
+        help=f"Parallel download/decode workers (default: {DEFAULT_WORKERS})",
+    )
     args = parser.parse_args()
 
+    cache_dir = args.cache_dir if args.cache_dir.is_absolute() else REPO_ROOT / args.cache_dir
+    workers = max(1, args.jobs)
+
+    templates: List[Path] = []
     for template_arg in args.templates:
-        template = Path(template_arg)
-        if not template.is_absolute():
-            template = REPO_ROOT / template
+        template = resolve_template(template_arg)
         if not template.exists():
             print(f"[FAIL] template not found: {template_arg}")
             return 1
+        templates.append(template)
 
-        sources = list(iter_sources(parse_template(template)))
-        if not sources:
-            print(f"[WARN] no cacheable rule/geox URLs in {template_arg}")
-            continue
+    jobs, empty = collect_jobs(templates)
+    for rel in empty:
+        print(f"[WARN] no cacheable rule/geox URLs in {rel}")
 
-        print(f"== {template.relative_to(REPO_ROOT)} ==")
-        for kind, name, url, behavior, source_format in sources:
-            key = cache_key(url)
-            filename = filename_from_url(url, f"{name}.dat" if kind == "geo" else f"{name}.list")
-            dest = args.cache_dir / kind / key / filename
-            manifest = args.cache_dir / kind / key / "manifest.json"
-            try:
-                changed, status = download(url, dest, manifest, args.force)
-                output = dest
-                conversion = ""
-                if kind == "ruleset" and source_format == "mrs":
-                    output = dest.with_suffix(".list")
-                    if changed or not output.exists():
-                        dump_mrs(dest, behavior, output)
-                        conversion = "; decoded MRS"
-                    point_manifest_to_text(manifest, dest, output)
-                marker = "OK" if changed else "SKIP"
-                print(
-                    f"  [{marker}] {kind}:{name} {status}{conversion}"
-                    f" -> {output.relative_to(REPO_ROOT)}"
-                )
-            except Exception as exc:  # noqa: BLE001
-                print(f"  [FAIL] {kind}:{name} {url}")
-                print(f"         {exc}")
-                return 1
+    if not jobs:
+        print("[WARN] no cacheable sources found")
+        return 0
 
-    return 0
+    template_count = len(templates)
+    unique = len(jobs)
+    print(
+        f"== cache update: {template_count} template(s), {unique} unique URL(s), "
+        f"workers={min(workers, unique)} =="
+    )
+
+    results = run_jobs(jobs, cache_dir, args.force, workers)
+    failed = print_results(results, cache_dir)
+
+    downloaded = sum(1 for r in results if r.ok and r.marker == "OK")
+    skipped = sum(1 for r in results if r.ok and r.marker == "SKIP")
+    print(
+        f"SUMMARY: {unique} unique, {downloaded} downloaded, {skipped} skipped, {failed} failed"
+    )
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

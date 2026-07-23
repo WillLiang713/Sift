@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import ipaddress
 import json
+import os
 import re
 import subprocess
 import sys
@@ -366,16 +367,30 @@ def policy_from_rule(parts: Sequence[str]) -> str:
 
 
 class RouteEngine:
-    """Process-local route diagnosis with shared indexes and geo output cache."""
+    """Process-local route diagnosis with shared indexes and geo output cache.
 
-    def __init__(self, cache_dir: Path, geo_bin: str = "geo") -> None:
+    MetaCubeX ``geo look`` results are cached in-process and on disk under
+    ``cache_dir/geo-look/<data-fingerprint>/`` so repeated matrix runs skip
+    spawning the geo CLI when geosite/geoip files are unchanged.
+    """
+
+    def __init__(
+        self,
+        cache_dir: Path,
+        geo_bin: str = "geo",
+        *,
+        geo_disk_cache: bool = True,
+    ) -> None:
         self.cache_dir = cache_dir
         self.geo_bin = geo_bin
+        self.geo_disk_cache = geo_disk_cache
         self._templates: Dict[Path, Template] = {}
         self._domain_indexes: Dict[Path, DomainProviderIndex] = {}
         self._geo_output: Dict[Tuple[str, str, str], str] = {}
         self._geo_variant: Optional[int] = None
         self._geo_lock = threading.Lock()
+        # data_dir resolve path -> (fingerprint, file signature for invalidation)
+        self._geo_data_fp: Dict[str, Tuple[str, Tuple[Tuple[str, int, int], ...]]] = {}
 
     def load_template(self, path: Path) -> Template:
         resolved = path.resolve()
@@ -501,6 +516,64 @@ class RouteEngine:
             [self.geo_bin, "look", *no_resolve_args, "-d", str(data_dir), target],
         ]
 
+    def _geo_data_signature(
+        self, data_dir: Path
+    ) -> Tuple[Tuple[str, int, int], ...]:
+        """Stable file signature for geo data dir (name, size, mtime_ns)."""
+        resolved = data_dir.resolve()
+        parts: List[Tuple[str, int, int]] = []
+        if not resolved.is_dir():
+            return tuple(parts)
+        for path in sorted(resolved.iterdir()):
+            if not path.is_file():
+                continue
+            name = path.name
+            if name.endswith(".tmp") or name.endswith(".partial"):
+                continue
+            try:
+                st = path.stat()
+            except OSError:
+                continue
+            parts.append((name, st.st_size, getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))))
+        return tuple(parts)
+
+    def geo_data_fingerprint(self, data_dir: Path) -> str:
+        """Return a short fingerprint of files in ``data_dir`` (cached per process)."""
+        resolved = data_dir.resolve()
+        key = str(resolved)
+        sig = self._geo_data_signature(resolved)
+        cached = self._geo_data_fp.get(key)
+        if cached is not None and cached[1] == sig:
+            return cached[0]
+        payload = key + "\n" + "\n".join(f"{n}:{sz}:{mt}" for n, sz, mt in sig)
+        fingerprint = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+        self._geo_data_fp[key] = (fingerprint, sig)
+        return fingerprint
+
+    def geo_look_disk_path(self, data_dir: Path, target: str, no_resolve: bool) -> Path:
+        """Path for on-disk geo look cache entry."""
+        fingerprint = self.geo_data_fingerprint(data_dir)
+        target_key = hashlib.sha256(target.strip().lower().encode("utf-8")).hexdigest()[:32]
+        flag = "1" if no_resolve else "0"
+        return self.cache_dir / "geo-look" / fingerprint / f"{target_key}.{flag}.txt"
+
+    def _read_geo_disk(self, path: Path) -> Optional[str]:
+        try:
+            if not path.is_file():
+                return None
+            return path.read_text(encoding="utf-8")
+        except OSError:
+            return None
+
+    def _write_geo_disk(self, path: Path, text: str) -> None:
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(path.suffix + ".tmp")
+            tmp.write_text(text, encoding="utf-8")
+            os.replace(tmp, path)
+        except OSError:
+            pass
+
     def run_geo_look(
         self, data_dir: Path, target: str, no_resolve: bool
     ) -> Tuple[int, str, str, List[str]]:
@@ -541,12 +614,24 @@ class RouteEngine:
         with self._geo_lock:
             cached = self._geo_output.get(key)
             if cached is not None:
-                return 0, cached, "", ["(cache)"]
+                return 0, cached, "", ["(mem-cache)"]
+
+        disk_path: Optional[Path] = None
+        if self.geo_disk_cache:
+            disk_path = self.geo_look_disk_path(data_dir, target, no_resolve)
+            disk_text = self._read_geo_disk(disk_path)
+            if disk_text is not None:
+                with self._geo_lock:
+                    self._geo_output.setdefault(key, disk_text)
+                return 0, disk_text, "", ["(disk-cache)"]
+
         code, stdout, stderr, tried = self.run_geo_look(data_dir, target, no_resolve)
         if code == 0:
             combined = stdout + "\n" + stderr
             with self._geo_lock:
                 self._geo_output.setdefault(key, combined)
+            if disk_path is not None:
+                self._write_geo_disk(disk_path, combined)
             return 0, combined, "", tried
         return code, stdout, stderr, tried
 
