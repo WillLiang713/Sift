@@ -91,7 +91,6 @@ proxy-groups:
     type: select
     icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hijacking.png"
     proxies:
-      - DIRECT
       - 节点选择
       - 自动测速
       - 香港节点
@@ -100,6 +99,7 @@ proxy-groups:
       - 新加坡节点
       - 其他节点
       - 手动切换
+      - DIRECT
   - name: AI
     type: select
     icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"

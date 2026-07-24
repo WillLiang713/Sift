@@ -79,7 +79,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | 默认解析 | 海外 DoH（`nameserver`） |
 | 明确国内/内网 | `nameserver-policy` → 国内 DoH（`cn` + `private`） |
 | 明确代理域 | policy → 海外 DoH（见附录 B） |
-| DNS 出口 | 仅海外 DoH 用 `#DNS`（默认 `DIRECT`）；国内 DoH / `direct-nameserver` 固定直连 |
+| DNS 出口 | 仅海外 DoH 用 `#DNS`（默认 `节点选择`）；国内 DoH / `direct-nameserver` 固定直连 |
 | **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
 | fake-IP | **白名单**模式；名单外（国内、Tracker 等）自然真 IP |
 | GeoIP | `geodata-mode: false` + MetaCubeX `geoip.metadb`，24h 自动更新 |

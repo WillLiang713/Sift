@@ -9,7 +9,7 @@
 - 明确代理域名（`proxy` / `geolocation-!cn` + `google`）通过 `nameserver-policy` 强制使用海外 DoH（优先于 cn）。
 - `cn` + `private` 域名通过 `nameserver-policy` 使用国内 DoH。
 - 未命中 `nameserver-policy` 的域名只使用海外 `nameserver`，**不**启用 `fallback` / `fallback-filter`。
-- 海外 DoH（代理域 policy + 默认 `nameserver`）经 `DNS`，默认 `DIRECT`，可在面板中手动切换。
+- 海外 DoH（代理域 policy + 默认 `nameserver`）经 `DNS`，默认 `节点选择`，可在面板中手动切换。
 - 国内 DoH（`cn`/`private` policy 与 `direct-nameserver`）固定直连，**不**挂 `DNS`，避免把国内解析一并改道到代理。
 - `proxy-server-nameserver` 使用国内 DoH 解析代理节点域名，避免启动环路。
 
@@ -43,10 +43,10 @@ proxy-groups:
   - name: DNS
     type: select
     proxies:
-      - DIRECT
       - 节点选择
       - 自动测速
       - 手动切换
+      - DIRECT
 ```
 
 Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡顿）。

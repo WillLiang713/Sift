@@ -88,10 +88,10 @@ proxy-groups:
     type: select
     icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hijacking.png"
     proxies:
-      - DIRECT
       - 节点选择
       - 自动测速
       - 手动切换
+      - DIRECT
   - name: 全球直连
     type: select
     icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
