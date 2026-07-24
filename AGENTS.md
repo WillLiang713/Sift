@@ -31,7 +31,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | | Full | Core | Nano |
 | --- | --- | --- | --- |
 | 代表文件 | `rules/full.yaml` | `rules/core.yaml` | `rules/nano.yaml` |
-| UI 策略组 | 场景 + 品牌 + 地区 + 广告 | 基础组 + `全球直连` + 广告 | 极简 + 广告 |
+| UI 策略组 | 场景 + 品牌 + 地区 + DNS + 广告 | 基础组 + `DNS` + `全球直连` + 广告 | 极简 + 广告 |
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | → `全球直连` | 无独立组 |
 | OneDrive | `OneDrive` 组 | → `节点选择`（无 UI 组） | 无 |
@@ -44,7 +44,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 - Core：不要加回服务/品牌 UI、地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
 
-常用组名保持稳定：`节点选择`、`手动切换`、`自动测速`、`全球直连`、`漏网之鱼`、`广告拦截`。
+常用组名保持稳定：`节点选择`、`手动切换`、`自动测速`、`DNS`、`全球直连`、`漏网之鱼`、`广告拦截`。
 
 ---
 
@@ -79,6 +79,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | 默认解析 | 海外 DoH（`nameserver`） |
 | 明确国内/内网 | `nameserver-policy` → 国内 DoH（`cn` + `private`） |
 | 明确代理域 | policy → 海外 DoH（见附录 B） |
+| DNS 出口 | 仅海外 DoH 用 `#DNS`（默认 `DIRECT`）；国内 DoH / `direct-nameserver` 固定直连 |
 | **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
 | fake-IP | **白名单**模式；名单外（国内、Tracker 等）自然真 IP |
 | GeoIP | `geodata-mode: false` + MetaCubeX `geoip.metadb`，24h 自动更新 |
@@ -193,8 +194,7 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 | 代理域：`proxy` 或 `geolocation-!cn,google` | 海外 DoH |
 | 国内/内网：`cn,private` | 国内 DoH |
 
-未命中 policy → 只用海外 `nameserver`。  
-DIRECT 侧更广流量：`respect-rules` + `direct-nameserver`。
+未命中 policy → 只用海外 `nameserver`。海外 DoH（默认 `nameserver` + 代理域 policy）绑定 `DNS`；国内 DoH（`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 均固定直连，避免国内解析被代理改道或启动环路。
 
 `googleapis.cn` 等 `.cn` 代理域若误走 `cn` policy，会吃到污染或 CDN 锁定解析，故默认海外 + 代理域 policy 强制海外。
 
@@ -221,7 +221,7 @@ DIRECT 侧更广流量：`respect-rules` + `direct-nameserver`。
 5. 完整 `microsoft → 微软服务`；`microsoft@cn` 补充
 6. `google → 谷歌服务`：场景/品牌之后、`geolocation-!cn` / `cn` 之前（YouTube 仍可先中娱乐）
 
-**Core**：6 组合同（含 `漏网之鱼`）；ads 后 github；onedrive 紧挨 microsoft 前 → `节点选择`；apple/microsoft → `全球直连`；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
+**Core**：7 组合同（含 `DNS` 与 `漏网之鱼`）；ads 后 github；onedrive 紧挨 microsoft 前 → `节点选择`；apple/microsoft → `全球直连`；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
 
 **Core/Nano Google**：`GEOSITE,google → 节点选择`（无 UI 组），放在 `geolocation-!cn` 后、`cn` 前。  
 **说明**：`geolocation-!cn` 含 `play.googleapis.com` 但不含 `googleapis.cn`；`GEOSITE,google` / DNS `geosite:google` 主要是防止 `googleapis.cn` 掉进宽 CN 直连。

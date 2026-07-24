@@ -24,12 +24,12 @@ dns:
     - rule-set:proxy
   nameserver-policy:
     "rule-set:proxy":
-      - https://1.1.1.1/dns-query
-      - https://8.8.8.8/dns-query
+      - "https://1.1.1.1/dns-query#DNS"
+      - "https://8.8.8.8/dns-query#DNS"
     "rule-set:cn,private":
       - https://223.5.5.5/dns-query
       - https://1.12.12.12/dns-query
-  respect-rules: true
+  respect-rules: false
   direct-nameserver:
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
@@ -37,8 +37,8 @@ dns:
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
   nameserver:
-    - https://1.1.1.1/dns-query
-    - https://8.8.8.8/dns-query
+    - "https://1.1.1.1/dns-query#DNS"
+    - "https://8.8.8.8/dns-query#DNS"
 
 sniffer:
   enable: true
@@ -82,6 +82,14 @@ proxy-groups:
     interval: 300
     timeout: 3000
     tolerance: 50
+  - name: DNS
+    type: select
+    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hijacking.png"
+    proxies:
+      - DIRECT
+      - 节点选择
+      - 自动测速
+      - 手动切换
   - name: 全球直连
     type: select
     icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"

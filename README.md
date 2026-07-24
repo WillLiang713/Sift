@@ -19,8 +19,8 @@
 
 | 文件 | 策略组 | 说明 |
 | --- | ---: | --- |
-| [`rules/full.yaml`](./rules/full.yaml) | 19 | 完整场景：DustinWin MRS 骨架 + MetaCubeX 品牌/GitHub/DNS MRS；含 DNS、嗅探、地区与服务组；`github`/`onedrive` 先于 `microsoft` |
-| [`rules/core.yaml`](./rules/core.yaml) | 6 | 核心白名单：Apple/Microsoft 进全球直连；GitHub/OneDrive 先于 Microsoft 进节点选择；`MATCH → 漏网之鱼`（默认 `节点选择`） |
+| [`rules/full.yaml`](./rules/full.yaml) | 20 | 完整场景：DustinWin MRS 骨架 + MetaCubeX 品牌/GitHub/DNS MRS；含 DNS、嗅探、地区与服务组；`github`/`onedrive` 先于 `microsoft` |
+| [`rules/core.yaml`](./rules/core.yaml) | 7 | 核心白名单：Apple/Microsoft 进全球直连；GitHub/OneDrive 先于 Microsoft 进节点选择；`MATCH → 漏网之鱼`（默认 `节点选择`） |
 | [`rules/nano.yaml`](./rules/nano.yaml) | 6 | 极简：DustinWin MRS；广告 + proxy + 国内兜底；不接管 DNS |
 
 ```text
@@ -48,7 +48,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 - **单源变体**：`variants/DustinWin-*` 用 text/classical list；`variants/MetaCubeX-*` 用 GEOSITE/GEOIP；`variants/ACL4SSR-*` 用 ACL Clash list。
 - **运行优化**：Full/Core 启用 `unified-delay`、`tcp-concurrent`、`prefer-h3: false`；url-test 含 `timeout: 3000`；include-all 组过滤订阅残渣文案；GeoIP 数据固定使用 MetaCubeX `geoip.metadb`（MMDB，24 小时自动更新）。
 - **状态持久化**：Full / Core 及其 MetaCubeX / ACL4SSR 版本默认保存策略组选择和 fake-ip 映射，重启后保留手动选择并减少 fake-ip 映射变化带来的连接抖动。
-- **DNS 分模板**：Nano 不接管 DNS；Full/Core 用 fake-IP **白名单**。明确代理/国内域名由 `nameserver-policy` 分别指定海外/国内 DoH；未分类域名默认只使用海外 DoH，不启用并发 `fallback`，避免最终走代理的域名仍暴露给国内解析器。主模板与 DustinWin/ACL 变体用 `rule-set:proxy`；MetaCubeX 变体用 `geosite:geolocation-!cn` + `geosite:google`。
+- **DNS 分模板**：Nano 不接管 DNS；Full/Core 用 fake-IP **白名单**。明确代理/国内域名由 `nameserver-policy` 分别指定海外/国内 DoH；未分类域名默认只使用海外 DoH，不启用并发 `fallback`。海外 DoH（代理域 policy + 默认 `nameserver`）经可手动切换的 `DNS`（默认 `DIRECT`，可改总控/测速/手动节点）；国内 DoH（`cn`/`private` policy 与 `direct-nameserver`）固定直连，不随该组改道；代理节点域名由 `proxy-server-nameserver` 直连解析，避免建立代理前的循环依赖。主模板与 DustinWin/ACL 变体用 `rule-set:proxy`；MetaCubeX 变体用 `geosite:geolocation-!cn` + `geosite:google`。
 - **广告拦截可回退**：所有模板提供 `广告拦截`（默认 REJECT）。主模板与 DustinWin 变体用 `ads`；MetaCubeX 用 `category-ads-all`；ACL 用 UnBan + BanAD/BanProgramAD。
 - **域名嗅探**：Full/Core 启用 sniffer，并 `skip-domain` 跳过 lan/local/米家/Windows 连通性/Apple Push 等。
 - **双层节点选择**：`节点选择` 作为日常总控入口，`手动切换` 才展开全部节点，节点多时面板更清爽。
@@ -195,9 +195,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 
 ## 策略组
 
-**Full / MetaCubeX Full / ACL4SSR Full**：`节点选择` · `手动切换` · `自动测速` · `AI` · `流媒体` · `游戏平台` · `Telegram` · `苹果服务` · `谷歌服务` · `微软服务` · `OneDrive` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点` · `全球直连` · `广告拦截` · `漏网之鱼`
+**Full / MetaCubeX Full / ACL4SSR Full**：`节点选择` · `手动切换` · `自动测速` · `DNS` · `AI` · `流媒体` · `游戏平台` · `Telegram` · `苹果服务` · `谷歌服务` · `微软服务` · `OneDrive` · `香港节点` · `美国节点` · `日本节点` · `新加坡节点` · `其他节点` · `全球直连` · `广告拦截` · `漏网之鱼`
 
-**Core / MetaCubeX Core / ACL4SSR Core**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `广告拦截` · `漏网之鱼`
+**Core / MetaCubeX Core / ACL4SSR Core**：`节点选择` · `手动切换` · `自动测速` · `DNS` · `全球直连` · `广告拦截` · `漏网之鱼`
 
 **Nano / MetaCubeX Nano / ACL4SSR Nano**：`节点选择` · `手动切换` · `自动测速` · `全球直连` · `广告拦截` · `漏网之鱼`
 
@@ -209,7 +209,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 
 `DustinWin-*` 模板的远程规则集主要由 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata) 提供，通常使用 `format: text` 的 `.list` 以提高客户端兼容性；三档模板都使用 DustinWin `ads`（anti-AD）进入 `广告拦截`。海外 Apple / Microsoft / OneDrive 取自 [blackmatrix7/ios_rule_script](https://github.com/blackmatrix7/ios_rule_script)，使用 classical/text 的 `.list`：`apple` = `rule/Clash/Apple/Apple.list`；`microsoft` = `rule/Clash/Microsoft/Microsoft.list`；`onedrive` = `rule/Clash/OneDrive/OneDrive.list`。明确非中国域名使用 DustinWin `proxy`（`geolocation-!cn` + gfwlist），位阶对齐 MetaCubeX `GEOSITE,geolocation-!cn`：路由放在场景/品牌规则之后、`cn-lite` 之前，DNS 中同时用作 fake-IP 白名单，避免 `googleapis.cn` 等在防火墙层被中国 IP 旁路。
 
-DNS 使用 fake-IP 白名单模式：DustinWin 用 `rule-set:proxy`，ACL4SSR 用 DNS-only DustinWin `proxy`，MetaCubeX 用 `geosite:geolocation-!cn` + `geosite:google`。未列入的兼容、私有、Tracker 和国内域名自然返回 real-IP，不再需要 `fakeip-filter` / `trackerslist` provider。`nameserver-policy` 将明确代理域名交给海外 DoH、将 cn + private 交给国内 DoH；未分类域名默认只查询海外 DoH，不再并发请求国内解析器。`direct-nameserver` 与 `proxy-server-nameserver` 仍使用国内 DoH，分别服务明确直连流量和代理节点地址解析。路由国内兜底仍用 `cn-lite` / ACL4SSR `ChinaDomain` / `GEOSITE,cn`。
+DNS 使用 fake-IP 白名单模式：DustinWin 用 `rule-set:proxy`，ACL4SSR 用 DNS-only DustinWin `proxy`，MetaCubeX 用 `geosite:geolocation-!cn` + `geosite:google`。未列入的兼容、私有、Tracker 和国内域名自然返回 real-IP，不再需要 `fakeip-filter` / `trackerslist` provider。`nameserver-policy` 将明确代理域名交给海外 DoH、将 cn + private 交给国内 DoH；未分类域名默认只查询海外 DoH，不再并发请求国内解析器。仅海外 DoH 通过 `#DNS` 绑定策略组（默认 `DIRECT`，可改总控/测速/手动节点）；国内 DoH（`cn`/`private` policy 与 `direct-nameserver`）固定直连，不随该组改道。`proxy-server-nameserver` 继续直连解析代理节点地址，避免 DNS 依赖尚未建立的代理连接。路由国内兜底仍用 `cn-lite` / ACL4SSR `ChinaDomain` / `GEOSITE,cn`。
 
 - **DustinWin-full**：`private` · `privateip` · `ads`（进入 `广告拦截`）· `trackerslist`（DNS-only real-IP，不参与路由）· `google`（blackmatrix7，进入 `谷歌服务`）· `apple-cn` · `apple`（blackmatrix7）· `microsoft-cn` · `microsoft`（blackmatrix7）· `onedrive`（blackmatrix7）· `games-cn` · `ai` · `mediaip` · `games` · `telegramip` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cnip` · `fakeip-filter` · `cn`（MetaCubeX `cn.mrs`，DNS real-IP + policy）
 - **DustinWin-core**：`private` · `privateip` · `ads`（进入 `广告拦截`）· `apple`（blackmatrix7，完整 Apple 规则，仅用于路由）· `onedrive`（blackmatrix7，进入 `节点选择`，须在 `microsoft` 前）· `microsoft`（blackmatrix7，完整 Microsoft 规则，仅用于路由）· `games-cn` · `proxy`（明确非中国域名，进入 `节点选择`）· `cn-lite`（路由直连）· `cnip` · `trackerslist`（DNS-only real-IP）· `fakeip-filter` · `cn`（MetaCubeX `cn.mrs`，DNS real-IP + policy）
