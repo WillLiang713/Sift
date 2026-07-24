@@ -20,9 +20,25 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | `rules/full.yaml` / `core.yaml` / `nano.yaml` | 默认 hybrid 主模板 |
 | `rules/variants/` | DustinWin / MetaCubeX / ACL4SSR 单源变体 |
 | `demo/` | 对照示例 |
-| `docs/` | 规则源、DNS、图标等说明 |
+| `docs/` | 专题说明（索引见下；**按需**打开，勿整目录通读） |
 | `README.md` | 用户文档（分流/策略组变更时必须同步） |
 | `.agents/skills/sift-route-debug/` | 路由矩阵与诊断脚本 |
+
+### docs 索引（按需读）
+
+主文与附录已覆盖分流/DNS **合同**；下列文件是展开说明或环境笔记。改相关主题时再读对应篇，不要默认全读。
+
+| 文件 | 何时读 | 内容 |
+| --- | --- | --- |
+| [`docs/dns.md`](./docs/dns.md) | 改 Full/Core DNS、fake-IP、`#DNS` 出口、防泄露 | 本仓库模板 DNS 分工与白名单约定 |
+| [`docs/dns-flow.md`](./docs/dns-flow.md) | 排查「先规则后解析」、理解 Mihomo 何时才做 DNS | 上游 DNS 解析流程摘要 |
+| [`docs/rulesets.md`](./docs/rulesets.md) | 换源/选型规则集、查上游有哪些 list/mrs | DustinWin / blackmatrix7 / ACL 等目录参考（**体积大**，按关键词搜） |
+| [`docs/icons.md`](./docs/icons.md) | 改策略组 `icon-url` | Koolson/Qure CDN 路径与可用图标 |
+| [`docs/anti-ad.md`](./docs/anti-ad.md) | 路由器 DNS 层 anti-AD | ImmortalWrt / OpenClash dnsmasq 去广告 |
+| [`docs/openwrt.md`](./docs/openwrt.md) | 家用网 / 旁路 / OpenWrt 调优背景 | 恩山帖笔记摘要 |
+| [`docs/f50-ipv6.md`](./docs/f50-ipv6.md) | 中兴 F50 + ImmortalWrt IPv6 | 移动 SIM 场景 IPv6 复用配置 |
+
+与模板契约冲突时：**以本文件主文 + 附录 + 当前 yaml 为准**；`docs/*` 仅作背景与操作笔记。
 
 ---
 
