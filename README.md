@@ -30,3 +30,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 ## 文档
 
 [DNS](./docs/dns-leak.md) · [规则集](./docs/ruleset-reference.md) · [维护](./AGENTS.md)
+
+## 开源许可
+
+本项目以 [MIT License](./LICENSE) 开源发布，可自由使用、修改与再分发，但须保留版权声明与许可条款。
