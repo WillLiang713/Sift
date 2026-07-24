@@ -29,7 +29,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 
 ## 文档
 
-[DNS](./docs/dns-leak.md) · [规则集](./docs/ruleset-reference.md) · [维护](./AGENTS.md)
+[DNS](./docs/dns.md) · [规则集](./docs/rulesets.md) · [维护](./AGENTS.md)
 
 ## 开源许可
 
