@@ -63,7 +63,7 @@ sniffer:
 proxy-groups:
   - name: 节点选择
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Proxy.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Link.png"
     proxies:
       - 自动测速
       - 香港节点
@@ -77,19 +77,19 @@ proxy-groups:
     type: select
     include-all: true
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Remote.png"
   - name: 自动测速
     type: url-test
     include-all: true
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Auto_Link.png"
     url: https://cp.cloudflare.com/generate_204
     interval: 300
     timeout: 3000
     tolerance: 50
   - name: DNS
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hijacking.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Network.png"
     proxies:
       - 节点选择
       - 自动测速
@@ -102,7 +102,7 @@ proxy-groups:
       - DIRECT
   - name: AI
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/AI.png"
     proxies:
       - 节点选择
       - 自动测速
@@ -115,7 +115,7 @@ proxy-groups:
       - DIRECT
   - name: 流媒体
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/ForeignMedia.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Stream.png"
     proxies:
       - 节点选择
       - 自动测速
@@ -128,7 +128,7 @@ proxy-groups:
       - DIRECT
   - name: 游戏平台
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Game.png"
     proxies:
       - 节点选择
       - 自动测速
@@ -141,7 +141,7 @@ proxy-groups:
       - DIRECT
   - name: Telegram
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Telegram.png"
     proxies:
       - 节点选择
       - 自动测速
@@ -154,7 +154,7 @@ proxy-groups:
       - DIRECT
   - name: 苹果服务
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Apple.png"
     proxies:
       - DIRECT
       - 节点选择
@@ -167,7 +167,7 @@ proxy-groups:
       - 手动切换
   - name: 谷歌服务
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Google.png"
     proxies:
       - 节点选择
       - 自动测速
@@ -180,7 +180,7 @@ proxy-groups:
       - DIRECT
   - name: 微软服务
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Microsoft.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Microsoft.png"
     proxies:
       - DIRECT
       - 节点选择
@@ -193,7 +193,7 @@ proxy-groups:
       - 手动切换
   - name: OneDrive
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/OneDrive.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/OneDrive.png"
     proxies:
       - 节点选择
       - 自动测速
@@ -209,7 +209,7 @@ proxy-groups:
     include-all: true
     filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港"
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Hong_Kong.png"
     url: https://cp.cloudflare.com/generate_204
     interval: 300
     timeout: 3000
@@ -219,7 +219,7 @@ proxy-groups:
     include-all: true
     filter: "(?i)🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago"
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/US.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/USA.png"
     url: https://cp.cloudflare.com/generate_204
     interval: 300
     timeout: 3000
@@ -229,7 +229,7 @@ proxy-groups:
     include-all: true
     filter: "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka"
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Japan.png"
     url: https://cp.cloudflare.com/generate_204
     interval: 300
     timeout: 3000
@@ -239,7 +239,7 @@ proxy-groups:
     include-all: true
     filter: "(?i)🇸🇬|SG|SGP|Singapore|新加坡|狮城"
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Singapore.png"
     url: https://cp.cloudflare.com/generate_204
     interval: 300
     timeout: 3000
@@ -248,17 +248,17 @@ proxy-groups:
     type: select
     include-all: true
     exclude-filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港|🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka|🇸🇬|SG|SGP|Singapore|新加坡|狮城"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Global.png"
   - name: 全球直连
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/DIRECT.png"
     proxies:
       - DIRECT
       - 节点选择
       - 自动测速
   - name: 广告拦截
     type: select
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AdBlack.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Adblock.png"
     proxies:
       - REJECT
       - DIRECT
@@ -267,7 +267,7 @@ proxy-groups:
     type: select
     include-all: true
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
+    icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Fish.png"
     proxies:
       - 节点选择
       - 自动测速

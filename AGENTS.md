@@ -33,7 +33,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | [`docs/dns.md`](./docs/dns.md) | 改 Full/Core DNS、fake-IP、`#DNS` 出口、防泄露 | 本仓库模板 DNS 分工与白名单约定 |
 | [`docs/dns-flow.md`](./docs/dns-flow.md) | 排查「先规则后解析」、理解 Mihomo 何时才做 DNS | 上游 DNS 解析流程摘要 |
 | [`docs/rulesets.md`](./docs/rulesets.md) | 换源/选型规则集、查上游有哪些 list/mrs | DustinWin / blackmatrix7 / ACL 等目录参考（**体积大**，按关键词搜） |
-| [`docs/icons.md`](./docs/icons.md) | 改策略组 `icon-url` | Koolson/Qure CDN 路径与可用图标 |
+| [`docs/icons.md`](./docs/icons.md) | 改策略组 `icon` | Vbaethon/HOMOMIX CDN 路径与映射表 |
 | [`docs/anti-ad.md`](./docs/anti-ad.md) | 路由器 DNS 层 anti-AD | ImmortalWrt / OpenClash dnsmasq 去广告 |
 | [`docs/openwrt.md`](./docs/openwrt.md) | 家用网 / 旁路 / OpenWrt 调优背景 | 恩山帖笔记摘要 |
 | [`docs/f50-ipv6.md`](./docs/f50-ipv6.md) | 中兴 F50 + ImmortalWrt IPv6 | 移动 SIM 场景 IPv6 复用配置 |
@@ -141,7 +141,7 @@ YAML：两空格缩进；按意图分块并加短注释。
 - PR 写清：分流行为变化、验证命令、对旧客户端的兼容风险；模板改动注明影响 hybrid 还是哪家 variants。
 - 仅策略组 UI/顺序相关时才需要截图。
 
-图标：远程引用仅限 `Koolson/Qure`；勿随意 vendoring 第三方图标/规则集（先核授权与署名）。
+图标：远程引用默认 `Vbaethon/HOMOMIX`（`Icon/Color/Large`，jsDelivr）；新增图标须先确认上游 Large 文件存在（防 404），勿随意 vendoring 第三方图标/规则集（先核授权与署名）。
 
 ---
 
