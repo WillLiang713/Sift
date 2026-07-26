@@ -1,127 +1,155 @@
-# 策略组图标（HOMOMIX Large）
+# 策略组图标（Qure Color）
 
-> 仓库：[Vbaethon/HOMOMIX](https://github.com/Vbaethon/HOMOMIX) — 面向 Mihomo / MetaCubeX / Zashboard 的彩色图标集  
-> 面板图标包（可选）：`https://raw.githubusercontent.com/Vbaethon/HOMOMIX/main/HOMOMIX.json`
+> 仓库：[Koolson/Qure](https://github.com/Koolson/Qure)
+> Qure Color 图标库：`https://raw.githubusercontent.com/Koolson/Qure/master/Other/QureColor.json`
+> Qure mini 图标库：`https://raw.githubusercontent.com/Koolson/Qure/master/Other/Quremini.json`
 
-本仓库 **hybrid 主模板与全部 variants** 的 `proxy-groups[].icon` 统一使用 HOMOMIX **Color/Large**（满高版）。  
-`demo/` 下第三方样例配置**不**在此约束内。
+本仓库 **hybrid 主模板与全部 variants** 的 `proxy-groups[].icon` 统一使用
+Qure **Color**。`demo/` 下的第三方示例配置不在此约束内。
+
+`QureColor.json` 与 `Quremini.json` 是 Quantumult X 的图标库索引，不能直接写进
+Mihomo 的 `icon:`。Mihomo 模板必须引用具体的 PNG 文件。
 
 ---
 
-## CDN 链接格式
+## URL 格式
 
-默认 jsDelivr（与规则集同源加速）：
+模板使用 GitHub Raw：
 
-```
-https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/{图标名}.png
-```
-
-GitHub Raw：
-
-```
-https://raw.githubusercontent.com/Vbaethon/HOMOMIX/main/Icon/Color/Large/{图标名}.png
+```text
+https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/{图标名}.png
 ```
 
-| 路径 | 说明 |
-|------|------|
-| `Icon/Color/Large/` | 满高版本（**本项目默认**） |
-| `Icon/Color/` | 等高版本（更小；仅在明确需要时使用） |
+例如：
 
-新增图标时务必使用 **Large** 路径下的同名文件，不要写回非 Large 路径。
+```yaml
+icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Rocket.png"
+```
+
+需要 CDN 时可将同一文件写成：
+
+```text
+https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
+```
+
+同一批模板应保持相同的 URL 基址，不要混用 Raw、jsDelivr 和第三方代理。
 
 ---
 
 ## 本项目策略组 → 图标映射
 
-| 策略组 | 文件名 | CDN（jsDelivr Large） |
-|--------|--------|------------------------|
-| 节点选择 | `Link.png` | `…/Icon/Color/Large/Link.png` |
-| 手动切换 | `Remote.png` | `…/Icon/Color/Large/Remote.png` |
-| 自动测速 | `Auto_Link.png` | `…/Icon/Color/Large/Auto_Link.png` |
-| DNS | `Network.png` | `…/Icon/Color/Large/Network.png` |
-| AI | `AI.png` | `…/Icon/Color/Large/AI.png` |
-| 流媒体 | `Stream.png` | `…/Icon/Color/Large/Stream.png` |
-| 游戏平台 | `Game.png` | `…/Icon/Color/Large/Game.png` |
-| 电报消息 | `Telegram.png` | `…/Icon/Color/Large/Telegram.png` |
-| 苹果服务 | `Apple.png` | `…/Icon/Color/Large/Apple.png` |
-| 谷歌服务 | `Google.png` | `…/Icon/Color/Large/Google.png` |
-| 微软服务 | `Microsoft.png` | `…/Icon/Color/Large/Microsoft.png` |
-| OneDrive | `OneDrive.png` | `…/Icon/Color/Large/OneDrive.png` |
-| 香港节点 | `Hong_Kong.png` | `…/Icon/Color/Large/Hong_Kong.png` |
-| 美国节点 | `USA.png` | `…/Icon/Color/Large/USA.png` |
-| 日本节点 | `Japan.png` | `…/Icon/Color/Large/Japan.png` |
-| 新加坡节点 | `Singapore.png` | `…/Icon/Color/Large/Singapore.png` |
-| 其他节点 | `Global.png` | `…/Icon/Color/Large/Global.png` |
-| 全球直连 | `DIRECT.png` | `…/Icon/Color/Large/DIRECT.png` |
-| 广告拦截 | `Adblock.png` | `…/Icon/Color/Large/Adblock.png` |
-| 漏网之鱼 | `Fish.png` | `…/Icon/Color/Large/Fish.png` |
+映射以常见的 Qure Color Mihomo 配置风格为基础：主选择使用 `Rocket`，服务组优先
+使用具体品牌图标；示例未覆盖的 Sift 策略组按 Qure 图标语义补齐。
 
-完整 URL 示例：
+| 策略组 | 文件名 | 说明 |
+| --- | --- | --- |
+| 节点选择 | `Rocket.png` | 主代理选择 |
+| 手动切换 | `Available.png` | 手动选择可用节点 |
+| 自动测速 | `Auto.png` | 自动测速 |
+| DNS | `Hijacking.png` | DNS 接管与出口 |
+| AI | `ChatGPT.png` | AI 服务 |
+| 流媒体 | `Streaming.png` | 国际流媒体 |
+| 游戏平台 | `Game.png` | 游戏平台 |
+| Telegram | `Telegram_X.png` | Telegram 服务 |
+| 苹果服务 | `Apple_1.png` | Apple 服务 |
+| 谷歌服务 | `Google_Search.png` | Google 服务 |
+| 微软服务 | `Windows_11.png` | Microsoft 服务 |
+| OneDrive | `OneDrive.png` | OneDrive 服务 |
+| 香港节点 | `Hong_Kong.png` | 香港地区节点 |
+| 美国节点 | `United_States.png` | 美国地区节点 |
+| 日本节点 | `Japan.png` | 日本地区节点 |
+| 新加坡节点 | `Singapore.png` | 新加坡地区节点 |
+| 其他节点 | `Airport.png` | 其他地区节点集合 |
+| 全球直连 | `Direct.png` | 直连出口 |
+| 广告拦截 | `AdBlack.png` | 广告拦截 |
+| 漏网之鱼 | `Final.png` | 最终兜底 |
 
-```yaml
-icon: "https://cdn.jsdelivr.net/gh/Vbaethon/HOMOMIX@main/Icon/Color/Large/Link.png"
-```
-
----
-
-## 新增 / 换图标时的硬约束
-
-1. **先确认 Large 文件存在**（文件名大小写敏感），任选其一：
-   - 浏览 [Icon/Color/Large](https://github.com/Vbaethon/HOMOMIX/tree/main/Icon/Color/Large)
-   - `gh api repos/Vbaethon/HOMOMIX/contents/Icon/Color/Large/<Name>.png`
-   - `HEAD` / 浏览器打开最终 CDN URL，期望 **HTTP 200** 且有 body
-2. **不要**假设 Qure 旧文件名仍可用（例如 `US.png` → 现为 `USA.png`，`Direct.png` → `DIRECT.png`）。
-3. 图标名与策略组名**无强制对应**，只改 `icon` URL，不改组名与分流。
-4. hybrid 与各 variants 的同名策略组保持**同一图标 URL**，避免 UI 不一致。
-5. 远程引用默认仅限 `Vbaethon/HOMOMIX` 的 **Large** 路径；换源或 vendoring 前先核授权与署名（见 `AGENTS.md`）。
-
-### 快速校验（PowerShell）
-
-对当前模板中所有图标做 HEAD 探测：
-
-```powershell
-$urls = [System.Collections.Generic.HashSet[string]]::new()
-Get-ChildItem rules -Recurse -Filter *.yaml | ForEach-Object {
-  Get-Content $_.FullName | ForEach-Object {
-    if ($_ -match 'icon:\s*"(https://[^"]+)"') { [void]$urls.Add($Matches[1]) }
-  }
-}
-$fail = @()
-foreach ($u in ($urls | Sort-Object)) {
-  if ($u -notmatch '/Icon/Color/Large/') { $fail += "NOT_LARGE $u"; continue }
-  try {
-    $r = Invoke-WebRequest -Uri $u -Method Head -UseBasicParsing -TimeoutSec 25
-    if ([int]$r.StatusCode -ne 200) { $fail += "$u -> $($r.StatusCode)" }
-    else { Write-Host "OK  $([IO.Path]::GetFileName($u))" }
-  } catch { $fail += "$u -> $($_.Exception.Message)" }
-}
-if ($fail.Count) { $fail; throw "icon check failed" }
-```
+图标只表达 UI 语义，与策略组名称没有强制对应关系。更换图标时只改 `icon` URL，
+不要改组名、组成员或路由规则。
 
 ---
 
-## 从 Qure / 等高版迁来的对照（历史）
+## 新增或更换图标
 
-旧默认源为 [Koolson/Qure](https://github.com/Koolson/Qure) `IconSet/Color`。主要文件名差异：
+1. 在 [Qure Color 目录](https://github.com/Koolson/Qure/tree/master/IconSet/Color)
+   中确认文件存在。
+2. 文件名大小写敏感；以仓库中的真实文件名为准。
+3. 浏览器打开最终 Raw URL，确认返回图片而不是 404 页面。
+4. hybrid 与 variants 的同名策略组必须使用同一个图标 URL。
+5. 不要把图标库 JSON 地址写进 Mihomo 的 `icon:`。
+6. 远程图标引用仅使用 `Koolson/Qure`；换源或 vendoring 前先核对授权与署名。
 
-| 旧 Qure | 现 HOMOMIX（Large） |
-|---------|---------------------|
-| `Proxy.png` | `Link.png` |
-| `Available.png` | `Remote.png` |
-| `Auto.png` | `Auto_Link.png` |
-| `Hijacking.png` | `Network.png` |
-| `ForeignMedia.png` | `Stream.png` |
-| `Apple_1.png` | `Apple.png` |
-| `US.png` | `USA.png` |
-| `Direct.png` | `DIRECT.png` |
-| `AdBlack.png` | `Adblock.png` |
-| `Final.png` | `Fish.png` |
-| 同名：`AI` / `Game` / `Telegram` / `Google` / `Microsoft` / `OneDrive` / `Hong_Kong` / `Japan` / `Singapore` / `Global` | 仅换 base → `Icon/Color/Large/` |
+---
+
+## Quantumult X 图标库
+
+Quantumult X 可订阅完整图标库，然后在客户端中为订阅条目或自定义策略选择图标。
+
+### PROXY 订阅
+
+机场或代理服务器订阅条目推荐使用 Qure mini：
+
+```text
+https://raw.githubusercontent.com/Koolson/Qure/master/Other/Quremini.json
+```
+
+这里的“PROXY 订阅”指 Quantumult X 中的机场/节点订阅条目，不是 Mihomo 的策略组。
+
+### 自定义策略
+
+自定义策略组推荐使用 Qure Color：
+
+```text
+https://raw.githubusercontent.com/Koolson/Qure/master/Other/QureColor.json
+```
+
+添加方法：
+
+1. 长按订阅条目或自定义策略。
+2. 选择“图标”。
+3. 点击右上角 `+`。
+4. 填入相应的图标库订阅地址。
+5. 从图标库中选择图标。
+
+---
+
+## 校验
+
+检查模板中不存在旧图标源：
+
+```bash
+rg -n 'Vbaethon|HOMOMIX|Icon/Color/Large' rules
+```
+
+检查模板没有误用图标库 JSON：
+
+```bash
+rg -n 'Quremini\.json|QureColor\.json' rules
+```
+
+检查所有模板的图标 URL：
+
+```bash
+rg -n 'icon:' rules --glob '*.yaml'
+```
+
+逐一验证唯一 URL 时，应跟随重定向并要求 HTTP 成功：
+
+```bash
+rg -o 'https://[^" ]+\.png' rules --glob '*.yaml' \
+  | sed 's/^[^:]*://' \
+  | sort -u \
+  | while read -r url; do
+      curl -fsSL --range 0-0 "$url" >/dev/null || exit 1
+    done
+```
+
+最后运行全部模板的 Mihomo 加载验证与补丁格式检查。
 
 ---
 
 ## 参考
 
-- HOMOMIX 主页：https://github.com/Vbaethon/HOMOMIX  
-- Large 目录：https://github.com/Vbaethon/HOMOMIX/tree/main/Icon/Color/Large  
-- 图标预览：见上游 README 内嵌表  
+- Qure 主页：https://github.com/Koolson/Qure
+- Qure Color：https://github.com/Koolson/Qure/tree/master/IconSet/Color
+- Qure mini：https://github.com/Koolson/Qure/tree/master/IconSet/mini
