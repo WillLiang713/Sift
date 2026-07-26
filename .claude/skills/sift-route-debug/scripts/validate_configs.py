@@ -71,7 +71,8 @@ def select_asset(release: Dict[str, object], system: str, arch: str, suffix: str
         for asset in assets
         if isinstance(asset, dict) and isinstance(asset.get("name"), str)
     }
-    for name in (exact, compatible, v1):
+    candidates = (compatible, v1, exact) if arch == "amd64" else (exact, compatible, v1)
+    for name in candidates:
         asset = by_name.get(name)
         if isinstance(asset, dict):
             return asset
@@ -120,19 +121,40 @@ def extract_binary(archive: Path, destination: Path, system: str) -> Path:
     return binary
 
 
+def binary_is_usable(binary: Path) -> bool:
+    try:
+        result = subprocess.run(
+            [str(binary), "-v"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return result.returncode == 0
+
+
 def bootstrap_mihomo(version: str, cache_dir: Path) -> Path:
     system, arch, suffix = platform_id()
     destination = cache_dir / "tools" / version / f"{system}-{arch}"
     binary = destination / ("mihomo.exe" if system == "windows" else "mihomo")
     if binary.is_file():
-        return binary
+        if binary_is_usable(binary):
+            return binary
+        print(f"[STALE] cached Mihomo cannot run, refreshing: {binary}")
+        binary.unlink()
 
     release = api_json(RELEASE_API.format(version=version))
     asset = select_asset(release, system, arch, suffix, version)
     print(f"[GET] {asset['name']}")
     archive = download_asset(asset, destination)
     try:
-        return extract_binary(archive, destination, system)
+        extracted = extract_binary(archive, destination, system)
+        if not binary_is_usable(extracted):
+            extracted.unlink(missing_ok=True)
+            raise RuntimeError(f"downloaded Mihomo cannot run on this CPU: {asset['name']}")
+        return extracted
     finally:
         archive.unlink(missing_ok=True)
 

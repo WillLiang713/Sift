@@ -23,7 +23,7 @@ This single portable command runs pinned Mihomo loading validation for all 12 te
 python .agents/skills/sift-route-debug/scripts/validate_configs.py
 ```
 
-This standard-library-only script discovers all 12 YAML templates, downloads the pinned official Mihomo release for Windows, Linux, or macOS, verifies the release SHA-256 digest, caches it under `.cache/`, and runs each template with an isolated home directory:
+This standard-library-only script discovers all 12 YAML templates, downloads the pinned official Mihomo release for Windows, Linux, or macOS, verifies the release SHA-256 digest, caches it under `.cache/`, and runs each template with an isolated home directory. On amd64 it prefers the portable `compatible`/`v1` build and automatically refreshes a cached binary that cannot run on the current CPU:
 
 ```bash
 mihomo -t -d <isolated-cache> -f <template>
