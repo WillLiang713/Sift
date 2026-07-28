@@ -109,7 +109,6 @@ SHORT = {
     "流媒体": "流媒",
     "OneDrive": "OD",
     "Telegram": "TG",
-    "广告拦截": "广告",
     "DIRECT": "DIR",
     "AI": "AI",
 }
@@ -129,9 +128,6 @@ def default_expectations() -> List[Expectation]:
     exp: List[Expectation] = []
 
     exp.append(("localhost", ALL, {"DIRECT"}, "FAIL"))
-
-    for ad_domain in ("ad.doubleclick.net", "pagead2.googlesyndication.com"):
-        exp.append((ad_domain, ALL, {"广告拦截"}, "FAIL"))
 
     # Google/Play hard anchors (routing contract). Pair with Full/Core DNS whitelist
     # (rule-set:proxy or geosite:geolocation-!cn+google) so these domains enter Mihomo

@@ -99,13 +99,6 @@ proxy-groups:
       - DIRECT
       - 节点选择
       - 自动测速
-  - name: 广告拦截
-    type: select
-    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png"
-    proxies:
-      - REJECT
-      - DIRECT
-      - 节点选择
   - name: 漏网之鱼
     type: select
     include-all: true
@@ -120,7 +113,6 @@ proxy-groups:
 rules:
   - GEOSITE,private,DIRECT
   - GEOIP,private,DIRECT,no-resolve
-  - GEOSITE,category-ads-all,广告拦截
   - GEOSITE,github,节点选择
   - GEOSITE,category-games@cn,全球直连
   - GEOSITE,apple,全球直连

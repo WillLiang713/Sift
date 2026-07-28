@@ -27,13 +27,6 @@ proxy-groups:
       - DIRECT
       - 节点选择
       - 自动测速
-  - name: 广告拦截
-    type: select
-    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png"
-    proxies:
-      - REJECT
-      - DIRECT
-      - 节点选择
   - name: 漏网之鱼
     type: select
     include-all: true
@@ -57,14 +50,6 @@ rule-providers:
     <<: *classical
     path: ./ruleset/acl4ssr/UnBan.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
-  BanAD:
-    <<: *classical
-    path: ./ruleset/acl4ssr/BanAD.list
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list"
-  BanProgramAD:
-    <<: *classical
-    path: ./ruleset/acl4ssr/BanProgramAD.list
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list"
   ProxyLite:
     <<: *classical
     path: ./ruleset/acl4ssr/ProxyLite.list
@@ -85,8 +70,6 @@ rule-providers:
 rules:
   - RULE-SET,LocalAreaNetwork,DIRECT
   - RULE-SET,UnBan,DIRECT
-  - RULE-SET,BanAD,广告拦截
-  - RULE-SET,BanProgramAD,广告拦截
   - RULE-SET,ProxyLite,节点选择
   - RULE-SET,ChinaDomain,全球直连
   - RULE-SET,ChinaIp,全球直连

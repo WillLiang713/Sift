@@ -97,13 +97,6 @@ proxy-groups:
       - DIRECT
       - 节点选择
       - 自动测速
-  - name: 广告拦截
-    type: select
-    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AdBlack.png"
-    proxies:
-      - REJECT
-      - DIRECT
-      - 节点选择
   - name: 漏网之鱼
     type: select
     include-all: true
@@ -126,10 +119,6 @@ rule-providers:
     <<: *text-domain
     path: ./ruleset/dustinwin/private.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.list"
-  ads:
-    <<: *text-domain
-    path: ./ruleset/dustinwin/ads.list
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ads.list"
   privateip:
     <<: *text-ip
     path: ./ruleset/dustinwin/privateip.list
@@ -170,7 +159,6 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,ads,广告拦截
   - RULE-SET,apple,全球直连
   - RULE-SET,onedrive,节点选择
   - RULE-SET,microsoft,全球直连
