@@ -15,7 +15,7 @@
 | | 说明 |
 | --- | --- |
 | **[Full](./rules/full.yaml)** | 场景 · 品牌 · 地区 · DNS |
-| **[Core](./rules/core.yaml)** | 精简白名单 · Apple/Microsoft 可切换 · DNS |
+| **[Core](./rules/core.yaml)** | 基础分流 · Apple/Microsoft 服务可切换 · DNS |
 | **[Nano](./rules/nano.yaml)** | 极简 · 无 DNS |
 
 ```text
