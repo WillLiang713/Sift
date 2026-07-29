@@ -55,6 +55,7 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
 | 谷歌服务 | `Google_Search.png` | Google 服务 |
 | 微软服务 | `Windows_11.png` | Microsoft 服务 |
 | OneDrive | `OneDrive.png` | OneDrive 服务 |
+| GitHub | `GitHub.png` | GitHub 服务 |
 | 香港节点 | `Hong_Kong.png` | 香港地区节点 |
 | 美国节点 | `United_States.png` | 美国地区节点 |
 | 日本节点 | `Japan.png` | 日本地区节点 |

@@ -108,6 +108,22 @@ proxy-groups:
       - 节点选择
       - 自动测速
       - 手动切换
+  - name: OneDrive
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 手动切换
+      - DIRECT
+  - name: GitHub
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 手动切换
+      - DIRECT
   - name: 直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
@@ -129,10 +145,10 @@ proxy-groups:
 rules:
   - GEOSITE,private,DIRECT
   - GEOIP,private,DIRECT,no-resolve
-  - GEOSITE,github,节点选择
+  - GEOSITE,github,GitHub
   - GEOSITE,category-games@cn,直连
   - GEOSITE,apple,苹果服务
-  - GEOSITE,onedrive,节点选择
+  - GEOSITE,onedrive,OneDrive
   - GEOSITE,microsoft,微软服务
   - GEOSITE,geolocation-!cn,节点选择
   - GEOSITE,google,节点选择

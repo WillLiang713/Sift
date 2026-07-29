@@ -206,6 +206,19 @@ proxy-groups:
       - 其他节点
       - 手动切换
       - DIRECT
+  - name: GitHub
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
   - name: 香港节点
     type: url-test
     include-all: true
@@ -277,7 +290,7 @@ proxy-groups:
 rules:
   - GEOSITE,private,DIRECT
   - GEOIP,private,DIRECT,no-resolve
-  - GEOSITE,github,节点选择
+  - GEOSITE,github,GitHub
   - GEOSITE,apple@cn,直连
   - GEOSITE,microsoft@cn,直连
   - GEOSITE,category-games@cn,直连

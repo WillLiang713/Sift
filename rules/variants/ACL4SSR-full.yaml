@@ -397,7 +397,6 @@ rule-providers:
 
 rules:
   - RULE-SET,LocalAreaNetwork,DIRECT
-  - RULE-SET,UnBan,DIRECT
   - RULE-SET,GoogleCN,直连
   - RULE-SET,SteamCN,直连
   - RULE-SET,Apple,苹果服务

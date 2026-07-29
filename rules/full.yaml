@@ -204,6 +204,19 @@ proxy-groups:
       - 其他节点
       - 手动切换
       - DIRECT
+  - name: GitHub
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 其他节点
+      - 手动切换
+      - DIRECT
   - name: 香港节点
     type: url-test
     include-all: true
@@ -353,7 +366,7 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,github,节点选择
+  - RULE-SET,github,GitHub
   - RULE-SET,apple-cn,直连
   - RULE-SET,microsoft-cn,直连
   - RULE-SET,games-cn,直连

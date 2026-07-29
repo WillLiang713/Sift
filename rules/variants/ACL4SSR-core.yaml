@@ -106,6 +106,14 @@ proxy-groups:
       - 节点选择
       - 自动测速
       - 手动切换
+  - name: OneDrive
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 手动切换
+      - DIRECT
   - name: 直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
@@ -189,11 +197,10 @@ rule-providers:
 
 rules:
   - RULE-SET,LocalAreaNetwork,DIRECT
-  - RULE-SET,UnBan,DIRECT
   - RULE-SET,GoogleCN,直连
   - RULE-SET,SteamCN,直连
   - RULE-SET,Apple,苹果服务
-  - RULE-SET,OneDrive,节点选择
+  - RULE-SET,OneDrive,OneDrive
   - RULE-SET,Microsoft,微软服务
   - RULE-SET,ProxyLite,节点选择
   - RULE-SET,ChinaDomain,直连

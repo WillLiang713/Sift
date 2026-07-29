@@ -69,7 +69,6 @@ rule-providers:
 
 rules:
   - RULE-SET,LocalAreaNetwork,DIRECT
-  - RULE-SET,UnBan,DIRECT
   - RULE-SET,ProxyLite,节点选择
   - RULE-SET,ChinaDomain,直连
   - RULE-SET,ChinaIp,直连

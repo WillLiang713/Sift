@@ -106,6 +106,22 @@ proxy-groups:
       - 节点选择
       - 自动测速
       - 手动切换
+  - name: OneDrive
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 手动切换
+      - DIRECT
+  - name: GitHub
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
+    proxies:
+      - 节点选择
+      - 自动测速
+      - 手动切换
+      - DIRECT
   - name: 直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
@@ -177,9 +193,9 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,github,节点选择
+  - RULE-SET,github,GitHub
   - RULE-SET,apple,苹果服务
-  - RULE-SET,onedrive,节点选择
+  - RULE-SET,onedrive,OneDrive
   - RULE-SET,microsoft,微软服务
   - RULE-SET,games-cn,直连
   - RULE-SET,proxy,节点选择
