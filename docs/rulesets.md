@@ -50,11 +50,11 @@ ACL4SSR Full/Core/Nano 仅使用 `ChinaIp` 与 `ChinaIpV6` 作为国内 IP 兜�
 | `ChinaDomain` | 国内域名路由兜底 | `classical` / `text` | `Clash/ChinaDomain.list` | 以 DOMAIN* 为主，少量 IP 规则；**仅路由**；DNS 改用 MetaCubeX `cn.mrs`。 |
 | `ChinaIp` | 国内 IP 路由兜底 | `classical` / `text` | `Clash/ChinaIp.list` | 规则行自带 `no-resolve`。 |
 | `ChinaIpV6` | 国内 IPv6 路由兜底 | `classical` / `text` | `Clash/ChinaIpV6.list` | 规则行自带 `no-resolve`。 |
-| `GoogleCN` | 中国区 Google 服务 | `classical` / `text` | `Clash/GoogleCN.list` | Full/Core 在服务规则前进入 `全球直连`。 |
-| `SteamCN` | 中国区 Steam 服务 | `classical` / `text` | `Clash/Ruleset/SteamCN.list` | Full/Core 在游戏规则前进入 `全球直连`。 |
+| `GoogleCN` | 中国区 Google 服务 | `classical` / `text` | `Clash/GoogleCN.list` | Full/Core 进入 `直连`。 |
+| `SteamCN` | 中国区 Steam 服务 | `classical` / `text` | `Clash/Ruleset/SteamCN.list` | Full/Core 进入 `直连`。 |
 | `ProxyLite` | 明确代理域名 | `classical` / `text` | `Clash/ProxyLite.list` | Nano 的代理主入口；Full/Core 中位于场景或直连服务规则之后、`ChinaDomain` 之前，避免 `googleapis.cn` 等域名被 `.cn` 泛规则误直连。 |
-| `Apple` | Apple 服务 | `classical` / `text` | `Clash/Apple.list` | Full 进入 `苹果服务`，Core 进入 `全球直连`。 |
-| `Microsoft` | Microsoft 服务 | `classical` / `text` | `Clash/Microsoft.list` | Full 进入 `微软服务`，Core 进入 `全球直连`。 |
+| `Apple` | Apple 服务 | `classical` / `text` | `Clash/Apple.list` | Full/Core 都进入 `苹果服务`，Core 默认选择 `直连`。 |
+| `Microsoft` | Microsoft 服务 | `classical` / `text` | `Clash/Microsoft.list` | Full/Core 都进入 `微软服务`，Core 默认选择 `直连`。 |
 | `OneDrive` | OneDrive | `classical` / `text` | `Clash/OneDrive.list` | Full 中放在 Microsoft 前。 |
 | `AI` | AI 平台 | `classical` / `text` | `Clash/Ruleset/AI.list` | Full 进入 `AI`。 |
 | `Steam` / `Epic` / `Origin` / `Sony` / `Xbox` / `Nintendo` | 游戏平台 | `classical` / `text` | `Clash/Ruleset/Steam.list` / `Clash/Ruleset/Epic.list` / `Clash/Ruleset/Origin.list` / `Clash/Ruleset/Sony.list` / `Clash/Xbox.list` / `Clash/Ruleset/Nintendo.list` | Full 进入 `游戏平台`。 |

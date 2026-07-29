@@ -120,13 +120,13 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 | Full AI | `chatgpt.com` → `AI` |
 | Full streaming | MC/AC: YouTube/Netflix → `流媒体`; AC brand packs (not ProxyMedia) |
 | Full brands | icloud → `苹果服务`, office → `微软服务` |
-| Core brands | full Apple/Microsoft → `全球直连` |
-| Domestic | baidu/qq/taobao/bilibili → `全球直连` on all 12 |
+| Core brands | Apple → `苹果服务`, Microsoft → `微软服务` (default `直连`) |
+| Domestic | baidu/qq/taobao/bilibili → `直连` on all 12 |
 | Private | localhost → `DIRECT` |
 
 Display-only (not FAIL/WARN):
 
-- `gstatic.cn` may → `全球直连` on HY/DW Core/Nano (`cn-lite` `+.cn`) or proxy on MC/AC — family variance; **not** a Play/API contract anchor.
+- `gstatic.cn` may → `直连` on HY/DW Core/Nano (`cn-lite` `+.cn`) or proxy on MC/AC — family variance; **not** a Play/API contract anchor.
 
 WARN-level examples (do not treat as hard failures unless design changes):
 
@@ -144,7 +144,7 @@ Common Sift cases to call out:
 - DustinWin: `proxy` is the explicit non-CN layer after service/brand rules and before `cn-lite`; Full also has blackmatrix7 `google` → `谷歌服务` before `proxy`.
 - MetaCubeX Full: `GEOSITE,google` → `谷歌服务` before `geolocation-!cn` / `cn`; Core/Nano: `google` → `节点选择` between `geolocation-!cn` and `cn`.
 - ACL4SSR Full: streaming brand packs (YouTube/Netflix/NetflixIP/DisneyPlus/Spotify/TikTok) → `流媒体`; do not re-add `ProxyMedia` (CF challenge pollution).
-- Core intentionally routes full Apple and Microsoft rules to `全球直连`.
+- Core routes Apple and Microsoft rules to separately controllable service groups, both defaulting to `直连`.
 - A domain that has no domain-rule match can still route by IP at runtime if DNS resolution produces an IP matched by an IP rule.
 
 ## MetaCubeX geo CLI

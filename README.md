@@ -15,7 +15,7 @@
 | | 说明 |
 | --- | --- |
 | **[Full](./rules/full.yaml)** | 场景 · 品牌 · 地区 · DNS |
-| **[Core](./rules/core.yaml)** | 精简白名单 · DNS |
+| **[Core](./rules/core.yaml)** | 精简白名单 · Apple/Microsoft 可切换 · DNS |
 | **[Nano](./rules/nano.yaml)** | 极简 · 无 DNS |
 
 ```text
@@ -25,6 +25,8 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 ```
 
 也可按不同规则源选用独立模板：[rules/variants](./rules/variants/)
+
+Core 的 `苹果服务`、`微软服务` 与 `直连` 默认选择直连，可在面板中分别切换；所有模板的 `漏网之鱼` 默认选择 `自动测速`。
 
 ## 文档
 

@@ -20,7 +20,7 @@ proxy-groups:
     interval: 300
     timeout: 3000
     tolerance: 50
-  - name: 全球直连
+  - name: 直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
     proxies:
@@ -33,8 +33,8 @@ proxy-groups:
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
     proxies:
-      - 节点选择
       - 自动测速
+      - 节点选择
       - 手动切换
       - DIRECT
 
@@ -71,7 +71,7 @@ rules:
   - RULE-SET,LocalAreaNetwork,DIRECT
   - RULE-SET,UnBan,DIRECT
   - RULE-SET,ProxyLite,节点选择
-  - RULE-SET,ChinaDomain,全球直连
-  - RULE-SET,ChinaIp,全球直连
-  - RULE-SET,ChinaIpV6,全球直连
+  - RULE-SET,ChinaDomain,直连
+  - RULE-SET,ChinaIp,直连
+  - RULE-SET,ChinaIpV6,直连
   - MATCH,漏网之鱼

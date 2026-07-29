@@ -100,7 +100,7 @@ DEFAULT_DOMAINS: List[str] = [
 
 SHORT = {
     "节点选择": "节点",
-    "全球直连": "直连",
+    "直连": "直连",
     "漏网之鱼": "漏网",
     "苹果服务": "苹果",
     "微软服务": "微软",
@@ -162,12 +162,12 @@ def default_expectations() -> List[Expectation]:
         exp.append((media, ["AC-f"], {"流媒体"}, "FAIL"))
 
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
-        exp.append((domestic, ALL, {"全球直连"}, "FAIL"))
+        exp.append((domestic, ALL, {"直连"}, "FAIL"))
 
     exp.append(("github.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
 
-    exp.append(("icloud.com", CORES, {"全球直连"}, "FAIL"))
-    exp.append(("office.com", CORES, {"全球直连"}, "FAIL"))
+    exp.append(("icloud.com", CORES, {"苹果服务"}, "FAIL"))
+    exp.append(("office.com", CORES, {"微软服务"}, "FAIL"))
     exp.append(("icloud.com", FULLS, {"苹果服务"}, "FAIL"))
     exp.append(("office.com", FULLS, {"微软服务"}, "FAIL"))
 

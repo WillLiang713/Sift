@@ -29,7 +29,7 @@ rule-providers:
     url: https://example.test/cnip.mrs
 rules:
   - RULE-SET,proxy,节点选择
-  - RULE-SET,cnip,全球直连
+  - RULE-SET,cnip,直连
   - MATCH,节点选择
 """
         with tempfile.TemporaryDirectory() as temp_dir:

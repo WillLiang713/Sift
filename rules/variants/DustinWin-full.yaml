@@ -156,7 +156,7 @@ proxy-groups:
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_1.png"
     proxies:
-      - DIRECT
+      - 直连
       - 节点选择
       - 自动测速
       - 香港节点
@@ -182,7 +182,7 @@ proxy-groups:
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png"
     proxies:
-      - DIRECT
+      - 直连
       - 节点选择
       - 自动测速
       - 香港节点
@@ -249,7 +249,7 @@ proxy-groups:
     include-all: true
     exclude-filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港|🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka|🇸🇬|SG|SGP|Singapore|新加坡|狮城"
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Airport.png"
-  - name: 全球直连
+  - name: 直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
     proxies:
@@ -262,8 +262,8 @@ proxy-groups:
     exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
     proxies:
-      - 节点选择
       - 自动测速
+      - 节点选择
       - 香港节点
       - 美国节点
       - 日本节点
@@ -351,9 +351,9 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,apple-cn,全球直连
-  - RULE-SET,microsoft-cn,全球直连
-  - RULE-SET,games-cn,全球直连
+  - RULE-SET,apple-cn,直连
+  - RULE-SET,microsoft-cn,直连
+  - RULE-SET,games-cn,直连
   - RULE-SET,apple,苹果服务
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台
@@ -363,6 +363,6 @@ rules:
   - RULE-SET,telegramip,Telegram
   - RULE-SET,google,谷歌服务
   - RULE-SET,proxy,节点选择
-  - RULE-SET,cn-lite,全球直连
-  - RULE-SET,cnip,全球直连
+  - RULE-SET,cn-lite,直连
+  - RULE-SET,cnip,直连
   - MATCH,漏网之鱼
