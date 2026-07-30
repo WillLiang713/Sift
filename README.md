@@ -26,7 +26,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 
 也可按不同规则源选用独立模板：[rules/variants](./rules/variants/)
 
-Core 的 `苹果服务`、`微软服务` 与 `直连` 默认选择直连；`OneDrive`、`GitHub` 各有独立策略组并默认选择 `节点选择`，均可在面板中切换。所有模板的 `漏网之鱼` 默认选择 `自动测速`。
+Core 的 `苹果服务`、`微软服务` 与 `直连` 默认选择直连；`OneDrive`、`GitHub` 各有独立策略组并默认选择 `节点选择`，均可在面板中切换。所有模板的 `漏网之鱼` 默认选择 `节点选择`。
 
 ## 文档
 
