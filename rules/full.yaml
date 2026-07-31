@@ -330,6 +330,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/ai.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.mrs"
+  media:
+    <<: *mrs-domain
+    path: ./ruleset/dustinwin/media.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/media.mrs"
   mediaip:
     <<: *mrs-ip
     path: ./ruleset/dustinwin/mediaip.mrs
@@ -377,6 +381,7 @@ rules:
   - RULE-SET,apple,苹果服务
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台
+  - RULE-SET,media,流媒体
   - RULE-SET,mediaip,流媒体
   - RULE-SET,onedrive,OneDrive
   - RULE-SET,microsoft,微软服务

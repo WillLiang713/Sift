@@ -319,6 +319,10 @@ rule-providers:
     <<: *text-domain
     path: ./ruleset/dustinwin/ai.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.list"
+  media:
+    <<: *text-domain
+    path: ./ruleset/dustinwin/media.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/media.list"
   mediaip:
     <<: *text-ip
     path: ./ruleset/dustinwin/mediaip.list
@@ -361,6 +365,7 @@ rules:
   - RULE-SET,apple,苹果服务
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台
+  - RULE-SET,media,流媒体
   - RULE-SET,mediaip,流媒体
   - RULE-SET,onedrive,OneDrive
   - RULE-SET,microsoft,微软服务
