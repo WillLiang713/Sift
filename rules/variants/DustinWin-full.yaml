@@ -327,6 +327,10 @@ rule-providers:
     <<: *text-domain
     path: ./ruleset/dustinwin/games.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.list"
+  telegram:
+    <<: *classical
+    path: ./ruleset/blackmatrix7/telegram.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Telegram/Telegram.list"
   telegramip:
     <<: *text-ip
     path: ./ruleset/dustinwin/telegramip.list
@@ -360,6 +364,7 @@ rules:
   - RULE-SET,mediaip,流媒体
   - RULE-SET,onedrive,OneDrive
   - RULE-SET,microsoft,微软服务
+  - RULE-SET,telegram,Telegram
   - RULE-SET,telegramip,Telegram
   - RULE-SET,google,谷歌服务
   - RULE-SET,proxy,节点选择

@@ -301,6 +301,7 @@ rules:
   - GEOSITE,category-entertainment,流媒体
   - GEOSITE,onedrive,OneDrive
   - GEOSITE,microsoft,微软服务
+  - GEOSITE,telegram,Telegram
   - GEOIP,telegram,Telegram
   - GEOSITE,google,谷歌服务
   - GEOSITE,geolocation-!cn,节点选择

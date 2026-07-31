@@ -338,6 +338,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/games.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.mrs"
+  telegram:
+    <<: *mrs-domain
+    path: ./ruleset/metacubex/telegram.mrs
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs"
   telegramip:
     <<: *mrs-ip
     path: ./ruleset/dustinwin/telegramip.mrs
@@ -376,6 +380,7 @@ rules:
   - RULE-SET,mediaip,流媒体
   - RULE-SET,onedrive,OneDrive
   - RULE-SET,microsoft,微软服务
+  - RULE-SET,telegram,Telegram
   - RULE-SET,telegramip,Telegram
   - RULE-SET,google,谷歌服务
   - RULE-SET,proxy,节点选择
