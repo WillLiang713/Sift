@@ -115,7 +115,7 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 | --- | --- |
 | **Google/Play anchors** | **`googleapis.cn`** + **`play.googleapis.com`**: Full → `谷歌服务`; Core/Nano → `节点选择`. Must not fall through to broad CN direct. DNS half of the same contract is Full/Core fake-IP whitelist (`rule-set:proxy` or MetaCubeX `geolocation-!cn`+`google`). |
 | Other Google | `www.google.com` same policy split as anchors (Full `谷歌服务` / Core-Nano `节点选择`) |
-| CF challenge | Display-only. HY-f/DW-f bind `challenges.cloudflare.com` to `流媒体` via the DustinWin `media` set (intended — CF verification traffic rides the streaming group); other families send it to `节点选择` / `漏网之鱼`. No FAIL assertion by design. |
+| CF challenge | HY-f/DW-f bind `challenges.cloudflare.com` to `流媒体` via the DustinWin `media` set; other families send it to `节点选择` / `漏网之鱼`. |
 | Full AI | `chatgpt.com` → `AI` |
 | Full streaming | MC/AC: YouTube/Netflix → `流媒体`; AC brand packs (not ProxyMedia) |
 | Full brands | icloud → `苹果服务`, office → `微软服务` |
@@ -131,7 +131,6 @@ Display-only (not FAIL/WARN):
 
 WARN-level examples (do not treat as hard failures unless design changes):
 
-- DustinWin Full YouTube/Netflix often → `节点选择` (domain media light; `mediaip` is IP).
 - ACL4SSR Nano may send some overseas hosts to `漏网之鱼` (narrow ProxyLite).
 
 Edit `default_expectations()` in `matrix_route.py` when the product contract changes.

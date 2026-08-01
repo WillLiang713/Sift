@@ -46,10 +46,6 @@ rule-providers:
     <<: *classical
     path: ./ruleset/acl4ssr/LocalAreaNetwork.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
-  UnBan:
-    <<: *classical
-    path: ./ruleset/acl4ssr/UnBan.list
-    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
   ProxyLite:
     <<: *classical
     path: ./ruleset/acl4ssr/ProxyLite.list

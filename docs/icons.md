@@ -62,7 +62,6 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
 | 新加坡节点 | `Singapore.png` | 新加坡地区节点 |
 | 其他节点 | `Airport.png` | 其他地区节点集合 |
 | 直连 | `Direct.png` | 直连出口 |
-| 广告拦截 | `AdBlack.png` | 广告拦截 |
 | 漏网之鱼 | `Final.png` | 最终兜底 |
 
 图标只表达 UI 语义，与策略组名称没有强制对应关系。更换图标时只改 `icon` URL，

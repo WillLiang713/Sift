@@ -143,14 +143,13 @@ def default_expectations() -> List[Expectation]:
     exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.youtube.com", ["MC-f", "AC-f"], {"流媒体"}, "FAIL"))
-    # DustinWin Full streaming is IP-heavy (mediaip); YouTube domain often hits proxy.
-    exp.append(("www.youtube.com", ["HY-f", "DW-f"], {"谷歌服务", "节点选择", "流媒体"}, "WARN"))
+    # Hybrid/DustinWin Full now use the media domain set before mediaip.
+    exp.append(("www.youtube.com", ["HY-f", "DW-f"], {"流媒体"}, "FAIL"))
     exp.append(("www.youtube.com", CORES + NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
-    # CF challenge: display-only. HY-f/DW-f bind it to 流媒体 via DustinWin media set
-    # (intended: CF verification traffic rides the streaming group); other families
-    # route it to 节点选择 / 漏网之鱼. No FAIL assertion by design.
-    # exp.append(("challenges.cloudflare.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
+    # HY-f/DW-f intentionally bind CF verification traffic to the streaming group
+    # through the DustinWin media domain set. Other families keep their own route.
+    exp.append(("challenges.cloudflare.com", ["HY-f", "DW-f"], {"流媒体"}, "FAIL"))
 
     exp.append(("chatgpt.com", FULLS, {"AI"}, "FAIL"))
     exp.append(("chatgpt.com", CORES, {"节点选择", "漏网之鱼"}, "FAIL"))
@@ -162,6 +161,9 @@ def default_expectations() -> List[Expectation]:
 
     for media in ("www.disneyplus.com", "open.spotify.com", "www.tiktok.com"):
         exp.append((media, ["AC-f"], {"流媒体"}, "FAIL"))
+
+    exp.append(("web.telegram.org", FULLS, {"Telegram"}, "FAIL"))
+    exp.append(("web.telegram.org", CORES + NANOS, {"节点选择"}, "FAIL"))
 
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
         exp.append((domestic, ALL, {"直连"}, "FAIL"))
@@ -184,11 +186,11 @@ def default_expectations() -> List[Expectation]:
     return exp
 
 
-def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> None:
+def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> bool:
     """Refresh rule/geox caches once for all selected templates (URL-deduped, parallel)."""
     templates = [str(REPO_ROOT / TEMPLATES[label]) for label in labels]
     if not templates:
-        return
+        return True
     proc = subprocess.run(
         [
             sys.executable,
@@ -202,9 +204,11 @@ def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> None:
     )
     if proc.returncode != 0:
         print(
-            f"  [WARN] update_cache exited {proc.returncode} for {len(templates)} template(s)",
+            f"  [FAIL] update_cache exited {proc.returncode} for {len(templates)} template(s)",
             file=sys.stderr,
         )
+        return False
+    return True
 
 
 def ensure_geo_bin(preferred: str) -> str:
@@ -424,8 +428,9 @@ def main() -> int:
         else args.geo_bin
     )
 
-    if args.update_cache:
-        update_all_caches(cache_dir, labels)
+    if args.update_cache and not update_all_caches(cache_dir, labels):
+        print("FAIL")
+        return 1
 
     engine = er.RouteEngine(cache_dir, geo_bin)
     results = run_matrix(engine, labels, domains)

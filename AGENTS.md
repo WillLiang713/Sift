@@ -47,7 +47,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | | Full | Core | Nano |
 | --- | --- | --- | --- |
 | 代表文件 | `rules/full.yaml` | `rules/core.yaml` | `rules/nano.yaml` |
-| UI 策略组 | 场景 + 品牌 + 地区 + DNS + 广告 | 基础组 + `苹果服务` + `微软服务` + `DNS` + `直连` + 广告 | 极简 + 广告 |
+| UI 策略组 | 场景 + 品牌 + 地区 + DNS | 基础组 + `苹果服务` + `微软服务` + `DNS` + `直连` | 极简 |
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `直连`） | 无独立组 |
 | OneDrive | `OneDrive` 组 | `OneDrive` 组 | 无 |
@@ -163,7 +163,7 @@ YAML：两空格缩进；按意图分块并加短注释。
 | --- | --- |
 | `DustinWin-*.yaml` | text `.list` + 品牌用 blackmatrix7 classical |
 | `MetaCubeX-*.yaml` | 纯 `GEOSITE`/`GEOIP` + 顶层 `geox-url`，无 routing `rule-providers` |
-| `ACL4SSR-*.yaml` | ACL Clash `.list`；DNS-only DustinWin `proxy`；UnBan+Ban 广告；Full 流媒体拆分 |
+| `ACL4SSR-*.yaml` | ACL Clash `.list`；DNS-only DustinWin `proxy`；Full 流媒体拆分 |
 
 DustinWin / ACL 的 list 来自 [DustinWin/ruleset_geodata](https://github.com/DustinWin/ruleset_geodata)。  
 DustinWin 无完整品牌集时，variants 可用 blackmatrix7：
@@ -221,22 +221,21 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 
 ## DustinWin variants
 
-**Full**：private 后立刻 `ads → 广告拦截`；`apple-cn` / `microsoft-cn` / `games-cn` 补国内直连；完整 apple/microsoft/onedrive/google 进服务组；`proxy` 在服务/场景后、`cn-lite` 前；`onedrive` 先于 `microsoft`；`google` 先于 `proxy`/`cn-lite`。
+**Full**：private 后进入服务、场景和品牌规则；`apple-cn` / `microsoft-cn` / `games-cn` 补国内直连；完整 apple/microsoft/onedrive/google 进服务组；`proxy` 在服务/场景后、`cn-lite` 前；`onedrive` 先于 `microsoft`；`google` 先于 `proxy`/`cn-lite`。
 
 **Core**：完整 apple → `苹果服务`、microsoft → `微软服务`，两个服务组默认选择 `直连`；onedrive → `OneDrive`、github → `GitHub`（均默认 `节点选择`，onedrive 紧挨 microsoft 前）；`proxy` 在直连服务规则后、`cn-lite` 前；`直连` 成员顺序：`DIRECT`、`节点选择`、`自动测速`。不要默认加回「仅 CN 品牌补充」除非产品改回旧设计。
 
-**Nano**：仅 `private` / `privateip` / `ads` / `proxy` / `cn-lite` / `cnip`；`ads` 在 `proxy` 前。
+**Nano**：仅 `private` / `privateip` / `proxy` / `cn-lite` / `cnip`。
 
 ## MetaCubeX variants
 
 **Full**：可见组对齐 hybrid Full，分类用 geosite。顺序要点：
 
-1. private 后 `category-ads-all → 广告拦截`
-2. 随即 `github → 节点选择`（避免被 microsoft/场景吞）
-3. 完整 `apple → 苹果服务`（娱乐场景前）；`apple@cn` 国内直连补充
-4. 游戏规则在 `category-entertainment` 前
-5. 完整 `microsoft → 微软服务`；`microsoft@cn` 补充
-6. `google → 谷歌服务`：场景/品牌之后、`geolocation-!cn` / `cn` 之前（YouTube 仍可先中娱乐）
+1. private 后 `github → 节点选择`（避免被 microsoft/场景吞）
+2. 完整 `apple → 苹果服务`（娱乐场景前）；`apple@cn` 国内直连补充
+3. 游戏规则在 `category-entertainment` 前
+4. 完整 `microsoft → 微软服务`；`microsoft@cn` 补充
+5. `google → 谷歌服务`：场景/品牌之后、`geolocation-!cn` / `cn` 之前（YouTube 仍可先中娱乐）
 
 **Core**：含 `DNS`、`苹果服务`、`微软服务`、`OneDrive`、`GitHub`、`直连` 与 `漏网之鱼`；Apple/Microsoft 分别进入对应服务组，两个服务组默认选择 `直连`；ads 后 github → `GitHub`（先于 microsoft/场景）；onedrive → `OneDrive` 紧挨 microsoft 前；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
 
@@ -245,7 +244,7 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 
 ## ACL4SSR
 
-广告链：UnBan + BanAD / BanProgramAD。Full 流媒体按源拆 list。DNS-only `proxy` 仅服务 fake-IP/policy，路由仍走 ACL 域规则 + 国内集。
+不定义独立广告拦截 provider；广告域按各源已有国内、Google 或代理规则自然落入对应出口。Full 流媒体按源拆 list。DNS-only `proxy` 仅服务 fake-IP/policy，路由仍走 ACL 域规则 + 国内集。
 
 ---
 
@@ -254,7 +253,7 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 与 `README` 分流表一致，改 yaml 时对照：
 
 1. 局域网 / 私有 → `DIRECT`
-2. 广告 → `广告拦截`
+2. 广告 → 按模板规则落入 `直连` / `节点选择`
 3. Tracker 等 → `直连`（按模板）
 4. 国内 Apple / Microsoft / 游戏补充 → `直连`
 5. 海外 Apple / AI / 游戏 / 流媒体 / OneDrive / Microsoft / TG / Google → 对应组

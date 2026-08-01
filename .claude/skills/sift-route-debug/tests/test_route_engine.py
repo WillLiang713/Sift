@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 
@@ -10,9 +11,16 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import explain_route as er  # noqa: E402
+import matrix_route as mr  # noqa: E402
 
 
 class DomainProviderIndexTest(unittest.TestCase):
+    def test_cache_refresh_failure_is_reported(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            failed = mock.Mock(returncode=1)
+            with mock.patch.object(mr.subprocess, "run", return_value=failed):
+                self.assertFalse(mr.update_all_caches(Path(temp_dir), ["HY-f"]))
+
     def test_first_match_order_and_suffix_exact(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             path = Path(temp_dir) / "rules.list"
