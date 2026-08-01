@@ -50,17 +50,18 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | UI 策略组 | 场景 + 品牌 + 地区 + DNS + 广告 | 基础组 + `苹果服务` + `微软服务` + `DNS` + `直连` + 广告 | 极简 + 广告 |
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `直连`） | 无独立组 |
-| OneDrive | `OneDrive` 组 | → `节点选择`（无 UI 组） | 无 |
+| OneDrive | `OneDrive` 组 | `OneDrive` 组 | 无 |
+| GitHub | `GitHub` 组 | `GitHub` 组 | 无 |
 | 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
-**所有模板**保留 `广告拦截`：`REJECT` 优先，其后 `DIRECT`、`节点选择`（默拦截，误伤时可改）。`漏网之鱼` 统一默认选择 `节点选择`。
+模板不含独立广告拦截组（40f3bf7 起移除），广告域由各源国内/Google 集自然落入 `直连` / `节点选择`。`漏网之鱼` 统一默认选择 `节点选择`。
 
 **不要随意扩档位**：
 
-- Core：仅保留 Apple/Microsoft 两个服务 UI 组，不要添加其他服务/品牌 UI 或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
+- Core：保留 Apple/Microsoft 服务组，外加 GitHub / OneDrive 独立组；不要添加其他服务/品牌 UI 或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
 
-常用组名保持稳定：`节点选择`、`手动切换`、`自动测速`、`DNS`、`直连`、`漏网之鱼`、`广告拦截`。
+常用组名保持稳定：`节点选择`、`手动切换`、`自动测速`、`DNS`、`直连`、`漏网之鱼`；服务类组名 `苹果服务`、`微软服务`、`OneDrive`、`GitHub`。
 
 ---
 
@@ -222,7 +223,7 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 
 **Full**：private 后立刻 `ads → 广告拦截`；`apple-cn` / `microsoft-cn` / `games-cn` 补国内直连；完整 apple/microsoft/onedrive/google 进服务组；`proxy` 在服务/场景后、`cn-lite` 前；`onedrive` 先于 `microsoft`；`google` 先于 `proxy`/`cn-lite`。
 
-**Core**：完整 apple → `苹果服务`、microsoft → `微软服务`，两个服务组默认选择 `直连`；onedrive → `节点选择`（紧挨 microsoft 前）；`proxy` 在直连服务规则后、`cn-lite` 前；`直连` 成员顺序：`DIRECT`、`节点选择`、`自动测速`。不要默认加回「仅 CN 品牌补充」除非产品改回旧设计。
+**Core**：完整 apple → `苹果服务`、microsoft → `微软服务`，两个服务组默认选择 `直连`；onedrive → `OneDrive`、github → `GitHub`（均默认 `节点选择`，onedrive 紧挨 microsoft 前）；`proxy` 在直连服务规则后、`cn-lite` 前；`直连` 成员顺序：`DIRECT`、`节点选择`、`自动测速`。不要默认加回「仅 CN 品牌补充」除非产品改回旧设计。
 
 **Nano**：仅 `private` / `privateip` / `ads` / `proxy` / `cn-lite` / `cnip`；`ads` 在 `proxy` 前。
 
@@ -237,7 +238,7 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 5. 完整 `microsoft → 微软服务`；`microsoft@cn` 补充
 6. `google → 谷歌服务`：场景/品牌之后、`geolocation-!cn` / `cn` 之前（YouTube 仍可先中娱乐）
 
-**Core**：含 `DNS`、`苹果服务`、`微软服务`、`直连` 与 `漏网之鱼`；Apple/Microsoft 分别进入对应服务组，两个服务组默认选择 `直连`；ads 后 github；onedrive 紧挨 microsoft 前 → `节点选择`；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
+**Core**：含 `DNS`、`苹果服务`、`微软服务`、`OneDrive`、`GitHub`、`直连` 与 `漏网之鱼`；Apple/Microsoft 分别进入对应服务组，两个服务组默认选择 `直连`；ads 后 github → `GitHub`（先于 microsoft/场景）；onedrive → `OneDrive` 紧挨 microsoft 前；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
 
 **Core/Nano Google**：`GEOSITE,google → 节点选择`（无 UI 组），放在 `geolocation-!cn` 后、`cn` 前。  
 **说明**：`geolocation-!cn` 含 `play.googleapis.com` 但不含 `googleapis.cn`；`GEOSITE,google` / DNS `geosite:google` 主要是防止 `googleapis.cn` 掉进宽 CN 直连。

@@ -7,10 +7,12 @@ import argparse
 import hashlib
 import ipaddress
 import json
+import os
 import re
 import subprocess
 import sys
-from dataclasses import dataclass
+import threading
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -41,6 +43,46 @@ class Template:
     providers: Dict[str, Provider]
     geox: Dict[str, str]
     rules: List[Rule]
+
+
+@dataclass
+class DomainProviderIndex:
+    """First-match domain index for one provider file."""
+
+    exact: Dict[str, Tuple[int, str]] = field(default_factory=dict)
+    suffixes: Dict[str, Tuple[int, str]] = field(default_factory=dict)
+    keywords: List[Tuple[str, int, str]] = field(default_factory=list)
+    regexes: List[Tuple[re.Pattern[str], int, str]] = field(default_factory=list)
+
+    def match(self, domain: str) -> Optional[Tuple[int, str]]:
+        needle = normalize_domain(domain)
+        best: Optional[Tuple[int, str]] = None
+
+        def consider(item: Tuple[int, str]) -> None:
+            nonlocal best
+            if best is None or item[0] < best[0]:
+                best = item
+
+        exact = self.exact.get(needle)
+        if exact:
+            consider(exact)
+
+        labels = needle.split(".") if needle else []
+        for index in range(len(labels)):
+            suffix = ".".join(labels[index:])
+            hit = self.suffixes.get(suffix)
+            if hit:
+                consider(hit)
+
+        for keyword, line_no, entry in self.keywords:
+            if keyword in needle:
+                consider((line_no, entry))
+
+        for pattern, line_no, entry in self.regexes:
+            if pattern.search(domain) or pattern.search(needle):
+                consider((line_no, entry))
+
+        return best
 
 
 def strip_comment(line: str) -> str:
@@ -140,7 +182,9 @@ def cache_file(cache_dir: Path, kind: str, url: str) -> Optional[Path]:
             pass
     if not directory.exists():
         return None
-    files = [path for path in directory.iterdir() if path.is_file() and path.name != "manifest.json"]
+    files = [
+        path for path in directory.iterdir() if path.is_file() and path.name != "manifest.json"
+    ]
     return files[0] if files else None
 
 
@@ -179,7 +223,70 @@ def domain_is_suffix(domain: str, suffix: str) -> bool:
     return domain == suffix or domain.endswith("." + suffix)
 
 
+def _remember_first(store: Dict[str, Tuple[int, str]], key: str, line_no: int, entry: str) -> None:
+    previous = store.get(key)
+    if previous is None or line_no < previous[0]:
+        store[key] = (line_no, entry)
+
+
+def build_domain_index(path: Path) -> DomainProviderIndex:
+    index = DomainProviderIndex()
+    for line_no, raw in iter_provider_lines(path):
+        line = strip_comment(raw).strip()
+        if not line or line.startswith("#"):
+            continue
+
+        if "," in line:
+            kind, value = line.split(",", 1)
+            kind = kind.strip().upper()
+            value = value.strip()
+            if kind == "DOMAIN":
+                _remember_first(index.exact, normalize_domain(value), line_no, line)
+            elif kind == "DOMAIN-SUFFIX":
+                _remember_first(index.suffixes, normalize_domain(value), line_no, line)
+            elif kind == "DOMAIN-KEYWORD":
+                keyword = value.lower()
+                if keyword:
+                    index.keywords.append((keyword, line_no, line))
+            elif kind == "DOMAIN-REGEX":
+                try:
+                    index.regexes.append((re.compile(value), line_no, line))
+                except re.error:
+                    pass
+            continue
+
+        lower = line.lower()
+        if lower.startswith("domain:") or lower.startswith("full:"):
+            value = line.split(":", 1)[1]
+            _remember_first(index.exact, normalize_domain(value), line_no, line)
+            continue
+        if lower.startswith("suffix:"):
+            _remember_first(index.suffixes, normalize_domain(line.split(":", 1)[1]), line_no, line)
+            continue
+        if lower.startswith("keyword:"):
+            keyword = line.split(":", 1)[1].lower()
+            if keyword:
+                index.keywords.append((keyword, line_no, line))
+            continue
+        if lower.startswith("regexp:") or lower.startswith("regex:"):
+            pattern = line.split(":", 1)[1]
+            try:
+                index.regexes.append((re.compile(pattern), line_no, line))
+            except re.error:
+                pass
+            continue
+
+        if line.startswith("+."):
+            _remember_first(index.suffixes, normalize_domain(line[2:]), line_no, line)
+        elif line.startswith("."):
+            _remember_first(index.suffixes, normalize_domain(line[1:]), line_no, line)
+        else:
+            _remember_first(index.suffixes, normalize_domain(line), line_no, line)
+    return index
+
+
 def match_domain_entry(domain: str, entry: str) -> Optional[str]:
+    """Linear single-entry matcher kept for tests and ad-hoc use."""
     line = strip_comment(entry).strip()
     if not line or line.startswith("#"):
         return None
@@ -259,134 +366,411 @@ def policy_from_rule(parts: Sequence[str]) -> str:
     return parts[index] if index >= 0 else ""
 
 
+class RouteEngine:
+    """Process-local route diagnosis with shared indexes and geo output cache.
+
+    MetaCubeX ``geo look`` results are cached in-process and on disk under
+    ``cache_dir/geo-look/<data-fingerprint>/`` so repeated matrix runs skip
+    spawning the geo CLI when geosite/geoip files are unchanged.
+    """
+
+    def __init__(
+        self,
+        cache_dir: Path,
+        geo_bin: str = "geo",
+        *,
+        geo_disk_cache: bool = True,
+    ) -> None:
+        self.cache_dir = cache_dir
+        self.geo_bin = geo_bin
+        self.geo_disk_cache = geo_disk_cache
+        self._templates: Dict[Path, Template] = {}
+        self._domain_indexes: Dict[Path, DomainProviderIndex] = {}
+        self._geo_output: Dict[Tuple[str, str, str], str] = {}
+        self._geo_variant: Optional[int] = None
+        self._geo_lock = threading.Lock()
+        # data_dir resolve path -> (fingerprint, file signature for invalidation)
+        self._geo_data_fp: Dict[str, Tuple[str, Tuple[Tuple[str, int, int], ...]]] = {}
+
+    def load_template(self, path: Path) -> Template:
+        resolved = path.resolve()
+        cached = self._templates.get(resolved)
+        if cached is None:
+            cached = parse_template(resolved)
+            self._templates[resolved] = cached
+        return cached
+
+    def domain_index_for(self, path: Path) -> DomainProviderIndex:
+        resolved = path.resolve()
+        cached = self._domain_indexes.get(resolved)
+        if cached is None:
+            cached = build_domain_index(resolved)
+            self._domain_indexes[resolved] = cached
+        return cached
+
+    def diagnose(self, template_path: Path, target: str) -> Dict[str, Optional[str]]:
+        template = self.load_template(template_path)
+        mode = template_mode(template)
+        if mode == "mixed":
+            return {"policy": None, "rule": None, "raw": "mixed RULE-SET and GEOSITE/GEOIP"}
+        if mode == "geodata":
+            return self._diagnose_geodata(template, target)
+        if input_ip(target):
+            return self._diagnose_ruleset_ip(template, target)
+        return self._diagnose_ruleset_domain(template, target)
+
+    def _diagnose_ruleset_domain(self, template: Template, domain: str) -> Dict[str, Optional[str]]:
+        missing: List[str] = []
+        for rule in template.rules:
+            if not rule.parts:
+                continue
+            kind = rule.parts[0].upper()
+            if kind == "MATCH":
+                if missing:
+                    return {
+                        "policy": None,
+                        "rule": None,
+                        "raw": "missing cache: " + ", ".join(missing),
+                    }
+                return {"policy": policy_from_rule(rule.parts), "rule": rule.raw}
+            if kind == "GEOIP":
+                continue
+            if kind != "RULE-SET" or len(rule.parts) < 3:
+                continue
+
+            provider = template.providers.get(rule.parts[1])
+            if not provider:
+                continue
+            if provider.behavior.lower() == "ipcidr":
+                continue
+
+            provider_file = resolve_provider_file(provider, self.cache_dir)
+            if not provider_file:
+                missing.append(provider.name)
+                continue
+
+            matched = self.domain_index_for(provider_file).match(domain)
+            if matched:
+                return {
+                    "policy": policy_from_rule(rule.parts),
+                    "rule": rule.raw,
+                    "match": matched[1],
+                    "provider": provider.name,
+                }
+        if missing:
+            return {
+                "policy": None,
+                "rule": None,
+                "raw": "missing cache: " + ", ".join(missing),
+            }
+        return {"policy": None, "rule": None}
+
+    def _diagnose_ruleset_ip(self, template: Template, target: str) -> Dict[str, Optional[str]]:
+        ip = input_ip(target)
+        assert ip is not None
+        missing: List[str] = []
+        for rule in template.rules:
+            if not rule.parts:
+                continue
+            kind = rule.parts[0].upper()
+            if kind == "MATCH":
+                if missing:
+                    return {
+                        "policy": None,
+                        "rule": None,
+                        "raw": "missing cache: " + ", ".join(missing),
+                    }
+                return {"policy": policy_from_rule(rule.parts), "rule": rule.raw}
+            if kind != "RULE-SET" or len(rule.parts) < 3:
+                continue
+            provider = template.providers.get(rule.parts[1])
+            if not provider or provider.behavior.lower() == "domain":
+                continue
+            provider_file = resolve_provider_file(provider, self.cache_dir)
+            if not provider_file:
+                missing.append(provider.name)
+                continue
+            for _, entry in iter_provider_lines(provider_file):
+                matched = match_ip_entry(ip, entry)
+                if matched:
+                    return {
+                        "policy": policy_from_rule(rule.parts),
+                        "rule": rule.raw,
+                        "match": matched,
+                        "provider": provider.name,
+                    }
+        if missing:
+            return {
+                "policy": None,
+                "rule": None,
+                "raw": "missing cache: " + ", ".join(missing),
+            }
+        return {"policy": None, "rule": None}
+
+    def _geo_variants(self, data_dir: Path, target: str, no_resolve: bool) -> List[List[str]]:
+        no_resolve_args = ["--no-resolve"] if no_resolve else []
+        return [
+            [self.geo_bin, "look", "-D", str(data_dir), *no_resolve_args, target],
+            [self.geo_bin, "look", "--data-dir", str(data_dir), *no_resolve_args, target],
+            [self.geo_bin, "-D", str(data_dir), "look", *no_resolve_args, target],
+            [self.geo_bin, "look", *no_resolve_args, "-d", str(data_dir), target],
+        ]
+
+    def _geo_data_signature(
+        self, data_dir: Path
+    ) -> Tuple[Tuple[str, int, int], ...]:
+        """Stable file signature for geo data dir (name, size, mtime_ns)."""
+        resolved = data_dir.resolve()
+        parts: List[Tuple[str, int, int]] = []
+        if not resolved.is_dir():
+            return tuple(parts)
+        for path in sorted(resolved.iterdir()):
+            if not path.is_file():
+                continue
+            name = path.name
+            if name.endswith(".tmp") or name.endswith(".partial"):
+                continue
+            try:
+                st = path.stat()
+            except OSError:
+                continue
+            parts.append((name, st.st_size, getattr(st, "st_mtime_ns", int(st.st_mtime * 1e9))))
+        return tuple(parts)
+
+    def geo_data_fingerprint(self, data_dir: Path) -> str:
+        """Return a short fingerprint of files in ``data_dir`` (cached per process)."""
+        resolved = data_dir.resolve()
+        key = str(resolved)
+        sig = self._geo_data_signature(resolved)
+        cached = self._geo_data_fp.get(key)
+        if cached is not None and cached[1] == sig:
+            return cached[0]
+        payload = key + "\n" + "\n".join(f"{n}:{sz}:{mt}" for n, sz, mt in sig)
+        fingerprint = hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+        self._geo_data_fp[key] = (fingerprint, sig)
+        return fingerprint
+
+    def geo_look_disk_path(self, data_dir: Path, target: str, no_resolve: bool) -> Path:
+        """Path for on-disk geo look cache entry."""
+        fingerprint = self.geo_data_fingerprint(data_dir)
+        target_key = hashlib.sha256(target.strip().lower().encode("utf-8")).hexdigest()[:32]
+        flag = "1" if no_resolve else "0"
+        return self.cache_dir / "geo-look" / fingerprint / f"{target_key}.{flag}.txt"
+
+    def _read_geo_disk(self, path: Path) -> Optional[str]:
+        try:
+            if not path.is_file():
+                return None
+            return path.read_text(encoding="utf-8")
+        except OSError:
+            return None
+
+    def _write_geo_disk(self, path: Path, text: str) -> None:
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_suffix(path.suffix + ".tmp")
+            tmp.write_text(text, encoding="utf-8")
+            os.replace(tmp, path)
+        except OSError:
+            pass
+
+    def run_geo_look(
+        self, data_dir: Path, target: str, no_resolve: bool
+    ) -> Tuple[int, str, str, List[str]]:
+        variants = self._geo_variants(data_dir, target, no_resolve)
+        order = list(range(len(variants)))
+        if self._geo_variant is not None:
+            order = [self._geo_variant] + [index for index in order if index != self._geo_variant]
+
+        tried: List[str] = []
+        last_stdout = ""
+        last_stderr = ""
+        for index in order:
+            command = variants[index]
+            tried.append(" ".join(command))
+            try:
+                proc = subprocess.run(
+                    command,
+                    check=False,
+                    text=True,
+                    encoding="utf-8",
+                    errors="replace",
+                    capture_output=True,
+                )
+            except FileNotFoundError:
+                return 127, "", f"{self.geo_bin} not found on PATH", tried
+            last_stdout, last_stderr = proc.stdout, proc.stderr
+            if proc.returncode == 0:
+                with self._geo_lock:
+                    if self._geo_variant is None:
+                        self._geo_variant = index
+                return 0, proc.stdout, proc.stderr, tried
+        return 1, last_stdout, last_stderr, tried
+
+    def geo_output(
+        self, data_dir: Path, target: str, no_resolve: bool
+    ) -> Tuple[int, str, str, List[str]]:
+        key = (str(data_dir.resolve()), target, "1" if no_resolve else "0")
+        with self._geo_lock:
+            cached = self._geo_output.get(key)
+            if cached is not None:
+                return 0, cached, "", ["(mem-cache)"]
+
+        disk_path: Optional[Path] = None
+        if self.geo_disk_cache:
+            disk_path = self.geo_look_disk_path(data_dir, target, no_resolve)
+            disk_text = self._read_geo_disk(disk_path)
+            if disk_text is not None:
+                with self._geo_lock:
+                    self._geo_output.setdefault(key, disk_text)
+                return 0, disk_text, "", ["(disk-cache)"]
+
+        code, stdout, stderr, tried = self.run_geo_look(data_dir, target, no_resolve)
+        if code == 0:
+            combined = stdout + "\n" + stderr
+            with self._geo_lock:
+                self._geo_output.setdefault(key, combined)
+            if disk_path is not None:
+                self._write_geo_disk(disk_path, combined)
+            return 0, combined, "", tried
+        return code, stdout, stderr, tried
+
+
+    def _diagnose_geodata(self, template: Template, target: str) -> Dict[str, Optional[str]]:
+        ip = input_ip(target)
+        mode = "ip" if ip else "domain"
+        candidates = [
+            rule.parts[1]
+            for rule in template.rules
+            if len(rule.parts) >= 2 and rule.parts[0].upper() in {"GEOSITE", "GEOIP"}
+        ]
+
+        if ip:
+            geo_url = template.geox.get("mmdb") or template.geox.get("geoip")
+            geo_kind = "mmdb" if template.geox.get("mmdb") else "geoip"
+        else:
+            geo_url = template.geox.get("geosite")
+            geo_kind = "geosite"
+        if not geo_url:
+            return {"policy": None, "rule": None, "raw": f"missing geox-url.{geo_kind}"}
+
+        geo_file = cache_file(self.cache_dir, "geo", geo_url)
+        if not geo_file:
+            return {"policy": None, "rule": None, "raw": f"missing cache: {geo_kind}"}
+
+        code, output, stderr, tried = self.geo_output(geo_file.parent, target, no_resolve=not ip)
+        if code != 0:
+            return {
+                "policy": None,
+                "rule": None,
+                "raw": "geo look failed: " + " | ".join(tried[:2]),
+            }
+
+        matches = extract_geo_matches(output if output else stderr, candidates)
+        match_set = set(matches)
+        for rule in template.rules:
+            if len(rule.parts) < 3:
+                continue
+            kind = rule.parts[0].upper()
+            tag = rule.parts[1]
+            if mode == "domain" and kind != "GEOSITE":
+                continue
+            if mode == "ip" and kind != "GEOIP":
+                continue
+            if tag in match_set:
+                return {
+                    "policy": policy_from_rule(rule.parts),
+                    "rule": rule.raw,
+                    "match": tag,
+                }
+        return {"policy": None, "rule": None}
+
+
 def explain_ruleset(template: Template, target: str, cache_dir: Path) -> int:
+    engine = RouteEngine(cache_dir)
     ip = input_ip(target)
     mode = "ip" if ip else "domain"
-    skipped_ip = False
-    missing: List[str] = []
-
     print(f"template: {template.path.relative_to(REPO_ROOT)}")
     print("mode: ruleset")
     print(f"input: {target}")
     print(f"input type: {mode}")
     print()
 
-    for rule in template.rules:
-        if not rule.parts:
-            continue
-        kind = rule.parts[0].upper()
-        if kind == "MATCH":
-            if missing:
-                print("missing cache:")
-                for missing_name in missing:
-                    provider = template.providers.get(missing_name)
-                    print(f"  - {missing_name}: {provider.url if provider else ''}")
-                print()
-                print("run:")
-                print(f"  .agents/skills/sift-route-debug/scripts/update_cache.py {template.path.relative_to(REPO_ROOT)}")
-                return 2
-            print("first matched rule:")
-            print(f"  line: {rule.line_no}")
-            print(f"  template rule: {rule.raw}")
-            print(f"  policy: {policy_from_rule(rule.parts)}")
-            return 0
-        if kind != "RULE-SET" or len(rule.parts) < 3:
-            continue
-
-        name = rule.parts[1]
-        provider = template.providers.get(name)
-        if not provider:
-            continue
-
-        behavior = provider.behavior.lower()
-        if mode == "domain" and behavior == "ipcidr":
-            skipped_ip = True
-            continue
-        if mode == "ip" and behavior == "domain":
-            continue
-
-        provider_file = resolve_provider_file(provider, cache_dir)
-        if not provider_file:
-            missing.append(name)
-            continue
-
-        for provider_line_no, entry in iter_provider_lines(provider_file):
-            matched = match_ip_entry(ip, entry) if ip else match_domain_entry(target, entry)
-            if matched:
-                print("first matched rule:")
-                print(f"  line: {rule.line_no}")
-                print(f"  template rule: {rule.raw}")
-                print(f"  provider: {name}")
-                print(f"  provider behavior: {provider.behavior or '(unknown)'}")
-                print(f"  provider source: {provider.url or provider.path}")
-                print(f"  provider line: {provider_line_no}")
-                print(f"  provider match: {matched}")
-                print(f"  policy: {policy_from_rule(rule.parts)}")
-                if mode == "domain" and skipped_ip:
-                    print()
-                    print("notes:")
-                    print("  IP providers were skipped for domain-only diagnosis.")
-                return 0
-
-    if missing:
+    result = engine.diagnose(template.path, target)
+    raw = result.get("raw") or ""
+    if raw.startswith("missing cache:"):
+        missing = raw.removeprefix("missing cache: ").split(", ")
         print("missing cache:")
-        for name in missing:
-            provider = template.providers.get(name)
-            print(f"  - {name}: {provider.url if provider else ''}")
+        for missing_name in missing:
+            provider = template.providers.get(missing_name)
+            print(f"  - {missing_name}: {provider.url if provider else ''}")
         print()
         print("run:")
-        print(f"  .agents/skills/sift-route-debug/scripts/update_cache.py {template.path.relative_to(REPO_ROOT)}")
+        print(
+            "  .agents/skills/sift-route-debug/scripts/update_cache.py "
+            f"{template.path.relative_to(REPO_ROOT)}"
+        )
         return 2
 
+    if result.get("policy") and result.get("rule"):
+        line_no = next(
+            (rule.line_no for rule in template.rules if rule.raw == result["rule"]),
+            "?",
+        )
+        print("first matched rule:")
+        print(f"  line: {line_no}")
+        print(f"  template rule: {result['rule']}")
+        if result.get("provider"):
+            provider = template.providers.get(str(result["provider"]))
+            print(f"  provider: {result['provider']}")
+            if provider:
+                print(f"  provider behavior: {provider.behavior or '(unknown)'}")
+                print(f"  provider source: {provider.url or provider.path}")
+            if result.get("match"):
+                print(f"  provider match: {result['match']}")
+        print(f"  policy: {result['policy']}")
+        if mode == "domain":
+            print()
+            print("notes:")
+            print("  IP providers were skipped for domain-only diagnosis.")
+        return 0
+
     print("no matching rule found")
-    if skipped_ip and mode == "domain":
+    if mode == "domain":
         print()
         print("notes:")
         print("  Domain diagnosis skipped IP providers; runtime may route by resolved IP.")
     return 1
 
 
-def run_geo_look(geo_bin: str, data_dir: Path, target: str, no_resolve: bool) -> Tuple[int, str, str, List[str]]:
-    no_resolve_args = ["--no-resolve"] if no_resolve else []
-    variants = [
-        [geo_bin, "look", "-D", str(data_dir), *no_resolve_args, target],
-        [geo_bin, "look", "--data-dir", str(data_dir), *no_resolve_args, target],
-        [geo_bin, "-D", str(data_dir), "look", *no_resolve_args, target],
-        [geo_bin, "look", *no_resolve_args, "-d", str(data_dir), target],
-    ]
-    tried: List[str] = []
-    last_stdout = ""
-    last_stderr = ""
-    for command in variants:
-        tried.append(" ".join(command))
-        try:
-            proc = subprocess.run(
-                command, check=False, text=True, encoding="utf-8", errors="replace", capture_output=True
-            )
-        except FileNotFoundError:
-            return 127, "", f"{geo_bin} not found on PATH", tried
-        last_stdout, last_stderr = proc.stdout, proc.stderr
-        if proc.returncode == 0:
-            return 0, proc.stdout, proc.stderr, tried
-    return 1, last_stdout, last_stderr, tried
+def run_geo_look(
+    geo_bin: str, data_dir: Path, target: str, no_resolve: bool
+) -> Tuple[int, str, str, List[str]]:
+    """Backward-compatible wrapper used by older callers/tests."""
+    return RouteEngine(DEFAULT_CACHE, geo_bin).run_geo_look(data_dir, target, no_resolve)
 
 
 def extract_geo_matches(output: str, candidates: Sequence[str]) -> List[str]:
     matches: List[str] = []
     for tag in candidates:
-        pattern = re.compile(r"(?<![A-Za-z0-9_@!.-])" + re.escape(tag) + r"(?![A-Za-z0-9_@!.-])", re.I)
+        pattern = re.compile(
+            r"(?<![A-Za-z0-9_@!.-])" + re.escape(tag) + r"(?![A-Za-z0-9_@!.-])",
+            re.I,
+        )
         if pattern.search(output):
             matches.append(tag)
     return matches
 
 
 def explain_geodata(template: Template, target: str, cache_dir: Path, geo_bin: str) -> int:
+    engine = RouteEngine(cache_dir, geo_bin)
     ip = input_ip(target)
     mode = "ip" if ip else "domain"
-    candidates: List[str] = []
-    for rule in template.rules:
-        if len(rule.parts) >= 2 and rule.parts[0].upper() in {"GEOSITE", "GEOIP"}:
-            candidates.append(rule.parts[1])
+    candidates = [
+        rule.parts[1]
+        for rule in template.rules
+        if len(rule.parts) >= 2 and rule.parts[0].upper() in {"GEOSITE", "GEOIP"}
+    ]
 
     print(f"template: {template.path.relative_to(REPO_ROOT)}")
     print("mode: geodata")
@@ -412,16 +796,18 @@ def explain_geodata(template: Template, target: str, cache_dir: Path, geo_bin: s
         print(f"  - {geo_kind}: {geo_url}")
         print()
         print("run:")
-        print(f"  .agents/skills/sift-route-debug/scripts/update_cache.py {template.path.relative_to(REPO_ROOT)}")
+        print(
+            "  .agents/skills/sift-route-debug/scripts/update_cache.py "
+            f"{template.path.relative_to(REPO_ROOT)}"
+        )
         return 2
 
-    data_dir = geo_file.parent
     print("geo source:")
     print(f"  {geo_kind}: {geo_url}")
     print(f"  cache: {geo_file.relative_to(REPO_ROOT)}")
     print()
 
-    code, stdout, stderr, tried = run_geo_look(geo_bin, data_dir, target, no_resolve=not ip)
+    code, output, stderr, tried = engine.geo_output(geo_file.parent, target, no_resolve=not ip)
     if code != 0:
         print("[FAIL] unable to query geo database")
         print("tried:")
@@ -430,12 +816,11 @@ def explain_geodata(template: Template, target: str, cache_dir: Path, geo_bin: s
         if stderr.strip():
             print("stderr:")
             print(stderr.strip())
-        if stdout.strip():
+        if output.strip():
             print("stdout:")
-            print(stdout.strip())
+            print(output.strip())
         return 2
 
-    output = stdout + "\n" + stderr
     matches = extract_geo_matches(output, candidates)
     if matches:
         print("matched geo tags:")
@@ -445,28 +830,24 @@ def explain_geodata(template: Template, target: str, cache_dir: Path, geo_bin: s
         print("matched geo tags: none found in geo output")
         print()
         print("raw geo output:")
-        print(stdout.strip() or stderr.strip() or "(empty)")
+        print(output.strip() or stderr.strip() or "(empty)")
 
-    for rule in template.rules:
-        if len(rule.parts) < 3:
-            continue
-        kind = rule.parts[0].upper()
-        tag = rule.parts[1]
-        if mode == "domain" and kind != "GEOSITE":
-            continue
-        if mode == "ip" and kind != "GEOIP":
-            continue
-        if tag in matches:
+    result = engine.diagnose(template.path, target)
+    if result.get("policy") and result.get("rule"):
+        line_no = next(
+            (rule.line_no for rule in template.rules if rule.raw == result["rule"]),
+            "?",
+        )
+        print()
+        print("first matched rule:")
+        print(f"  line: {line_no}")
+        print(f"  template rule: {result['rule']}")
+        print(f"  policy: {result['policy']}")
+        if mode == "domain":
             print()
-            print("first matched rule:")
-            print(f"  line: {rule.line_no}")
-            print(f"  template rule: {rule.raw}")
-            print(f"  policy: {policy_from_rule(rule.parts)}")
-            if mode == "domain":
-                print()
-                print("notes:")
-                print("  Domain mode used no-resolve; GEOIP rules were not evaluated.")
-            return 0
+            print("notes:")
+            print("  Domain mode used no-resolve; GEOIP rules were not evaluated.")
+        return 0
 
     print()
     print("no matching geodata rule found")
@@ -474,8 +855,12 @@ def explain_geodata(template: Template, target: str, cache_dir: Path, geo_bin: s
 
 
 def template_mode(template: Template) -> str:
-    has_ruleset = any(rule.parts and rule.parts[0].upper() == "RULE-SET" for rule in template.rules)
-    has_geo = any(rule.parts and rule.parts[0].upper() in {"GEOSITE", "GEOIP"} for rule in template.rules)
+    has_ruleset = any(
+        rule.parts and rule.parts[0].upper() == "RULE-SET" for rule in template.rules
+    )
+    has_geo = any(
+        rule.parts and rule.parts[0].upper() in {"GEOSITE", "GEOIP"} for rule in template.rules
+    )
     if has_ruleset and has_geo:
         return "mixed"
     if has_geo:
@@ -498,14 +883,18 @@ def main() -> int:
         print(f"[FAIL] template not found: {args.template}", file=sys.stderr)
         return 2
 
+    cache_dir = args.cache_dir if args.cache_dir.is_absolute() else REPO_ROOT / args.cache_dir
     template = parse_template(template_path)
     mode = template_mode(template)
     if mode == "mixed":
-        print("[FAIL] mixed RULE-SET and GEOSITE/GEOIP rules are not supported", file=sys.stderr)
+        print(
+            "[FAIL] mixed RULE-SET and GEOSITE/GEOIP rules are not supported",
+            file=sys.stderr,
+        )
         return 2
     if mode == "geodata":
-        return explain_geodata(template, args.target, args.cache_dir, args.geo_bin)
-    return explain_ruleset(template, args.target, args.cache_dir)
+        return explain_geodata(template, args.target, cache_dir, args.geo_bin)
+    return explain_ruleset(template, args.target, cache_dir)
 
 
 if __name__ == "__main__":

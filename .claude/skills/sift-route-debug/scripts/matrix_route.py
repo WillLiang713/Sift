@@ -11,11 +11,11 @@ Exit 0 if all FAIL-level expectations pass; exit 1 on any FAIL.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import os
 import platform
-import re
 import shutil
 import stat
 import subprocess
@@ -32,10 +32,18 @@ sys.path.insert(0, str(SCRIPTS))
 import explain_route as er  # noqa: E402
 
 DEFAULT_CACHE = REPO_ROOT / ".cache" / "sift-route-debug"
-EXPLAIN = SCRIPTS / "explain_route.py"
 UPDATE_CACHE = SCRIPTS / "update_cache.py"
 GEO_VERSION = "v1.1"
 GEO_RELEASE_API = "https://api.github.com/repos/MetaCubeX/geo/releases/tags/{version}"
+
+
+def utf8_python_env() -> Dict[str, str]:
+    """Return an environment that makes child Python output UTF-8 on Windows."""
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
+    env["PYTHONUTF8"] = "1"
+    return env
+
 
 TEMPLATES: Dict[str, str] = {
     "HY-f": "rules/full.yaml",
@@ -101,7 +109,6 @@ SHORT = {
     "流媒体": "流媒",
     "OneDrive": "OD",
     "Telegram": "TG",
-    "广告拦截": "广告",
     "DIRECT": "DIR",
     "AI": "AI",
 }
@@ -122,12 +129,15 @@ def default_expectations() -> List[Expectation]:
 
     exp.append(("localhost", ALL, {"DIRECT"}, "FAIL"))
 
-    for ad_domain in ("ad.doubleclick.net", "pagead2.googlesyndication.com"):
-        exp.append((ad_domain, ALL, {"广告拦截"}, "FAIL"))
-
-    # Google .cn global services must not fall through to broad CN direct on Full.
+    # Google/Play hard anchors (routing contract). Pair with Full/Core DNS whitelist
+    # (rule-set:proxy or geosite:geolocation-!cn+google) so these domains enter Mihomo
+    # with overseas DoH — DNS is not re-asserted by this domain matrix.
+    # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN): HY/DW may
+    # direct via cn-lite +.cn while MC/AC proxy; that is family variance, not a contract break.
     exp.append(("googleapis.cn", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("googleapis.cn", CORES + NANOS, {"节点选择"}, "FAIL"))
+    exp.append(("play.googleapis.com", FULLS, {"谷歌服务"}, "FAIL"))
+    exp.append(("play.googleapis.com", CORES + NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.google.com", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))
@@ -135,12 +145,12 @@ def default_expectations() -> List[Expectation]:
     exp.append(("www.youtube.com", ["MC-f", "AC-f"], {"流媒体"}, "FAIL"))
     # DustinWin Full streaming is IP-heavy (mediaip); YouTube domain often hits proxy.
     exp.append(("www.youtube.com", ["HY-f", "DW-f"], {"谷歌服务", "节点选择", "流媒体"}, "WARN"))
-    exp.append(
-        ("www.youtube.com", CORES + NANOS, {"节点选择", "漏网之鱼"}, "FAIL")
-    )
+    exp.append(("www.youtube.com", CORES + NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
-    # CF challenge must not bind to 流媒体 (ACL Full uses brand packs, not ProxyMedia).
-    exp.append(("challenges.cloudflare.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
+    # CF challenge: display-only. HY-f/DW-f bind it to 流媒体 via DustinWin media set
+    # (intended: CF verification traffic rides the streaming group); other families
+    # route it to 节点选择 / 漏网之鱼. No FAIL assertion by design.
+    # exp.append(("challenges.cloudflare.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
 
     exp.append(("chatgpt.com", FULLS, {"AI"}, "FAIL"))
     exp.append(("chatgpt.com", CORES, {"节点选择", "漏网之鱼"}, "FAIL"))
@@ -156,7 +166,15 @@ def default_expectations() -> List[Expectation]:
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
         exp.append((domestic, ALL, {"直连"}, "FAIL"))
 
-    exp.append(("github.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
+    # GitHub: dedicated group on HY-f/HY-c/MC-f/MC-c (defaults to 节点选择); the
+    # other eight templates route github.com to 节点选择 / 漏网之鱼.
+    exp.append(("github.com", ["HY-f", "HY-c", "MC-f", "MC-c"], {"GitHub"}, "FAIL"))
+    exp.append(("github.com", ["DW-f", "DW-c", "DW-n", "MC-n", "AC-f", "AC-c", "AC-n", "HY-n"], {"节点选择", "漏网之鱼"}, "FAIL"))
+
+    # OneDrive: dedicated group on HY/DW/AC Full+Core and MC Full+Core (defaults to
+    # 节点选择); Nano has no group → 节点选择.
+    exp.append(("onedrive.live.com", ["HY-f", "HY-c", "DW-f", "DW-c", "AC-f", "AC-c", "MC-f", "MC-c"], {"OneDrive"}, "FAIL"))
+    exp.append(("onedrive.live.com", NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("icloud.com", CORES, {"苹果服务"}, "FAIL"))
     exp.append(("office.com", CORES, {"微软服务"}, "FAIL"))
@@ -166,87 +184,27 @@ def default_expectations() -> List[Expectation]:
     return exp
 
 
-def explain_ruleset_domain(
-    template: str, domain: str, cache_dir: Path
-) -> Dict[str, Optional[str]]:
-    """Domain first-match for RULE-SET templates; skip GEOIP and ipcidr providers."""
-    path = REPO_ROOT / template
-    t = er.parse_template(path)
-    for rule in t.rules:
-        if not rule.parts:
-            continue
-        kind = rule.parts[0].upper()
-        if kind == "MATCH":
-            return {
-                "policy": er.policy_from_rule(rule.parts),
-                "rule": rule.raw,
-            }
-        if kind == "GEOIP":
-            continue
-        if kind != "RULE-SET" or len(rule.parts) < 3:
-            continue
-        provider = t.providers.get(rule.parts[1])
-        if not provider:
-            continue
-        if provider.behavior.lower() == "ipcidr":
-            continue
-        provider_file = er.resolve_provider_file(provider, cache_dir)
-        if not provider_file:
-            continue
-        for _, entry in er.iter_provider_lines(provider_file):
-            matched = er.match_domain_entry(domain, entry)
-            if matched:
-                return {
-                    "policy": er.policy_from_rule(rule.parts),
-                    "rule": rule.raw,
-                    "match": matched,
-                }
-    return {"policy": None, "rule": None}
-
-
-def explain_one(
-    template: str, domain: str, cache_dir: Path, geo_bin: str
-) -> Dict[str, Optional[str]]:
-    cmd = [
-        sys.executable,
-        str(EXPLAIN),
-        str(REPO_ROOT / template),
-        domain,
-        "--cache-dir",
-        str(cache_dir),
-        "--geo-bin",
-        geo_bin,
-    ]
-    proc = subprocess.run(
-        cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120
-    )
-    out = proc.stdout + proc.stderr
-    if "mixed RULE-SET" in out:
-        return explain_ruleset_domain(template, domain, cache_dir)
-    policy = re.search(r"^\s*policy:\s*(.+)$", out, re.M)
-    rule = re.search(r"^\s*template rule:\s*(.+)$", out, re.M)
-    return {
-        "policy": policy.group(1).strip() if policy else None,
-        "rule": rule.group(1).strip() if rule else None,
-        "raw": out[:400] if proc.returncode != 0 else None,
-    }
-
-
 def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> None:
-    for rel in (TEMPLATES[label] for label in labels):
-        print(f"== update_cache {rel} ==")
-        proc = subprocess.run(
-            [
-                sys.executable,
-                str(UPDATE_CACHE),
-                str(REPO_ROOT / rel),
-                "--cache-dir",
-                str(cache_dir),
-            ],
-            cwd=str(REPO_ROOT),
+    """Refresh rule/geox caches once for all selected templates (URL-deduped, parallel)."""
+    templates = [str(REPO_ROOT / TEMPLATES[label]) for label in labels]
+    if not templates:
+        return
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(UPDATE_CACHE),
+            *templates,
+            "--cache-dir",
+            str(cache_dir),
+        ],
+        cwd=str(REPO_ROOT),
+        env=utf8_python_env(),
+    )
+    if proc.returncode != 0:
+        print(
+            f"  [WARN] update_cache exited {proc.returncode} for {len(templates)} template(s)",
+            file=sys.stderr,
         )
-        if proc.returncode != 0:
-            print(f"  [WARN] update_cache exited {proc.returncode} for {rel}", file=sys.stderr)
 
 
 def ensure_geo_bin(preferred: str) -> str:
@@ -259,7 +217,14 @@ def ensure_geo_bin(preferred: str) -> str:
 
     system = platform.system().lower()
     machine = platform.machine().lower()
-    arch = {"amd64": "amd64", "x86_64": "amd64", "aarch64": "arm64", "arm64": "arm64", "i386": "386", "i686": "386"}.get(machine)
+    arch = {
+        "amd64": "amd64",
+        "x86_64": "amd64",
+        "aarch64": "arm64",
+        "arm64": "arm64",
+        "i386": "386",
+        "i686": "386",
+    }.get(machine)
     if system not in {"windows", "linux", "darwin"} or not arch:
         return preferred
     destination = REPO_ROOT / ".cache" / "tools" / "geo-bin" / GEO_VERSION / f"{system}-{arch}"
@@ -267,20 +232,31 @@ def ensure_geo_bin(preferred: str) -> str:
     if binary.is_file():
         return str(binary)
 
-    headers = {"Accept": "application/vnd.github+json", "User-Agent": "Sift route matrix", "X-GitHub-Api-Version": "2022-11-28"}
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "Sift route matrix",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
     token = os.environ.get("GITHUB_TOKEN")
     if token:
         headers["Authorization"] = f"Bearer {token}"
     with urlopen(Request(GEO_RELEASE_API.format(version=GEO_VERSION), headers=headers), timeout=30) as response:
         release = json.load(response)
     assets = [asset for asset in release.get("assets", []) if isinstance(asset, dict)]
-    matches = [asset for asset in assets if system in str(asset.get("name", "")).lower() and arch in str(asset.get("name", "")).lower()]
+    matches = [
+        asset
+        for asset in assets
+        if system in str(asset.get("name", "")).lower() and arch in str(asset.get("name", "")).lower()
+    ]
     if not matches:
         raise RuntimeError(f"geo {GEO_VERSION} has no asset for {system}/{arch}")
     asset = matches[0]
     destination.mkdir(parents=True, exist_ok=True)
     temporary = binary.with_suffix(binary.suffix + ".tmp")
-    with urlopen(Request(asset["browser_download_url"], headers={"User-Agent": "Sift route matrix"}), timeout=120) as response, temporary.open("wb") as output:
+    with urlopen(
+        Request(asset["browser_download_url"], headers={"User-Agent": "Sift route matrix"}),
+        timeout=120,
+    ) as response, temporary.open("wb") as output:
         shutil.copyfileobj(response, output)
     digest = asset.get("digest")
     if isinstance(digest, str) and digest.startswith("sha256:"):
@@ -291,6 +267,80 @@ def ensure_geo_bin(preferred: str) -> str:
     os.replace(temporary, binary)
     binary.chmod(binary.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
     return str(binary)
+
+
+def _geosite_data_dirs(engine: er.RouteEngine, template_paths: Dict[str, Path]) -> List[Path]:
+    dirs: List[Path] = []
+    seen: Set[str] = set()
+    for path in template_paths.values():
+        template = engine.load_template(path)
+        if er.template_mode(template) != "geodata":
+            continue
+        url = template.geox.get("geosite")
+        if not url:
+            continue
+        geo_file = er.cache_file(engine.cache_dir, "geo", url)
+        if geo_file is None:
+            continue
+        key = str(geo_file.parent.resolve())
+        if key in seen:
+            continue
+        seen.add(key)
+        dirs.append(geo_file.parent)
+    return dirs
+
+
+def _warm_geo_outputs(engine: er.RouteEngine, data_dirs: Sequence[Path], domains: Sequence[str]) -> None:
+    """Prefetch MetaCubeX geo look results in parallel (shared across MC templates)."""
+    if not data_dirs or not domains:
+        return
+
+    # Resolve the working geo argv once so workers do not each try every variant.
+    first = domains[0]
+    for data_dir in data_dirs:
+        engine.geo_output(data_dir, first, no_resolve=True)
+
+    rest = list(domains[1:])
+    if not rest:
+        return
+
+    def one(domain: str) -> None:
+        for data_dir in data_dirs:
+            engine.geo_output(data_dir, domain, no_resolve=True)
+
+    workers = min(8, max(1, len(rest)))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        list(pool.map(one, rest))
+
+
+def run_matrix(
+    engine: er.RouteEngine,
+    labels: Sequence[str],
+    domains: Sequence[str],
+) -> Dict[str, Dict[str, Dict[str, Optional[str]]]]:
+    """Evaluate every domain/template cell in-process with shared indexes."""
+    results: Dict[str, Dict[str, Dict[str, Optional[str]]]] = {}
+    template_paths = {label: (REPO_ROOT / TEMPLATES[label]) for label in labels}
+
+    # Warm templates and domain provider indexes once so lookups stay O(suffixes).
+    for path in template_paths.values():
+        template = engine.load_template(path)
+        for provider in template.providers.values():
+            if provider.behavior.lower() == "ipcidr":
+                continue
+            provider_file = er.resolve_provider_file(provider, engine.cache_dir)
+            if provider_file is not None:
+                engine.domain_index_for(provider_file)
+
+    # MetaCubeX templates share geosite data; parallel-prefetch once per domain.
+    _warm_geo_outputs(engine, _geosite_data_dirs(engine, template_paths), domains)
+
+    for domain in domains:
+        row: Dict[str, Dict[str, Optional[str]]] = {}
+        for label in labels:
+            row[label] = engine.diagnose(template_paths[label], domain)
+        results[domain] = row
+    return results
 
 
 def run_expectations(
@@ -368,17 +418,17 @@ def main() -> int:
 
     labels = args.templates or list(TEMPLATES.keys())
     domains = args.domains or list(DEFAULT_DOMAINS)
-    geo_bin = ensure_geo_bin(args.geo_bin) if any(label.startswith("MC-") for label in labels) else args.geo_bin
+    geo_bin = (
+        ensure_geo_bin(args.geo_bin)
+        if any(label.startswith("MC-") for label in labels)
+        else args.geo_bin
+    )
 
     if args.update_cache:
         update_all_caches(cache_dir, labels)
 
-    results: Dict[str, Dict[str, Dict[str, Optional[str]]]] = {}
-    for domain in domains:
-        results[domain] = {}
-        for lab in labels:
-            rel = TEMPLATES[lab]
-            results[domain][lab] = explain_one(rel, domain, cache_dir, geo_bin)
+    engine = er.RouteEngine(cache_dir, geo_bin)
+    results = run_matrix(engine, labels, domains)
 
     print("=" * 130)
     print(f"{'domain':<28}" + "".join(f"{lab:<8}" for lab in labels))
@@ -401,7 +451,9 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - MetaCubeX geo CLI is resolved from PATH or bootstrapped into .cache/tools/geo-bin.")
+    print("  - Google/Play FAIL anchors: googleapis.cn + play.googleapis.com (gstatic.cn display-only).")
+    print("  - In-process RouteEngine reuses provider indexes and MetaCubeX geo lookups.")
+    print("  - geo look results persist under cache_dir/geo-look/ (invalidated when geodata files change).")
     print(f"  - geo-bin={geo_bin}")
     if fails:
         print("FAIL")

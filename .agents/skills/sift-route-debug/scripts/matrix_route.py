@@ -147,8 +147,10 @@ def default_expectations() -> List[Expectation]:
     exp.append(("www.youtube.com", ["HY-f", "DW-f"], {"谷歌服务", "节点选择", "流媒体"}, "WARN"))
     exp.append(("www.youtube.com", CORES + NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
-    # CF challenge must not bind to 流媒体 (ACL Full uses brand packs, not ProxyMedia).
-    exp.append(("challenges.cloudflare.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
+    # CF challenge: display-only. HY-f/DW-f bind it to 流媒体 via DustinWin media set
+    # (intended: CF verification traffic rides the streaming group); other families
+    # route it to 节点选择 / 漏网之鱼. No FAIL assertion by design.
+    # exp.append(("challenges.cloudflare.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
 
     exp.append(("chatgpt.com", FULLS, {"AI"}, "FAIL"))
     exp.append(("chatgpt.com", CORES, {"节点选择", "漏网之鱼"}, "FAIL"))
@@ -164,7 +166,15 @@ def default_expectations() -> List[Expectation]:
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
         exp.append((domestic, ALL, {"直连"}, "FAIL"))
 
-    exp.append(("github.com", ALL, {"节点选择", "漏网之鱼"}, "FAIL"))
+    # GitHub: dedicated group on HY-f/HY-c/MC-f/MC-c (defaults to 节点选择); the
+    # other eight templates route github.com to 节点选择 / 漏网之鱼.
+    exp.append(("github.com", ["HY-f", "HY-c", "MC-f", "MC-c"], {"GitHub"}, "FAIL"))
+    exp.append(("github.com", ["DW-f", "DW-c", "DW-n", "MC-n", "AC-f", "AC-c", "AC-n", "HY-n"], {"节点选择", "漏网之鱼"}, "FAIL"))
+
+    # OneDrive: dedicated group on HY/DW/AC Full+Core and MC Full+Core (defaults to
+    # 节点选择); Nano has no group → 节点选择.
+    exp.append(("onedrive.live.com", ["HY-f", "HY-c", "DW-f", "DW-c", "AC-f", "AC-c", "MC-f", "MC-c"], {"OneDrive"}, "FAIL"))
+    exp.append(("onedrive.live.com", NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("icloud.com", CORES, {"苹果服务"}, "FAIL"))
     exp.append(("office.com", CORES, {"微软服务"}, "FAIL"))

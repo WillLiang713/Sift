@@ -63,7 +63,7 @@ python .agents/skills/sift-route-debug/scripts/matrix_route.py --update-cache \
   --domain googleapis.cn --domain challenges.cloudflare.com
 ```
 
-`matrix_route.py` resolves MetaCubeX `geo` from PATH or downloads the official v1.1 build for the current platform into `.cache/tools/geo-bin/`. The shell wrapper remains a Linux convenience only.
+`matrix_route.py` resolves MetaCubeX `geo` from PATH or downloads the official v1.1 build for the current platform into `.cache/tools/geo-bin/`. The matrix itself runs fully in-process via `RouteEngine`: provider files are indexed once (exact/suffix/keyword/regex), MetaCubeX `geo look` results are shared across MC templates and prefetched in parallel, and no per-cell Python subprocess is spawned. Successful `geo look` output is also written under `.cache/sift-route-debug/geo-look/<data-fingerprint>/` so later runs reuse disk when geosite/geoip files are unchanged. Cache refresh (`--update-cache` / `update_cache.py`) deduplicates URLs across templates and downloads/decodes MRS in parallel (`--jobs N`, default 12). The shell wrapper remains a Linux convenience only.
 
 Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = at least one FAIL.
 
@@ -105,7 +105,7 @@ Exit codes: `0` = all FAIL-level expectations passed (or `--no-assert`); `1` = a
 
 ## Built-in probes (default)
 
-Private, advertising (`doubleclick` / `googlesyndication`), Google / `.cn` Google APIs, YouTube, CF challenge, AI, Netflix/Disney+/Spotify/TikTok/Twitch/Hulu, Apple/Microsoft/OneDrive, GitHub/social, domestic CN sites. See `DEFAULT_DOMAINS` in `scripts/matrix_route.py`.
+Private, Google / `.cn` Google APIs, YouTube, CF challenge, AI, Netflix/Disney+/Spotify/TikTok/Twitch/Hulu, Apple/Microsoft/OneDrive, GitHub/social, domestic CN sites. See `DEFAULT_DOMAINS` in `scripts/matrix_route.py`.
 
 ## Built-in expectations (contract highlights)
 
@@ -113,22 +113,26 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 
 | Area | Contract (summary) |
 | --- | --- |
-| Advertising | `ad.doubleclick.net` / `pagead2.googlesyndication.com` → `广告拦截` on all 12 templates |
-| Full Google | `www.google.com` / `googleapis.cn` → `谷歌服务` on HY/DW/MC/AC Full |
-| Core/Nano Google | → `节点选择` (not broad CN direct for `googleapis.cn`) |
-| CF challenge | `challenges.cloudflare.com` → `节点选择` or `漏网之鱼`, **never** `流媒体` |
+| **Google/Play anchors** | **`googleapis.cn`** + **`play.googleapis.com`**: Full → `谷歌服务`; Core/Nano → `节点选择`. Must not fall through to broad CN direct. DNS half of the same contract is Full/Core fake-IP whitelist (`rule-set:proxy` or MetaCubeX `geolocation-!cn`+`google`). |
+| Other Google | `www.google.com` same policy split as anchors (Full `谷歌服务` / Core-Nano `节点选择`) |
+| CF challenge | Display-only. HY-f/DW-f bind `challenges.cloudflare.com` to `流媒体` via the DustinWin `media` set (intended — CF verification traffic rides the streaming group); other families send it to `节点选择` / `漏网之鱼`. No FAIL assertion by design. |
 | Full AI | `chatgpt.com` → `AI` |
 | Full streaming | MC/AC: YouTube/Netflix → `流媒体`; AC brand packs (not ProxyMedia) |
 | Full brands | icloud → `苹果服务`, office → `微软服务` |
 | Core brands | Apple → `苹果服务`, Microsoft → `微软服务` (default `直连`) |
+| GitHub | Dedicated `GitHub` group on HY-f/HY-c/MC-f/MC-c (default `节点选择`); other templates → `节点选择`/`漏网之鱼` |
+| OneDrive | Dedicated `OneDrive` group on HY/DW/AC Full+Core and MC Full+Core (default `节点选择`); Nano → `节点选择` |
 | Domestic | baidu/qq/taobao/bilibili → `直连` on all 12 |
 | Private | localhost → `DIRECT` |
+
+Display-only (not FAIL/WARN):
+
+- `gstatic.cn` may → `直连` on HY/DW Core/Nano (`cn-lite` `+.cn`) or proxy on MC/AC — family variance; **not** a Play/API contract anchor.
 
 WARN-level examples (do not treat as hard failures unless design changes):
 
 - DustinWin Full YouTube/Netflix often → `节点选择` (domain media light; `mediaip` is IP).
 - ACL4SSR Nano may send some overseas hosts to `漏网之鱼` (narrow ProxyLite).
-- DustinWin Core/Nano `gstatic.cn` may → `直连` via `cn-lite` `+.cn` (no Google classical list).
 
 Edit `default_expectations()` in `matrix_route.py` when the product contract changes.
 
@@ -141,7 +145,8 @@ Common Sift cases to call out:
 - DustinWin: `proxy` is the explicit non-CN layer after service/brand rules and before `cn-lite`; Full also has blackmatrix7 `google` → `谷歌服务` before `proxy`.
 - MetaCubeX Full: `GEOSITE,google` → `谷歌服务` before `geolocation-!cn` / `cn`; Core/Nano: `google` → `节点选择` between `geolocation-!cn` and `cn`.
 - ACL4SSR Full: streaming brand packs (YouTube/Netflix/NetflixIP/DisneyPlus/Spotify/TikTok) → `流媒体`; do not re-add `ProxyMedia` (CF challenge pollution).
-- Core routes Apple and Microsoft rules to separately controllable service groups, both defaulting to `直连`.
+- HY-f/DW-f: the DustinWin `media` domain set (added 2026-07) intentionally binds `+.challenges.cloudflare.com` to `流媒体` — CF verification traffic rides the streaming group. Other families keep it on `节点选择`/`漏网之鱼`.
+- Core routes Apple and Microsoft rules to separately controllable service groups, both defaulting to `直连`; HY/MC Full+Core also have dedicated `GitHub` and `OneDrive` groups (default `节点选择`).
 - A domain that has no domain-rule match can still route by IP at runtime if DNS resolution produces an IP matched by an IP rule.
 
 ## MetaCubeX geo CLI
