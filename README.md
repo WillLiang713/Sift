@@ -26,7 +26,9 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 
 也可按不同规则源选用独立模板：[rules/variants](./rules/variants/)
 
-Core 的 `苹果服务`、`微软服务` 与 `直连` 默认选择直连；`OneDrive`、`GitHub` 各有独立策略组并默认选择 `节点选择`，均可在面板中切换。所有模板的 `漏网之鱼` 默认选择 `节点选择`。
+Core 的 `苹果服务`、`微软服务` 与 `直连` 默认选择直连；`OneDrive`、`GitHub` 各有独立策略组并默认选择 `节点选择`，均可在面板中切换。Core/Nano 及无地区组 variants 不提供 `手动切换`，所有模板的 `漏网之鱼` 默认选择 `节点选择`。
+
+Full 系列服务组通过地区组和 `其他节点` 覆盖节点；Core 及 variants 中无地区组的 Core 服务组直接包含全部可用节点（过滤订阅信息节点），Nano 系列则由 `节点选择` 直接覆盖全部可用节点。
 
 ## 文档
 
