@@ -30,7 +30,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 
 | 文件 | 何时读 | 内容 |
 | --- | --- | --- |
-| [`docs/dns.md`](./docs/dns.md) | 改 Full/Core DNS、fake-IP、`#DNS` 出口、防泄露 | 本仓库模板 DNS 分工与白名单约定 |
+| [`docs/dns.md`](./docs/dns.md) | 改 Full/Core DNS、fake-IP、`#节点选择` 出口、防泄露 | 本仓库模板 DNS 分工与白名单约定 |
 | [`docs/dns-flow.md`](./docs/dns-flow.md) | 排查「先规则后解析」、理解 Mihomo 何时才做 DNS | 上游 DNS 解析流程摘要 |
 | [`docs/rulesets.md`](./docs/rulesets.md) | 换源/选型规则集、查上游有哪些 list/mrs | DustinWin / blackmatrix7 / ACL 等目录参考（**体积大**，按关键词搜） |
 | [`docs/icons.md`](./docs/icons.md) | 改策略组 `icon` | Vbaethon/HOMOMIX CDN 路径与映射表 |
@@ -44,7 +44,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | | Full | Core | Nano |
 | --- | --- | --- | --- |
 | 代表文件 | `rules/full.yaml` | `rules/core.yaml` | `rules/nano.yaml` |
-| UI 策略组 | 场景 + 品牌 + 地区 + DNS | 基础组 + `苹果服务` + `微软服务` + `DNS` + `直连` | 极简 |
+| UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `苹果服务` + `微软服务` + `直连` | 极简 |
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `直连`） | 无独立组 |
 | OneDrive | `OneDrive` 组 | `OneDrive` 组 | 无 |
@@ -58,7 +58,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 - Core：保留 Apple/Microsoft 服务组，外加 GitHub / OneDrive 独立组；不要添加其他服务/品牌 UI 或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
 
-常用组名保持稳定：`节点选择`、`自动测速`、`DNS`、`直连`、`漏网之鱼`；Full 系列保留 `手动切换`，Core/Nano 及无地区组 variants 不提供该组；服务类组名 `苹果服务`、`微软服务`、`OneDrive`、`GitHub`。
+常用组名保持稳定：`节点选择`、`自动测速`、`直连`、`漏网之鱼`；Full 系列保留 `手动切换`，Core/Nano 及无地区组 variants 不提供该组；服务类组名 `苹果服务`、`微软服务`、`OneDrive`、`GitHub`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
 
 ---
 
@@ -93,7 +93,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | 默认解析 | 海外 DoH（`nameserver`） |
 | 明确国内/内网 | `nameserver-policy` → 国内 DoH（`cn` + `private`） |
 | 明确代理域 | policy → 海外 DoH（见附录 B） |
-| DNS 出口 | 仅海外 DoH 用 `#DNS`（默认 `节点选择`）；国内 DoH / `direct-nameserver` 固定直连 |
+| DNS 出口 | 仅海外 DoH 固定用 `#节点选择`；国内 DoH / `direct-nameserver` 固定直连 |
 | **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
 | fake-IP | **白名单**模式；名单外（国内、Tracker 等）自然真 IP |
 | GeoIP | `geodata-mode: false` + MetaCubeX `geoip.metadb`，24h 自动更新 |
@@ -208,7 +208,7 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 | 代理域：`proxy` 或 `geolocation-!cn,google` | 海外 DoH |
 | 国内/内网：`cn,private` | 国内 DoH |
 
-未命中 policy → 只用海外 `nameserver`。海外 DoH（默认 `nameserver` + 代理域 policy）绑定 `DNS`；国内 DoH（`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 均固定直连，避免国内解析被代理改道或启动环路。
+未命中 policy → 只用海外 `nameserver`。海外 DoH（默认 `nameserver` + 代理域 policy）固定绑定 `节点选择`；国内 DoH（`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 均固定直连，避免国内解析被代理改道或启动环路。
 
 `googleapis.cn` 等 `.cn` 代理域若误走 `cn` policy，会吃到污染或 CDN 锁定解析，故默认海外 + 代理域 policy 强制海外。
 
@@ -234,7 +234,7 @@ MetaCubeX `cn.mrs` 在 DustinWin/ACL Full/Core 里仅作 **DNS `nameserver-polic
 4. 完整 `microsoft → 微软服务`；`microsoft@cn` 补充
 5. `google → 谷歌服务`：场景/品牌之后、`geolocation-!cn` / `cn` 之前（YouTube 仍可先中娱乐）
 
-**Core**：含 `DNS`、`苹果服务`、`微软服务`、`OneDrive`、`GitHub`、`直连` 与 `漏网之鱼`；Apple/Microsoft 分别进入对应服务组，两个服务组默认选择 `直连`；ads 后 github → `GitHub`（先于 microsoft/场景）；onedrive → `OneDrive` 紧挨 microsoft 前；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
+**Core**：含 `苹果服务`、`微软服务`、`OneDrive`、`GitHub`、`直连` 与 `漏网之鱼`；Apple/Microsoft 分别进入对应服务组，两个服务组默认选择 `直连`；ads 后 github → `GitHub`（先于 microsoft/场景）；onedrive → `OneDrive` 紧挨 microsoft 前；`geolocation-!cn → 节点选择` 在直连服务后、`cn` 前；`MATCH,漏网之鱼`。
 
 **Core/Nano Google**：`GEOSITE,google → 节点选择`（无 UI 组），放在 `geolocation-!cn` 后、`cn` 前。  
 **说明**：`geolocation-!cn` 含 `play.googleapis.com` 但不含 `googleapis.cn`；`GEOSITE,google` / DNS `geosite:google` 主要是防止 `googleapis.cn` 掉进宽 CN 直连。
