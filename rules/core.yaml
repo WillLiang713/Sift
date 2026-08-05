@@ -12,6 +12,14 @@ geox-url:
 geo-auto-update: true
 geo-update-interval: 24
 
+dns-anchor:
+  domestic: &domestic-dns
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  overseas: &overseas-dns
+    - "https://1.1.1.1/dns-query#节点选择"
+    - "https://8.8.8.8/dns-query#节点选择"
+
 dns:
   enable: true
   prefer-h3: false
@@ -23,22 +31,12 @@ dns:
   fake-ip-filter:
     - rule-set:proxy
   nameserver-policy:
-    "rule-set:proxy":
-      - "https://1.1.1.1/dns-query#节点选择"
-      - "https://8.8.8.8/dns-query#节点选择"
-    "rule-set:cn,private":
-      - https://223.5.5.5/dns-query
-      - https://1.12.12.12/dns-query
+    "rule-set:proxy": *overseas-dns
+    "rule-set:cn,private": *domestic-dns
   respect-rules: false
-  direct-nameserver:
-    - https://223.5.5.5/dns-query
-    - https://1.12.12.12/dns-query
-  proxy-server-nameserver:
-    - https://223.5.5.5/dns-query
-    - https://1.12.12.12/dns-query
-  nameserver:
-    - "https://1.1.1.1/dns-query#节点选择"
-    - "https://8.8.8.8/dns-query#节点选择"
+  direct-nameserver: *domestic-dns
+  proxy-server-nameserver: *domestic-dns
+  nameserver: *overseas-dns
 
 sniffer:
   enable: true
@@ -60,61 +58,64 @@ sniffer:
     - "+.msftncsi.com"
     - "+.push.apple.com"
 
+group-anchor:
+  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+  url-test: &url-test
+    type: url-test
+    include-all: true
+    exclude-filter: *node-exclude
+    url: https://cp.cloudflare.com/generate_204
+    expected-status: 204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+    lazy: true
+  proxy-options: &proxy-options
+    - 节点选择
+    - 自动测速
+    - DIRECT
+  direct-first-options: &direct-first-options
+    - 直连
+    - 节点选择
+    - 自动测速
+
 proxy-groups:
   # 无地区组：节点入口和服务组直接包含全部可用节点，同时过滤订阅信息节点。
   - name: 节点选择
     type: select
-    include-all-proxies: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    include-all: true
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Rocket.png"
     proxies:
       - 自动测速
       - DIRECT
   - name: 自动测速
-    type: url-test
-    include-all: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    <<: *url-test
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
-    url: https://cp.cloudflare.com/generate_204
-    interval: 300
-    timeout: 3000
-    tolerance: 50
   - name: 苹果服务
     type: select
-    include-all-proxies: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    include-all: true
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_1.png"
-    proxies:
-      - 直连
-      - 节点选择
-      - 自动测速
+    proxies: *direct-first-options
   - name: 微软服务
     type: select
-    include-all-proxies: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    include-all: true
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png"
-    proxies:
-      - 直连
-      - 节点选择
-      - 自动测速
+    proxies: *direct-first-options
   - name: OneDrive
     type: select
-    include-all-proxies: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    include-all: true
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - DIRECT
+    proxies: *proxy-options
   - name: GitHub
     type: select
-    include-all-proxies: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    include-all: true
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - DIRECT
+    proxies: *proxy-options
   - name: 直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
@@ -125,12 +126,9 @@ proxy-groups:
   - name: 漏网之鱼
     type: select
     include-all: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - DIRECT
+    proxies: *proxy-options
 
 rule-anchor:
   mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}

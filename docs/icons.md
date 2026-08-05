@@ -4,7 +4,7 @@
 > Qure Color 图标库：`https://raw.githubusercontent.com/Koolson/Qure/master/Other/QureColor.json`
 > Qure mini 图标库：`https://raw.githubusercontent.com/Koolson/Qure/master/Other/Quremini.json`
 
-本仓库 **hybrid 主模板与全部 variants** 的 `proxy-groups[].icon` 统一使用
+本仓库三个模板的 `proxy-groups[].icon` 统一使用
 Qure **Color**。`demo/` 下的第三方示例配置不在此约束内。
 
 `QureColor.json` 与 `Quremini.json` 是 Quantumult X 的图标库索引，不能直接写进
@@ -75,7 +75,7 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
    中确认文件存在。
 2. 文件名大小写敏感；以仓库中的真实文件名为准。
 3. 浏览器打开最终 Raw URL，确认返回图片而不是 404 页面。
-4. hybrid 与 variants 的同名策略组必须使用同一个图标 URL。
+4. Full/Core/Nano 的同名策略组必须使用同一个图标 URL。
 5. 不要把图标库 JSON 地址写进 Mihomo 的 `icon:`。
 6. 远程图标引用仅使用 `Koolson/Qure`；换源或 vendoring 前先核对授权与署名。
 

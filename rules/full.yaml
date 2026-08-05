@@ -12,6 +12,14 @@ geox-url:
 geo-auto-update: true
 geo-update-interval: 24
 
+dns-anchor:
+  domestic: &domestic-dns
+    - https://223.5.5.5/dns-query
+    - https://1.12.12.12/dns-query
+  overseas: &overseas-dns
+    - "https://1.1.1.1/dns-query#节点选择"
+    - "https://8.8.8.8/dns-query#节点选择"
+
 dns:
   enable: true
   prefer-h3: false
@@ -23,22 +31,12 @@ dns:
   fake-ip-filter:
     - rule-set:proxy
   nameserver-policy:
-    "rule-set:proxy":
-      - "https://1.1.1.1/dns-query#节点选择"
-      - "https://8.8.8.8/dns-query#节点选择"
-    "rule-set:cn,private":
-      - https://223.5.5.5/dns-query
-      - https://1.12.12.12/dns-query
+    "rule-set:proxy": *overseas-dns
+    "rule-set:cn,private": *domestic-dns
   respect-rules: false
-  direct-nameserver:
-    - https://223.5.5.5/dns-query
-    - https://1.12.12.12/dns-query
-  proxy-server-nameserver:
-    - https://223.5.5.5/dns-query
-    - https://1.12.12.12/dns-query
-  nameserver:
-    - "https://1.1.1.1/dns-query#节点选择"
-    - "https://8.8.8.8/dns-query#节点选择"
+  direct-nameserver: *domestic-dns
+  proxy-server-nameserver: *domestic-dns
+  nameserver: *overseas-dns
 
 sniffer:
   enable: true
@@ -60,6 +58,44 @@ sniffer:
     - "+.msftncsi.com"
     - "+.push.apple.com"
 
+group-anchor:
+  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+  filter-hk: &filter-hk "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)"
+  filter-us: &filter-us "(?i)🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)"
+  filter-jp: &filter-jp "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|Japan|Tokyo|Osaka|(^|[^A-Za-z])(JP|NRT|HND|KIX|CTS|FUK)([^A-Za-z]|$)"
+  filter-sg: &filter-sg "(?i)🇸🇬|Singapore|新加坡|狮城|(^|[^A-Za-z])(SG|SGP|SIN)([^A-Za-z]|$)"
+  other-region-exclude: &other-region-exclude "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)|🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|Japan|Tokyo|Osaka|(^|[^A-Za-z])(JP|NRT|HND|KIX|CTS|FUK)([^A-Za-z]|$)|🇸🇬|Singapore|新加坡|狮城|(^|[^A-Za-z])(SG|SGP|SIN)([^A-Za-z]|$)"
+  url-test: &url-test
+    type: url-test
+    include-all: true
+    exclude-filter: *node-exclude
+    url: https://cp.cloudflare.com/generate_204
+    expected-status: 204
+    interval: 300
+    timeout: 3000
+    tolerance: 50
+    lazy: true
+  proxy-options: &proxy-options
+    - 节点选择
+    - 自动测速
+    - 香港节点
+    - 美国节点
+    - 日本节点
+    - 新加坡节点
+    - 其他节点
+    - 手动切换
+    - DIRECT
+  direct-first-options: &direct-first-options
+    - 直连
+    - 节点选择
+    - 自动测速
+    - 香港节点
+    - 美国节点
+    - 日本节点
+    - 新加坡节点
+    - 其他节点
+    - 手动切换
+
 proxy-groups:
   - name: 节点选择
     type: select
@@ -76,178 +112,67 @@ proxy-groups:
   - name: 手动切换
     type: select
     include-all: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Available.png"
   - name: 自动测速
-    type: url-test
-    include-all: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    <<: *url-test
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
-    url: https://cp.cloudflare.com/generate_204
-    interval: 300
-    timeout: 3000
-    tolerance: 50
   - name: AI
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
   - name: 流媒体
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Streaming.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
   - name: 游戏平台
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
   - name: Telegram
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram_X.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
   - name: 苹果服务
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_1.png"
-    proxies:
-      - 直连
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
+    proxies: *direct-first-options
   - name: 谷歌服务
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
   - name: 微软服务
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png"
-    proxies:
-      - 直连
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
+    proxies: *direct-first-options
   - name: OneDrive
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
   - name: GitHub
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
   - name: 香港节点
-    type: url-test
-    include-all: true
-    filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港"
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    <<: *url-test
+    filter: *filter-hk
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png"
-    url: https://cp.cloudflare.com/generate_204
-    interval: 300
-    timeout: 3000
-    tolerance: 50
   - name: 美国节点
-    type: url-test
-    include-all: true
-    filter: "(?i)🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago"
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    <<: *url-test
+    filter: *filter-us
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png"
-    url: https://cp.cloudflare.com/generate_204
-    interval: 300
-    timeout: 3000
-    tolerance: 50
   - name: 日本节点
-    type: url-test
-    include-all: true
-    filter: "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka"
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    <<: *url-test
+    filter: *filter-jp
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png"
-    url: https://cp.cloudflare.com/generate_204
-    interval: 300
-    timeout: 3000
-    tolerance: 50
   - name: 新加坡节点
-    type: url-test
-    include-all: true
-    filter: "(?i)🇸🇬|SG|SGP|Singapore|新加坡|狮城"
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    <<: *url-test
+    filter: *filter-sg
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png"
-    url: https://cp.cloudflare.com/generate_204
-    interval: 300
-    timeout: 3000
-    tolerance: 50
   - name: 其他节点
     type: select
     include-all: true
-    exclude-filter: "(?i)🇭🇰|港|HK|HKG|HongKong|Hong Kong|香港|🇺🇸|美|US|USA|United ?States|美国|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|JP|Japan|Tokyo|Osaka|🇸🇬|SG|SGP|Singapore|新加坡|狮城"
+    exclude-filter: *other-region-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Airport.png"
   - name: 直连
     type: select
@@ -259,18 +184,9 @@ proxy-groups:
   - name: 漏网之鱼
     type: select
     include-all: true
-    exclude-filter: "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+    exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"
-    proxies:
-      - 节点选择
-      - 自动测速
-      - 香港节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 其他节点
-      - 手动切换
-      - DIRECT
+    proxies: *proxy-options
 
 rule-anchor:
   mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
@@ -369,13 +285,13 @@ rules:
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台
   - RULE-SET,media,流媒体
-  - RULE-SET,mediaip,流媒体
   - RULE-SET,onedrive,OneDrive
   - RULE-SET,microsoft,微软服务
   - RULE-SET,telegram,Telegram
-  - RULE-SET,telegramip,Telegram
   - RULE-SET,google,谷歌服务
   - RULE-SET,proxy,节点选择
   - RULE-SET,cn-lite,直连
+  - RULE-SET,mediaip,流媒体
+  - RULE-SET,telegramip,Telegram
   - RULE-SET,cnip,直连
   - MATCH,漏网之鱼

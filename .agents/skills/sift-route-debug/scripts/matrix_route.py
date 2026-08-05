@@ -49,15 +49,6 @@ TEMPLATES: Dict[str, str] = {
     "HY-f": "rules/full.yaml",
     "HY-c": "rules/core.yaml",
     "HY-n": "rules/nano.yaml",
-    "DW-f": "rules/variants/DustinWin-full.yaml",
-    "DW-c": "rules/variants/DustinWin-core.yaml",
-    "DW-n": "rules/variants/DustinWin-nano.yaml",
-    "MC-f": "rules/variants/MetaCubeX-full.yaml",
-    "MC-c": "rules/variants/MetaCubeX-core.yaml",
-    "MC-n": "rules/variants/MetaCubeX-nano.yaml",
-    "AC-f": "rules/variants/ACL4SSR-full.yaml",
-    "AC-c": "rules/variants/ACL4SSR-core.yaml",
-    "AC-n": "rules/variants/ACL4SSR-nano.yaml",
 }
 
 # Canonical probe domains for whole-tree regression after routing design changes.
@@ -114,9 +105,9 @@ SHORT = {
 }
 
 ALL = list(TEMPLATES.keys())
-FULLS = ["HY-f", "DW-f", "MC-f", "AC-f"]
-CORES = ["HY-c", "DW-c", "MC-c", "AC-c"]
-NANOS = ["HY-n", "DW-n", "MC-n", "AC-n"]
+FULLS = ["HY-f"]
+CORES = ["HY-c"]
+NANOS = ["HY-n"]
 
 # (domain, template_labels, allowed_policies, level)
 # level: "FAIL" fails the run; "WARN" is informational only.
@@ -130,10 +121,9 @@ def default_expectations() -> List[Expectation]:
     exp.append(("localhost", ALL, {"DIRECT"}, "FAIL"))
 
     # Google/Play hard anchors (routing contract). Pair with Full/Core DNS whitelist
-    # (rule-set:proxy or geosite:geolocation-!cn+google) so these domains enter Mihomo
+    # (rule-set:proxy) so these domains enter Mihomo
     # with overseas DoH — DNS is not re-asserted by this domain matrix.
-    # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN): HY/DW may
-    # direct via cn-lite +.cn while MC/AC proxy; that is family variance, not a contract break.
+    # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN).
     exp.append(("googleapis.cn", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("googleapis.cn", CORES + NANOS, {"节点选择"}, "FAIL"))
     exp.append(("play.googleapis.com", FULLS, {"谷歌服务"}, "FAIL"))
@@ -142,25 +132,18 @@ def default_expectations() -> List[Expectation]:
     exp.append(("www.google.com", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))
 
-    exp.append(("www.youtube.com", ["MC-f", "AC-f"], {"流媒体"}, "FAIL"))
-    # Hybrid/DustinWin Full now use the media domain set before mediaip.
-    exp.append(("www.youtube.com", ["HY-f", "DW-f"], {"流媒体"}, "FAIL"))
+    exp.append(("www.youtube.com", FULLS, {"流媒体"}, "FAIL"))
     exp.append(("www.youtube.com", CORES + NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
-    # HY-f/DW-f intentionally bind CF verification traffic to the streaming group
-    # through the DustinWin media domain set. Other families keep their own route.
-    exp.append(("challenges.cloudflare.com", ["HY-f", "DW-f"], {"流媒体"}, "FAIL"))
+    # Full intentionally binds CF verification traffic to the streaming group
+    # through the DustinWin media domain set.
+    exp.append(("challenges.cloudflare.com", FULLS, {"流媒体"}, "FAIL"))
 
     exp.append(("chatgpt.com", FULLS, {"AI"}, "FAIL"))
     exp.append(("chatgpt.com", CORES, {"节点选择", "漏网之鱼"}, "FAIL"))
-    exp.append(("chatgpt.com", ["HY-n", "DW-n", "MC-n"], {"节点选择"}, "FAIL"))
-    exp.append(("chatgpt.com", ["AC-n"], {"节点选择", "漏网之鱼"}, "WARN"))
+    exp.append(("chatgpt.com", NANOS, {"节点选择"}, "FAIL"))
 
-    exp.append(("www.netflix.com", ["AC-f", "MC-f"], {"流媒体"}, "FAIL"))
-    exp.append(("www.netflix.com", ["HY-f", "DW-f"], {"节点选择", "流媒体", "漏网之鱼"}, "WARN"))
-
-    for media in ("www.disneyplus.com", "open.spotify.com", "www.tiktok.com"):
-        exp.append((media, ["AC-f"], {"流媒体"}, "FAIL"))
+    exp.append(("www.netflix.com", FULLS, {"节点选择", "流媒体", "漏网之鱼"}, "WARN"))
 
     exp.append(("web.telegram.org", FULLS, {"Telegram"}, "FAIL"))
     exp.append(("web.telegram.org", CORES + NANOS, {"节点选择"}, "FAIL"))
@@ -168,14 +151,11 @@ def default_expectations() -> List[Expectation]:
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
         exp.append((domestic, ALL, {"直连"}, "FAIL"))
 
-    # GitHub: dedicated group on HY-f/HY-c/MC-f/MC-c (defaults to 节点选择); the
-    # other eight templates route github.com to 节点选择 / 漏网之鱼.
-    exp.append(("github.com", ["HY-f", "HY-c", "MC-f", "MC-c"], {"GitHub"}, "FAIL"))
-    exp.append(("github.com", ["DW-f", "DW-c", "DW-n", "MC-n", "AC-f", "AC-c", "AC-n", "HY-n"], {"节点选择", "漏网之鱼"}, "FAIL"))
+    exp.append(("github.com", FULLS + CORES, {"GitHub"}, "FAIL"))
+    exp.append(("github.com", NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
-    # OneDrive: dedicated group on HY/DW/AC Full+Core and MC Full+Core (defaults to
-    # 节点选择); Nano has no group → 节点选择.
-    exp.append(("onedrive.live.com", ["HY-f", "HY-c", "DW-f", "DW-c", "AC-f", "AC-c", "MC-f", "MC-c"], {"OneDrive"}, "FAIL"))
+    # OneDrive: dedicated group on Full/Core; Nano has no group.
+    exp.append(("onedrive.live.com", FULLS + CORES, {"OneDrive"}, "FAIL"))
     exp.append(("onedrive.live.com", NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("icloud.com", CORES, {"苹果服务"}, "FAIL"))
@@ -412,7 +392,7 @@ def main() -> int:
         "--templates",
         nargs="*",
         choices=list(TEMPLATES.keys()),
-        help="Subset of template labels (default: all twelve)",
+        help="Subset of template labels (default: all three)",
     )
     args = parser.parse_args()
 
@@ -457,9 +437,7 @@ def main() -> int:
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
     print("  - Google/Play FAIL anchors: googleapis.cn + play.googleapis.com (gstatic.cn display-only).")
-    print("  - In-process RouteEngine reuses provider indexes and MetaCubeX geo lookups.")
-    print("  - geo look results persist under cache_dir/geo-look/ (invalidated when geodata files change).")
-    print(f"  - geo-bin={geo_bin}")
+    print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:
         print("FAIL")
         return 1
