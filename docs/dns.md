@@ -69,7 +69,7 @@ Full/Core 固定 GeoIP 数据源（MMDB，24 小时自动更新）：
 ```yaml
 geodata-mode: false
 geox-url:
-  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
+  mmdb: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geoip.metadb"
 geo-auto-update: true
 geo-update-interval: 24
 ```
