@@ -28,7 +28,7 @@ proxy-groups:
   - name: 自动测速
     <<: *url-test
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
-  - name: 直连
+  - name: 全球直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
     proxies:
@@ -72,6 +72,6 @@ rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,proxy,节点选择
-  - RULE-SET,cn-lite,直连
-  - RULE-SET,cnip,直连
+  - RULE-SET,cn-lite,全球直连
+  - RULE-SET,cnip,全球直连
   - MATCH,漏网之鱼

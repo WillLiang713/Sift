@@ -80,7 +80,7 @@ group-anchor:
     - 手动切换
     - DIRECT
   direct-first-options: &direct-first-options
-    - 直连
+    - 全球直连
     - 节点选择
     - 自动测速
     - 香港节点
@@ -164,13 +164,19 @@ proxy-groups:
     include-all: true
     exclude-filter: *other-region-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Airport.png"
-  - name: 直连
+  - name: 全球直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
     proxies:
       - DIRECT
       - 节点选择
       - 自动测速
+  - name: 广告拦截
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Advertising.png"
+    proxies:
+      - REJECT
+      - PASS
   - name: 漏网之鱼
     type: select
     include-all: true
@@ -183,6 +189,10 @@ rule-anchor:
   mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
 rule-providers:
+  ads:
+    <<: *mrs-domain
+    path: ./ruleset/dustinwin/ads.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ads.mrs"
   private:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/private.mrs
@@ -261,12 +271,13 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn.mrs"
 
 rules:
+  - RULE-SET,ads,广告拦截
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,github,GitHub
-  - RULE-SET,apple-cn,直连
-  - RULE-SET,microsoft-cn,直连
-  - RULE-SET,games-cn,直连
+  - RULE-SET,apple-cn,全球直连
+  - RULE-SET,microsoft-cn,全球直连
+  - RULE-SET,games-cn,全球直连
   - RULE-SET,apple,苹果服务
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台
@@ -275,8 +286,8 @@ rules:
   - RULE-SET,telegram,Telegram
   - RULE-SET,google,谷歌服务
   - RULE-SET,proxy,节点选择
-  - RULE-SET,cn-lite,直连
+  - RULE-SET,cn-lite,全球直连
   - RULE-SET,mediaip,流媒体
   - RULE-SET,telegramip,Telegram
-  - RULE-SET,cnip,直连
+  - RULE-SET,cnip,全球直连
   - MATCH,漏网之鱼
