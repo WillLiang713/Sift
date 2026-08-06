@@ -116,8 +116,8 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 | Full streaming | YouTube and the DustinWin `media` set → `流媒体` |
 | Full brands | icloud → `苹果服务`, office → `微软服务` |
 | Core brands | Apple → `苹果服务`, Microsoft → `微软服务` (default `直连`) |
-| GitHub | Dedicated `GitHub` group on Full/Core (default `节点选择`); Nano → `节点选择`/`漏网之鱼` |
-| OneDrive | Dedicated `OneDrive` group on Full/Core (default `节点选择`); Nano → `节点选择` |
+| GitHub | No dedicated group: Full/Core `github` rule → `节点选择` directly; Nano → `节点选择`/`漏网之鱼` |
+| OneDrive | Merged into `微软服务` on Full/Core (default `直连`); Nano → `节点选择` |
 | Domestic | baidu/qq/taobao/bilibili → `直连` on all three |
 | Private | localhost → `DIRECT` |
 
@@ -135,7 +135,7 @@ Common Sift cases to call out:
 
 - `proxy` is the explicit non-CN layer after service/brand rules and before `cn-lite`; Full also has `google` → `谷歌服务` before `proxy`.
 - Full's DustinWin `media` domain set intentionally binds `+.challenges.cloudflare.com` to `流媒体` — CF verification traffic rides the streaming group.
-- Core routes Apple and Microsoft rules to separately controllable service groups, both defaulting to `直连`; Full/Core also have dedicated `GitHub` and `OneDrive` groups (default `节点选择`).
+- Core routes Apple and Microsoft rules to separately controllable service groups, both defaulting to `直连`; `GitHub`/`OneDrive` have no dedicated groups — `github` routes straight to `节点选择`, `onedrive` merges into `微软服务`.
 - A domain that has no domain-rule match can still route by IP at runtime if DNS resolution produces an IP matched by an IP rule.
 
 `matrix_route.sh` is retained as a Linux convenience wrapper; the Python command is the portable entry point.

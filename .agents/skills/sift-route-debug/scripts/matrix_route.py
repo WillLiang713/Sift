@@ -98,7 +98,6 @@ SHORT = {
     "谷歌服务": "谷歌",
     "游戏平台": "游戏",
     "流媒体": "流媒",
-    "OneDrive": "OD",
     "Telegram": "TG",
     "DIRECT": "DIR",
     "AI": "AI",
@@ -151,11 +150,11 @@ def default_expectations() -> List[Expectation]:
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
         exp.append((domestic, ALL, {"直连"}, "FAIL"))
 
-    exp.append(("github.com", FULLS + CORES, {"GitHub"}, "FAIL"))
+    exp.append(("github.com", FULLS + CORES, {"节点选择"}, "FAIL"))
     exp.append(("github.com", NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
-    # OneDrive: dedicated group on Full/Core; Nano has no group.
-    exp.append(("onedrive.live.com", FULLS + CORES, {"OneDrive"}, "FAIL"))
+    # OneDrive: merged into Microsoft service group on Full/Core; Nano has no group.
+    exp.append(("onedrive.live.com", FULLS + CORES, {"微软服务"}, "FAIL"))
     exp.append(("onedrive.live.com", NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("icloud.com", CORES, {"苹果服务"}, "FAIL"))

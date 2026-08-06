@@ -145,14 +145,6 @@ proxy-groups:
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png"
     proxies: *direct-first-options
-  - name: OneDrive
-    type: select
-    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"
-    proxies: *proxy-options
-  - name: GitHub
-    type: select
-    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
-    proxies: *proxy-options
   - name: 香港节点
     <<: *url-test
     filter: *filter-hk
@@ -191,6 +183,8 @@ proxy-groups:
 rule-anchor:
   mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
   mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
+  # blackmatrix7 品牌集（classical text：含 DOMAIN*/IP-CIDR 混合规则，勿改为 domain；jsDelivr 直连友好）
+  bm-classical: &bm-classical {type: http, behavior: classical, format: text, interval: 86400, proxy: DIRECT}
 
 rule-providers:
   private:
@@ -202,29 +196,29 @@ rule-providers:
     path: ./ruleset/dustinwin/privateip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
   github:
-    <<: *mrs-domain
-    path: ./ruleset/metacubex/github.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs"
+    <<: *bm-classical
+    path: ./ruleset/blackmatrix7/github.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/GitHub/GitHub.list"
   apple-cn:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/apple-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/apple-cn.mrs"
   apple:
-    <<: *mrs-domain
-    path: ./ruleset/metacubex/apple.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs"
+    <<: *bm-classical
+    path: ./ruleset/blackmatrix7/apple.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Apple/Apple.list"
   microsoft-cn:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/microsoft-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/microsoft-cn.mrs"
   onedrive:
-    <<: *mrs-domain
-    path: ./ruleset/metacubex/onedrive.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs"
+    <<: *bm-classical
+    path: ./ruleset/blackmatrix7/onedrive.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/OneDrive/OneDrive.list"
   microsoft:
-    <<: *mrs-domain
-    path: ./ruleset/metacubex/microsoft.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs"
+    <<: *bm-classical
+    path: ./ruleset/blackmatrix7/microsoft.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Microsoft/Microsoft.list"
   games-cn:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/games-cn.mrs
@@ -246,17 +240,17 @@ rule-providers:
     path: ./ruleset/dustinwin/games.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.mrs"
   telegram:
-    <<: *mrs-domain
-    path: ./ruleset/metacubex/telegram.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs"
+    <<: *bm-classical
+    path: ./ruleset/blackmatrix7/telegram.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Telegram/Telegram.list"
   telegramip:
     <<: *mrs-ip
     path: ./ruleset/dustinwin/telegramip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/telegramip.mrs"
   google:
-    <<: *mrs-domain
-    path: ./ruleset/metacubex/google.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs"
+    <<: *bm-classical
+    path: ./ruleset/blackmatrix7/google.list
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Google/Google.list"
   proxy:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/proxy.mrs
@@ -271,13 +265,13 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.mrs"
   cn:
     <<: *mrs-domain
-    path: ./ruleset/metacubex/cn.mrs
-    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"
+    path: ./ruleset/dustinwin/cn.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn.mrs"
 
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,github,GitHub
+  - RULE-SET,github,节点选择
   - RULE-SET,apple-cn,直连
   - RULE-SET,microsoft-cn,直连
   - RULE-SET,games-cn,直连
@@ -285,7 +279,7 @@ rules:
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台
   - RULE-SET,media,流媒体
-  - RULE-SET,onedrive,OneDrive
+  - RULE-SET,onedrive,微软服务
   - RULE-SET,microsoft,微软服务
   - RULE-SET,telegram,Telegram
   - RULE-SET,google,谷歌服务

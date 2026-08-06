@@ -45,18 +45,18 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `苹果服务` + `微软服务` + `直连` | 极简 |
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `直连`） | 无独立组 |
-| OneDrive | `OneDrive` 组 | `OneDrive` 组 | 无 |
-| GitHub | `GitHub` 组 | `GitHub` 组 | 无 |
+| OneDrive | 并入 `微软服务` | 并入 `微软服务` | 无 |
+| GitHub | 规则直指 `节点选择`（无独立组） | 同左 | 无 |
 | 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
 模板不含独立广告拦截组（40f3bf7 起移除），广告域由各源国内/Google 集自然落入 `直连` / `节点选择`。`漏网之鱼` 统一默认选择 `节点选择`。
 
 **不要随意扩档位**：
 
-- Core：保留 Apple/Microsoft 服务组，外加 GitHub / OneDrive 独立组；不要添加其他服务/品牌 UI 或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
+- Core：保留 Apple/Microsoft 服务组（GitHub / OneDrive 无独立组）；不要添加其他服务/品牌 UI 或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
 
-常用组名保持稳定：`节点选择`、`自动测速`、`直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `苹果服务`、`微软服务`、`OneDrive`、`GitHub`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
+常用组名保持稳定：`节点选择`、`自动测速`、`直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `苹果服务`、`微软服务`。`GitHub`/`OneDrive` 无独立组：github 规则直指 `节点选择`，onedrive 并入 `微软服务`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
 
 ---
 
@@ -68,7 +68,8 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 
 | 顺序 | 原因（人话） |
 | --- | --- |
-| `github`、`onedrive` **在** `microsoft` **前** | Microsoft 集合过宽，会吞掉 GitHub / OneDrive |
+| `onedrive` **在** `microsoft` **前** | blackmatrix7 的 OneDrive 与 Microsoft 集有 12 条交集（onedrive.com/sharepoint.com 等），须先命中 OneDrive 规则 |
+| `github` **在** `microsoft` **前** | 两集无交集，置前仅为保险（防上游将来把 github 域并入 Microsoft 集） |
 | `google`、`proxy` **在** `cn-lite` 前 | 否则 `googleapis.cn` 等会被国内直连误伤 |
 | Full 的服务域名、`proxy`、`cn-lite` **在** `mediaip` / `telegramip` / `cnip` 前 | 先完成域名分类，避免服务 IP 集提前触发解析；`privateip,no-resolve` 可保留在开头 |
 
@@ -99,7 +100,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 **禁止**：
 
 - 把 `trackerslist` 写回 `dns.fake-ip-filter` 或加路由 `RULE-SET,trackerslist,...`
-- 用宽 `cn`（完整 DustinWin `cn.list` / DNS 用的 MetaCubeX `cn`）替换路由 `cn-lite`
+- 用宽 `cn`（完整 DustinWin `cn.mrs` / DNS 用的 `cn`）替换路由 `cn-lite`
 - 提交订阅链接、节点、密钥、含私有端点的生成配置
 
 ### 4. Full/Core 运行时加固（保持一致）
@@ -148,17 +149,18 @@ YAML：两空格缩进；按意图分块并加短注释。
 
 | 用途 | 来源 |
 | --- | --- |
-| 域名/IP 骨架（ads、proxy、cn-lite、场景等） | DustinWin `mihomo-ruleset/*.mrs` |
-| 品牌 + github + **DNS-only** `cn` | MetaCubeX `meta/geo/geosite/*.mrs` |
+| 域名/IP 骨架（proxy、cn-lite、场景等）与 **DNS-only** `cn` | DustinWin `mihomo-ruleset/*.mrs`（jsDelivr） |
+| 品牌 + github（apple/google/microsoft/onedrive/telegram/github） | blackmatrix7 `rule/Clash/*/*.list`（classical text，jsDelivr） |
 
-主路径**不用** blackmatrix7 classical（classical 无法编进 MRS）。
+主路径**不用** MetaCubeX geosite；`cn` 为 DustinWin 全量 MRS（DNS-only，勿用于路由）。
+品牌层必须 `behavior: classical`（blackmatrix7 list 含 `DOMAIN,`/`IP-CIDR,` 前缀行；`behavior: domain` 的 text 不识别前缀行，会静默失效）。
 
 ## 非 CN 代理层
 
 hybrid 模板使用 DustinWin `proxy`（约等于 geolocation-!cn + gfwlist）作为非 CN 代理层，放在服务/品牌规则之后、`cn-lite` 之前。
 
 **路由**国内域名兜底用 `cn-lite`（DustinWin），不要换成完整 `cn`。  
-MetaCubeX `cn.mrs` 仅作 Full/Core 的 **DNS `nameserver-policy`**，不进 routing 替代 `cn-lite`。
+DustinWin `cn.mrs` 仅作 Full/Core 的 **DNS `nameserver-policy`**，不进 routing 替代 `cn-lite`。
 
 ---
 
