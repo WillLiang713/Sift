@@ -146,7 +146,7 @@ fallback-filter:
 
 Sift 不在这里重复配置 `geosite:gfw` 或 Google/Facebook/YouTube 手写域名，因为它们已由 `rule-set:proxy` policy 提前交给海外 DoH。这样既保留明确域名的解析意图，也避免新增 GeoSite 数据库依赖。
 
-为避免依赖客户端或 Mihomo 的隐式默认值，Full/Core 显式使用 MMDB 模式，将 `geox-url.mmdb` 固定到 MetaCubeX `geoip.metadb`，并每 24 小时自动更新。路由 CN IP 判断仍由 `cnip` provider 完成；该 MMDB 不替代路由规则集，也不再服务已移除的 `fallback-filter`。
+Sift 不依赖 GeoIP 数据库：无 GEOIP/GEOSITE 规则，不配置 `geodata-mode` / `geox-url`（不下载 MMDB）。路由 CN IP 判断由 `cnip` provider（IP-CIDR 自带数据）完成。
 
 ### 5. 得到 IP 后再次决定代理或直连
 

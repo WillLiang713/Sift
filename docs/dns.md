@@ -62,19 +62,9 @@ Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡�
 
 代价：未分类的国内兼容域名若未进 `cn` policy，会走海外解析，可能得到非最优 CDN。Sift 优先避免「未分类却并发打国内 DNS」的泄露面；国内体验主要依赖 `cn` / `private` policy 与路由侧 `cn-lite` 等直连规则。
 
-### GeoIP 数据库管理
+### GeoIP 数据库
 
-Full/Core 固定 GeoIP 数据源（MMDB，24 小时自动更新）：
-
-```yaml
-geodata-mode: false
-geox-url:
-  mmdb: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geoip.metadb"
-geo-auto-update: true
-geo-update-interval: 24
-```
-
-`geodata-mode: false` 选择 MMDB 模式。路由侧国内 IP 仍使用 `cnip` provider，不依赖上述 MMDB 替换路由规则集；该数据库也**不再**服务于已移除的 `fallback-filter`。
+模板不依赖 GeoIP 数据库：路由与 DNS 全部使用 RULE-SET（域名/IP 数据由 rule-provider 自带），**无 GEOIP/GEOSITE 规则，不配置 `geodata-mode` / `geox-url` / `geo-auto-update`**，避免无谓下载。
 
 ## Fake-IP 白名单
 

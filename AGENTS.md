@@ -45,8 +45,8 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `苹果服务` + `微软服务` + `直连` | 极简 |
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `直连`） | 无独立组 |
-| OneDrive | 无独立规则：域在 `微软服务` 集内（blackmatrix7 `Microsoft.list`） | 同左 | 无 |
-| GitHub | 无独立规则：域落 `proxy` 兜底 → `节点选择` | 同左 | 无 |
+| OneDrive | 无独立规则：域在 `微软服务` 集内（geosite microsoft） | 同左 | 无 |
+| GitHub | `github` 规则（geosite，纯 domain）→ `节点选择`（须在 `microsoft` 前） | 同左 | 无 |
 | 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
 模板不含独立广告拦截组（40f3bf7 起移除），广告域由各源国内/Google 集自然落入 `直连` / `节点选择`。`漏网之鱼` 统一默认选择 `节点选择`。
@@ -56,7 +56,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 - Core：保留 Apple/Microsoft 服务组（GitHub / OneDrive 无独立组）；不要添加其他服务/品牌 UI 或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
 
-常用组名保持稳定：`节点选择`、`自动测速`、`直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `苹果服务`、`微软服务`。`GitHub`/`OneDrive` 无独立组与规则：github 域落 `proxy` 兜底 → `节点选择`；onedrive 域在 blackmatrix7 `Microsoft.list` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
+常用组名保持稳定：`节点选择`、`自动测速`、`直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `苹果服务`、`微软服务`。`GitHub` 有独立规则（`geosite/github`，纯 domain，置于 `microsoft` 前）→ `节点选择`，无独立组；`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
 
 ---
 
@@ -68,7 +68,8 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 
 | 顺序 | 原因（人话） |
 | --- | --- |
-| `microsoft` **在** `proxy` 前 | Microsoft 集承接 OneDrive 域（onedrive.com/sharepoint.com 等 12 条在集内），先命中 `微软服务` |
+| `github` **在** `microsoft` **前** | geosite microsoft 含 github（include:github），须先截走 GitHub → `节点选择` |
+| `microsoft` **在** `proxy` 前 | geosite microsoft 承接 OneDrive 域（include:onedrive），先命中 `微软服务` |
 | `google`、`proxy` **在** `cn-lite` 前 | 否则 `googleapis.cn` 等会被国内直连误伤 |
 | Full 的服务域名、`proxy`、`cn-lite` **在** `mediaip` / `telegramip` / `cnip` 前 | 先完成域名分类，避免服务 IP 集提前触发解析；`privateip,no-resolve` 可保留在开头 |
 
@@ -94,7 +95,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | DNS 出口 | 仅海外 DoH 固定用 `#节点选择`；国内 DoH / `direct-nameserver` 固定直连 |
 | **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
 | fake-IP | **白名单**模式；名单外（国内、Tracker 等）自然真 IP |
-| GeoIP | `geodata-mode: false` + MetaCubeX `geoip.metadb`，24h 自动更新 |
+| GeoIP | 不依赖 geodata：路由与 DNS 全 RULE-SET（数据自带），不配 `geox-url`，无 GEOIP/GEOSITE 规则 |
 
 **禁止**：
 
@@ -149,12 +150,12 @@ YAML：两空格缩进；按意图分块并加短注释。
 | 用途 | 来源 |
 | --- | --- |
 | 域名/IP 骨架（proxy、cn、private、cn-lite、ai/media/games/apple-cn/microsoft-cn/games-cn、cnip/mediaip/privateip/telegramip） | DustinWin `mihomo-ruleset/*.mrs`（jsDelivr 加速直链） |
-| 品牌（apple/google/microsoft/telegram） | blackmatrix7 `rule/Clash/*/*.list`（classical text，jsDelivr 加速直链） |
+| 品牌（github/apple/google/microsoft/telegram） | MetaCubeX `meta/geo/geosite/*.mrs`（纯 domain，jsDelivr 加速直链） |
 
-GitHub/OneDrive 无独立规则集：github 域由 `proxy` 兜底承接（→ `节点选择`）；onedrive 域全部在 blackmatrix7 `Microsoft.list` 内（→ `微软服务`）。
+GitHub 有独立规则（`geosite/github`，纯 domain）→ `节点选择`，须置于 `microsoft` 前（geosite microsoft 含 github）；OneDrive 无独立规则，域在 `geosite microsoft` 内（include:onedrive）→ `微软服务`。全模板零 classical（品牌层不再用 blackmatrix7）。
 
-主路径**不用** MetaCubeX geosite；`cn` 为 DustinWin 全量 MRS（DNS-only，勿用于路由）。
-全部规则集走 jsDelivr 分支加速直链（DustinWin `ruleset_geodata@mihomo-ruleset`，blackmatrix7 `@master`），不使用 github releases 直链（国内直连不稳）；geodata `geoip.metadb` 同走 jsDelivr。
+`cn` 为 DustinWin 全量 MRS（DNS-only，勿用于路由）；品牌层用 MetaCubeX geosite（纯 domain MRS，jsDelivr）。
+全部规则集走 jsDelivr 分支加速直链（DustinWin `ruleset_geodata@mihomo-ruleset`、MetaCubeX `meta-rules-dat@meta`），不使用 github releases 直链（国内直连不稳）；模板不依赖 geodata（无 GEOIP/GEOSITE 规则，不配 `geox-url`）。
 
 ## 非 CN 代理层
 
