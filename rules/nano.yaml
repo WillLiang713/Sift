@@ -45,30 +45,28 @@ proxy-groups:
 rule-anchor:
   mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
   mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
-  # DustinWin .list（classical text：前缀行格式，text+domain 不识别；github releases 直链）
-  dw-classical: &dw-classical {type: http, behavior: classical, format: text, interval: 86400, proxy: DIRECT}
 
 rule-providers:
   private:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/private.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
   privateip:
-    <<: *dw-classical
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/privateip.list
-    url: "https://github.com/DustinWin/geoip/releases/download/ips/privateip.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
   proxy:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/proxy.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.mrs"
   cn-lite:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/cn-lite.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
   cnip:
-    <<: *dw-classical
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/cnip.list
-    url: "https://github.com/DustinWin/geoip/releases/download/ips/cnip.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.mrs"
 
 rules:
   - RULE-SET,private,DIRECT

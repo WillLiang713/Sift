@@ -8,7 +8,7 @@ profile:
 
 geodata-mode: false
 geox-url:
-  mmdb: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/release/geoip.metadb"
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.metadb"
 geo-auto-update: true
 geo-update-interval: 24
 
@@ -185,82 +185,80 @@ rule-anchor:
   mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
   # blackmatrix7 品牌集（classical text：含 DOMAIN*/IP-CIDR 混合规则，勿改为 domain；jsDelivr 直连友好）
   bm-classical: &bm-classical {type: http, behavior: classical, format: text, interval: 86400, proxy: DIRECT}
-  # DustinWin .list（classical text：前缀行格式，text+domain 不识别；github releases 直链）
-  dw-classical: &dw-classical {type: http, behavior: classical, format: text, interval: 86400, proxy: DIRECT}
 
 rule-providers:
   private:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/private.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/private.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs"
   privateip:
-    <<: *dw-classical
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/privateip.list
-    url: "https://github.com/DustinWin/geoip/releases/download/ips/privateip.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs"
   apple-cn:
-    <<: *dw-classical
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/apple-cn.list
-    url: "https://github.com/DustinWin/domain-list-custom/releases/download/domains/apple-cn.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/apple-cn.mrs"
   apple:
     <<: *bm-classical
     path: ./ruleset/blackmatrix7/apple.list
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Apple/Apple.list"
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Apple/Apple.list"
   microsoft-cn:
-    <<: *dw-classical
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/microsoft-cn.list
-    url: "https://github.com/DustinWin/domain-list-custom/releases/download/domains/microsoft-cn.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/microsoft-cn.mrs"
   microsoft:
     <<: *bm-classical
     path: ./ruleset/blackmatrix7/microsoft.list
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Microsoft/Microsoft.list"
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Microsoft/Microsoft.list"
   games-cn:
-    <<: *dw-classical
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/games-cn.list
-    url: "https://github.com/DustinWin/domain-list-custom/releases/download/domains/games-cn.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs"
   ai:
-    <<: *dw-classical
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/ai.list
-    url: "https://github.com/DustinWin/domain-list-custom/releases/download/domains/ai.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.mrs"
   media:
-    <<: *dw-classical
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/media.list
-    url: "https://github.com/DustinWin/domain-list-custom/releases/download/domains/media.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/media.mrs"
   mediaip:
-    <<: *dw-classical
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/mediaip.list
-    url: "https://github.com/DustinWin/geoip/releases/download/ips/mediaip.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/mediaip.mrs"
   games:
-    <<: *dw-classical
+    <<: *mrs-domain
     path: ./ruleset/dustinwin/games.list
-    url: "https://github.com/DustinWin/domain-list-custom/releases/download/domains/games.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.mrs"
   telegram:
     <<: *bm-classical
     path: ./ruleset/blackmatrix7/telegram.list
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Telegram/Telegram.list"
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Telegram/Telegram.list"
   telegramip:
-    <<: *dw-classical
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/telegramip.list
-    url: "https://github.com/DustinWin/geoip/releases/download/ips/telegramip.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/telegramip.mrs"
   google:
     <<: *bm-classical
     path: ./ruleset/blackmatrix7/google.list
-    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.list"
+    url: "https://cdn.jsdelivr.net/gh/blackmatrix7/ios_rule_script@master/rule/Clash/Google/Google.list"
   proxy:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/proxy.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/proxy.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.mrs"
   cn-lite:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/cn-lite.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn-lite.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn-lite.mrs"
   cnip:
-    <<: *dw-classical
+    <<: *mrs-ip
     path: ./ruleset/dustinwin/cnip.list
-    url: "https://github.com/DustinWin/geoip/releases/download/ips/cnip.list"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.mrs"
   cn:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/cn.mrs
-    url: "https://github.com/DustinWin/ruleset_geodata/releases/download/mihomo-ruleset/cn.mrs"
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn.mrs"
 
 rules:
   - RULE-SET,private,DIRECT

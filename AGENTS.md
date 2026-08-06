@@ -148,18 +148,13 @@ YAML：两空格缩进；按意图分块并加短注释。
 
 | 用途 | 来源 |
 | --- | --- |
-| DNS 骨架（proxy、cn、private、cn-lite） | DustinWin `mihomo-ruleset/*.mrs`（github releases 直链） |
-| 场景细分与 IP（ai/media/games/apple-cn/microsoft-cn/games-cn、cnip/mediaip/privateip/telegramip） | DustinWin `.list`（classical text，github releases 直链） |
-| 品牌（apple/google/microsoft/telegram） | blackmatrix7 `rule/Clash/*/*.list`（classical text，raw 直链） |
+| 域名/IP 骨架（proxy、cn、private、cn-lite、ai/media/games/apple-cn/microsoft-cn/games-cn、cnip/mediaip/privateip/telegramip） | DustinWin `mihomo-ruleset/*.mrs`（jsDelivr 加速直链） |
+| 品牌（apple/google/microsoft/telegram） | blackmatrix7 `rule/Clash/*/*.list`（classical text，jsDelivr 加速直链） |
 
 GitHub/OneDrive 无独立规则集：github 域由 `proxy` 兜底承接（→ `节点选择`）；onedrive 域全部在 blackmatrix7 `Microsoft.list` 内（→ `微软服务`）。
 
 主路径**不用** MetaCubeX geosite；`cn` 为 DustinWin 全量 MRS（DNS-only，勿用于路由）。
-classical 前缀行（`DOMAIN,`/`IP-CIDR,`）不能被 `behavior: domain` 的 text 识别（会静默失效），因此：
-- DNS 相关集（proxy/cn/private，nameserver-policy/fake-ip-filter 需 domain behavior）必须 MRS；
-- 路由大集 proxy（26k）classical 顺序遍历代价不可接受，保持 MRS；
-- 其余细分/IP 集用 `.list` + classical。
-规则集链接一律 GitHub 直链（releases / raw），不经过 jsDelivr。
+全部规则集走 jsDelivr 分支加速直链（DustinWin `ruleset_geodata@mihomo-ruleset`，blackmatrix7 `@master`），不使用 github releases 直链（国内直连不稳）；geodata `geoip.metadb` 同走 jsDelivr。
 
 ## 非 CN 代理层
 
