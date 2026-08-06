@@ -139,6 +139,10 @@ proxy-groups:
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png"
     proxies: *direct-first-options
+  - name: GitHub
+    type: select
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
+    proxies: *proxy-options
   - name: 香港节点
     <<: *url-test
     filter: *filter-hk
@@ -259,7 +263,7 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,github,节点选择
+  - RULE-SET,github,GitHub
   - RULE-SET,apple-cn,直连
   - RULE-SET,microsoft-cn,直连
   - RULE-SET,games-cn,直连

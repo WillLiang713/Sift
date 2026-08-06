@@ -150,7 +150,8 @@ def default_expectations() -> List[Expectation]:
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
         exp.append((domestic, ALL, {"直连"}, "FAIL"))
 
-    exp.append(("github.com", FULLS + CORES, {"节点选择"}, "FAIL"))
+    exp.append(("github.com", FULLS, {"GitHub"}, "FAIL"))
+    exp.append(("github.com", CORES, {"节点选择"}, "FAIL"))
     exp.append(("github.com", NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
     # OneDrive: merged into Microsoft service group on Full/Core; Nano has no group.

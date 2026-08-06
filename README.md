@@ -24,7 +24,7 @@ https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/core.yaml
 https://raw.githubusercontent.com/WillLiang713/Sift/main/rules/nano.yaml
 ```
 
-Core 的 `苹果服务`、`微软服务` 与 `直连` 默认选择直连；`OneDrive` 域由 `微软服务` 承接（在 geosite microsoft 内），`GitHub` 由独立规则（纯 domain）导向 `节点选择`（均无独立组），可在面板中切换。Core/Nano 不提供 `手动切换`，所有模板的 `漏网之鱼` 默认选择 `节点选择`。
+Core 的 `苹果服务`、`微软服务` 与 `直连` 默认选择直连；Full 另有 `GitHub` 组（默认 `节点选择`）；`OneDrive` 域由 `微软服务` 承接（在 geosite microsoft 内），均可在面板中切换。Core/Nano 不提供 `手动切换`，所有模板的 `漏网之鱼` 默认选择 `节点选择`。
 
 Full/Core 的海外 DoH 固定跟随 `节点选择`，国内 DoH 与代理节点域名解析固定直连；不提供独立 DNS 策略组。
 
