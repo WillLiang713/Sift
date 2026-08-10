@@ -126,6 +126,7 @@ nameserver-policy:
     - https://1.1.1.1/dns-query
     - https://8.8.8.8/dns-query
   "rule-set:cn,private":
+    - system
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
 

@@ -91,9 +91,9 @@ Full/Core 有 `广告拦截` 组（规则 `RULE-SET,ads` 置于最前，DustinWi
 | 原则 | 做法 |
 | --- | --- |
 | 默认解析 | 海外 DoH（`nameserver`） |
-| 明确国内/内网 | `nameserver-policy` → 国内 DoH（`cn` + `private`） |
+| 明确国内/内网 | `nameserver-policy` → 国内解析（`system` + 国内 DoH，`cn` + `private`） |
 | 明确代理域 | policy → 海外 DoH（见附录 B） |
-| DNS 出口 | 仅海外 DoH 固定用 `#节点选择`；国内 DoH / `direct-nameserver` 固定直连 |
+| DNS 出口 | 仅海外 DoH 固定用 `#节点选择`；国内解析（`system` + 国内 DoH）/ `direct-nameserver` 固定直连 |
 | **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
 | fake-IP | **白名单**模式；名单外（国内、Tracker 等）自然真 IP |
 | GeoIP | 不依赖 geodata：路由与 DNS 全 RULE-SET（数据自带），不配 `geox-url`，无 GEOIP/GEOSITE 规则 |
@@ -182,9 +182,9 @@ fake-IP 白名单使用 `rule-set:proxy`。
 | 匹配 | 解析器 |
 | --- | --- |
 | 代理域：`proxy` | 海外 DoH |
-| 国内/内网：`cn,private` | 国内 DoH |
+| 国内/内网：`cn,private` | 国内解析（`system` + 国内 DoH 并发） |
 
-未命中 policy → 只用海外 `nameserver`。海外 DoH（默认 `nameserver` + 代理域 policy）固定绑定 `节点选择`；国内 DoH（`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 均固定直连，避免国内解析被代理改道或启动环路。
+未命中 policy → 只用海外 `nameserver`。海外 DoH（默认 `nameserver` + 代理域 policy）固定绑定 `节点选择`；国内解析（`system` + 国内 DoH：`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 均固定直连，避免国内解析被代理改道或启动环路。`system` 吃运营商/路由器低延迟与本地记录，国内 DoH 作并发兜底。
 
 `googleapis.cn` 等 `.cn` 代理域若误走 `cn` policy，会吃到污染或 CDN 锁定解析，故默认海外 + 代理域 policy 强制海外。
 
