@@ -18,6 +18,8 @@
 | **[Core](./rules/core.yaml)** | 基础分流 · Apple/Microsoft 服务可切换 · DNS |
 | **[Nano](./rules/nano.yaml)** | 极简 · 无 DNS |
 
+三档均不内置广告拦截；广告域按后续服务 / 代理 / 国内 / 兜底规则分流。
+
 ## 文档
 
 [DNS](./docs/dns.md) · [规则集](./docs/rulesets.md) · [维护](./AGENTS.md)

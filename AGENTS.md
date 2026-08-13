@@ -45,19 +45,20 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `苹果服务` + `微软服务` + `全球直连` | 极简 |
 | DNS / sniffer | 有 | 有 | **无** |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `全球直连`） | 无独立组 |
-| 广告拦截 | Full/Core：`广告拦截` 组（默认 `REJECT`，可切 `PASS`） | 同左 | 无 |
+| 广告拦截 | 无（广告域走后续服务 / `proxy` / `cn-lite` / 兜底） | 同左 | 同左 |
 | OneDrive | 无独立规则：域在 `微软服务` 集内（geosite microsoft） | 同左 | 无 |
 | GitHub | Full：`GitHub` 组（`geosite/github` 规则前置）；Core：规则 → `节点选择` | Core 同左，无组 | 无 |
 | 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
-Full/Core 有 `广告拦截` 组（规则 `RULE-SET,ads` 置于最前，DustinWin `ads.mrs` 纯 domain；默认 `REJECT` 拦截，切 `PASS` 放行给后续规则）。Nano 无广告组，广告域自然落入兜底。`漏网之鱼` 统一默认选择 `节点选择`。
+三档均不提供广告拦截组与 `ads` 规则；广告域按后续服务 / `proxy` / `cn-lite` / 兜底自然分流。`漏网之鱼` 统一默认选择 `节点选择`。
 
 **不要随意扩档位**：
 
-- Core：保留 Apple/Microsoft 服务组（GitHub / OneDrive 无独立组）；不要添加其他服务/品牌 UI 或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
-- Nano：不要加 DNS、场景组、品牌/地区组（除非明确改 Nano 定位）。
+- Core：保留 Apple/Microsoft 服务组（GitHub / OneDrive 无独立组）；不要添加其他服务/品牌 UI、广告组或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
+- Nano：不要加 DNS、场景组、品牌/地区组、广告组（除非明确改 Nano 定位）。
+- 全档：不要加回 `广告拦截` / `RULE-SET,ads`（除非明确改产品定位）。
 
-常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换` 与 `GitHub` 组，Core/Nano 不提供该组；服务类组名 `苹果服务`、`微软服务`；广告类组名 `广告拦截`。`GitHub` 组（Full）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组；Core 同规则 → `节点选择`。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
+常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换` 与 `GitHub` 组，Core/Nano 不提供该组；服务类组名 `苹果服务`、`微软服务`。`GitHub` 组（Full）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组；Core 同规则 → `节点选择`。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
 
 ---
 
@@ -195,12 +196,11 @@ fake-IP 白名单使用 `rule-set:proxy`。
 与 `README` 分流表一致，改 yaml 时对照：
 
 1. 局域网 / 私有 → `DIRECT`
-2. 广告 → 按模板规则落入 `直连` / `节点选择`
-3. Tracker 等 → `直连`（按模板）
-4. 国内 Apple / Microsoft / 游戏补充 → `直连`
-5. 海外 Apple / AI / 游戏 / 流媒体 / OneDrive / Microsoft / TG / Google → 对应组
-6. `proxy`（明确非 CN）→ `节点选择`
-7. `cn-lite` / 国内 IP → `直连`
-8. 其余 → `漏网之鱼`
+2. Tracker 等 → `直连`（按模板）
+3. 国内 Apple / Microsoft / 游戏补充 → `直连`
+4. 海外 Apple / AI / 游戏 / 流媒体 / OneDrive / Microsoft / TG / Google → 对应组
+5. `proxy`（明确非 CN）→ `节点选择`
+6. `cn-lite` / 国内 IP → `直连`
+7. 其余 → `漏网之鱼`
 
 细节与域名矩阵以当前 yaml + `sift-route-debug` 为准；本附录描述**意图**，不是逐行拷贝源。

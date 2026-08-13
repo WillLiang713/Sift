@@ -172,12 +172,6 @@ proxy-groups:
       - DIRECT
       - 节点选择
       - 自动测速
-  - name: 广告拦截
-    type: select
-    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Advertising.png"
-    proxies:
-      - REJECT
-      - PASS
   - name: 漏网之鱼
     type: select
     include-all: true
@@ -190,10 +184,6 @@ rule-anchor:
   mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
 rule-providers:
-  ads:
-    <<: *mrs-domain
-    path: ./ruleset/dustinwin/ads.mrs
-    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ads.mrs"
   private:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/private.mrs
@@ -272,7 +262,6 @@ rule-providers:
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cn.mrs"
 
 rules:
-  - RULE-SET,ads,广告拦截
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,github,GitHub
