@@ -87,6 +87,12 @@ proxy-groups:
   - name: 自动测速
     <<: *url-test
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
+  - name: AI
+    type: select
+    include-all: true
+    exclude-filter: *node-exclude
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
+    proxies: *proxy-options
   - name: 苹果服务
     type: select
     include-all: true
@@ -99,6 +105,12 @@ proxy-groups:
     exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Windows_11.png"
     proxies: *direct-first-options
+  - name: GitHub
+    type: select
+    include-all: true
+    exclude-filter: *node-exclude
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
+    proxies: *proxy-options
   - name: 全球直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
@@ -143,6 +155,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/games-cn.list
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs"
+  ai:
+    <<: *mrs-domain
+    path: ./ruleset/dustinwin/ai.list
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.mrs"
   proxy:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/proxy.mrs
@@ -163,8 +179,9 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,github,节点选择
+  - RULE-SET,github,GitHub
   - RULE-SET,apple,苹果服务
+  - RULE-SET,ai,AI
   - RULE-SET,microsoft,微软服务
   - RULE-SET,games-cn,全球直连
   - RULE-SET,proxy,节点选择

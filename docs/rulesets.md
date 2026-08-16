@@ -47,7 +47,7 @@
 | `Apple` | Apple 服务 | `classical` / `text` | `Clash/Apple.list` | Full/Core 都进入 `苹果服务`，Core 默认选择 `直连`。 |
 | `Microsoft` | Microsoft 服务 | `classical` / `text` | `Clash/Microsoft.list` | Full/Core 都进入 `微软服务`，Core 默认选择 `直连`。 |
 | `OneDrive` | OneDrive | `classical` / `text` | `Clash/OneDrive.list` | Full 中放在 Microsoft 前。 |
-| `AI` | AI 平台 | `classical` / `text` | `Clash/Ruleset/AI.list` | Full 进入 `AI`。 |
+| `AI` | AI 平台 | `classical` / `text` | `Clash/Ruleset/AI.list` | Full/Core 进入 `AI`。 |
 | `Steam` / `Epic` / `Origin` / `Sony` / `Xbox` / `Nintendo` | 游戏平台 | `classical` / `text` | `Clash/Ruleset/Steam.list` / `Clash/Ruleset/Epic.list` / `Clash/Ruleset/Origin.list` / `Clash/Ruleset/Sony.list` / `Clash/Xbox.list` / `Clash/Ruleset/Nintendo.list` | Full 进入 `游戏平台`。 |
 | `ProxyMedia` | 流媒体聚合包 | `classical` / `text` | `Clash/ProxyMedia.list` | 上游聚合媒体列表，含 `challenges.cloudflare.com` 等。 |
 | `YouTube` / `Netflix` / `NetflixIP` / `DisneyPlus` / `Spotify` / `TikTok` | 主流流媒体 | `classical` / `text` | `Ruleset/YouTube.list` 等；`Netflix.list` 在 `Clash/` 根目录 | 分服务规则包。 |

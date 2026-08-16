@@ -112,12 +112,12 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 | **Google/Play anchors** | **`googleapis.cn`** + **`play.googleapis.com`**: Full → `谷歌服务`; Core/Nano → `节点选择`. Must not fall through to broad CN direct. DNS half of the same contract is Full/Core `rule-set:proxy` fake-IP whitelist. |
 | Other Google | `www.google.com` same policy split as anchors (Full `谷歌服务` / Core-Nano `节点选择`) |
 | CF challenge | Full binds `challenges.cloudflare.com` to `流媒体` via the DustinWin `media` set. |
-| Full AI | `chatgpt.com` → `AI` |
+| Full/Core AI | `chatgpt.com` → `AI` |
 | Full streaming | YouTube and the DustinWin `media` set → `流媒体` |
 | Full brands | icloud → `苹果服务`, office → `微软服务` |
-| Core brands | Apple → `苹果服务`, Microsoft → `微软服务` (default `全球直连`) |
+| Core brands | AI → `AI`、GitHub → `GitHub` (default `节点选择`); Apple → `苹果服务`, Microsoft → `微软服务` (default `全球直连`) |
 | Ads | No dedicated group or `ads` rule on any tier; ad domains follow later service / `proxy` / `cn-lite` / catch-all |
-| GitHub | Full: dedicated `GitHub` group (rule `geosite/github` before `microsoft`); Core/Nano → `节点选择`/`漏网之鱼` |
+| GitHub | Full/Core: dedicated `GitHub` group (rule `geosite/github` before `microsoft`); Nano → `节点选择`/`漏网之鱼` |
 | OneDrive | No dedicated rule: domains covered by `geosite microsoft` → `微软服务` (default `全球直连`); Nano → `节点选择` |
 | Domestic | baidu/qq/taobao/bilibili → `全球直连` on all three |
 | Private | localhost → `DIRECT` |
@@ -136,7 +136,7 @@ Common Sift cases to call out:
 
 - `proxy` is the explicit non-CN layer after service/brand rules and before `cn-lite`; Full also has `google` → `谷歌服务` before `proxy`.
 - Full's DustinWin `media` domain set intentionally binds `+.challenges.cloudflare.com` to `流媒体` — CF verification traffic rides the streaming group.
-- Core routes Apple and Microsoft rules to separately controllable service groups, both defaulting to `全球直连`; Full has a dedicated `GitHub` group (rule `geosite/github` before `microsoft` since geosite microsoft includes github); Core/Nano route github to `节点选择`. `OneDrive` has no rule — onedrive domains are covered by `geosite microsoft` → `微软服务`. No template routes an ads set.
+- Core routes AI / GitHub / Apple / Microsoft rules to separately controllable service groups (`AI` / `GitHub` default to `节点选择`; Apple/Microsoft default to `全球直连`). Full and Core both have a dedicated `GitHub` group (rule `geosite/github` before `microsoft` since geosite microsoft includes github); Nano routes github to `节点选择`/`漏网之鱼`. `OneDrive` has no rule — onedrive domains are covered by `geosite microsoft` → `微软服务`. No template routes an ads set.
 - A domain that has no domain-rule match can still route by IP at runtime if DNS resolution produces an IP matched by an IP rule.
 
 `matrix_route.sh` is retained as a Linux convenience wrapper; the Python command is the portable entry point.

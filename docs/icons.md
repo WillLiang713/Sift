@@ -47,7 +47,7 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
 | 手动切换 | `Available.png` | 手动选择可用节点 |
 | 自动测速 | `Auto.png` | 自动测速 |
 | DNS | `Hijacking.png` | DNS 接管与出口 |
-| AI | `ChatGPT.png` | AI 服务 |
+| AI | `AI.png` | AI 服务 |
 | 流媒体 | `Streaming.png` | 国际流媒体 |
 | 游戏平台 | `Game.png` | 游戏平台 |
 | Telegram | `Telegram_X.png` | Telegram 服务 |

@@ -114,7 +114,7 @@ proxy-groups:
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"
   - name: AI
     type: select
-    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png"
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/AI.png"
     proxies: *proxy-options
   - name: 流媒体
     type: select

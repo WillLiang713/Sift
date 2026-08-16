@@ -42,23 +42,24 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | | Full | Core | Nano |
 | --- | --- | --- | --- |
 | 代表文件 | `rules/full.yaml` | `rules/core.yaml` | `rules/nano.yaml` |
-| UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `苹果服务` + `微软服务` + `全球直连` | 极简 |
+| UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `AI` + `GitHub` + `苹果服务` + `微软服务` + `全球直连` | 极简 |
 | DNS / sniffer | 有 | 有 | **无** |
+| AI | 独立 `AI` 组 | 独立 `AI` 组（默认 `节点选择`） | 无独立组 |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `全球直连`） | 无独立组 |
 | 广告拦截 | 无（广告域走后续服务 / `proxy` / `cn-lite` / 兜底） | 同左 | 同左 |
 | OneDrive | 无独立规则：域在 `微软服务` 集内（geosite microsoft） | 同左 | 无 |
-| GitHub | Full：`GitHub` 组（`geosite/github` 规则前置）；Core：规则 → `节点选择` | Core 同左，无组 | 无 |
+| GitHub | 独立 `GitHub` 组（`geosite/github` 规则前置） | 独立 `GitHub` 组（默认 `节点选择`） | 无 |
 | 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
 三档均不提供广告拦截组与 `ads` 规则；广告域按后续服务 / `proxy` / `cn-lite` / 兜底自然分流。`漏网之鱼` 统一默认选择 `节点选择`。
 
 **不要随意扩档位**：
 
-- Core：保留 Apple/Microsoft 服务组（GitHub / OneDrive 无独立组）；不要添加其他服务/品牌 UI、广告组或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
+- Core：保留 `AI`、`GitHub` 与 Apple/Microsoft 服务组（OneDrive 无独立组）；不要添加其他服务/品牌 UI、广告组或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组、广告组（除非明确改 Nano 定位）。
 - 全档：不要加回 `广告拦截` / `RULE-SET,ads`（除非明确改产品定位）。
 
-常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换` 与 `GitHub` 组，Core/Nano 不提供该组；服务类组名 `苹果服务`、`微软服务`。`GitHub` 组（Full）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组；Core 同规则 → `节点选择`。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
+常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `AI`、`GitHub`、`苹果服务`、`微软服务`（`AI` / `GitHub` 仅 Full/Core）。`GitHub` 组（Full/Core）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，海外 DoH 固定使用 `#节点选择`。
 
 ---
 
@@ -70,7 +71,8 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 
 | 顺序 | 原因（人话） |
 | --- | --- |
-| `github` **在** `microsoft` **前** | geosite microsoft 含 github（include:github），须先截走 GitHub → `节点选择` |
+| `github` **在** `microsoft` **前** | geosite microsoft 含 github（include:github），须先截走 GitHub → `GitHub` 组 |
+| `ai` **在** `microsoft` / `proxy` 前 | 先截走海外 AI 域 → `AI`，避免被 microsoft 或非 CN 层提前命中 |
 | `microsoft` **在** `proxy` 前 | geosite microsoft 承接 OneDrive 域（include:onedrive），先命中 `微软服务` |
 | `google`、`proxy` **在** `cn-lite` 前 | 否则 `googleapis.cn` 等会被国内直连误伤 |
 | Full 的服务域名、`proxy`、`cn-lite` **在** `mediaip` / `telegramip` / `cnip` 前 | 先完成域名分类，避免服务 IP 集提前触发解析；`privateip,no-resolve` 可保留在开头 |
@@ -154,7 +156,7 @@ YAML：两空格缩进；按意图分块并加短注释。
 | 域名/IP 骨架（proxy、cn、private、cn-lite、ai/media/games/apple-cn/microsoft-cn/games-cn、cnip/mediaip/privateip/telegramip） | DustinWin `mihomo-ruleset/*.mrs`（jsDelivr 加速直链） |
 | 品牌（github/apple/google/microsoft/telegram） | MetaCubeX `meta/geo/geosite/*.mrs`（纯 domain，jsDelivr 加速直链） |
 
-GitHub 有独立规则（`geosite/github`，纯 domain）→ Full `GitHub` 组 / Core `节点选择`，须置于 `microsoft` 前（geosite microsoft 含 github）；OneDrive 无独立规则，域在 `geosite microsoft` 内（include:onedrive）→ `微软服务`。全模板零 classical（品牌层用 MetaCubeX geosite）。
+GitHub 有独立规则（`geosite/github`，纯 domain）→ Full/Core `GitHub` 组，须置于 `microsoft` 前（geosite microsoft 含 github）；OneDrive 无独立规则，域在 `geosite microsoft` 内（include:onedrive）→ `微软服务`。全模板零 classical（品牌层用 MetaCubeX geosite）。
 
 `cn` 为 DustinWin 全量 MRS（DNS-only，勿用于路由）；品牌层用 MetaCubeX geosite（纯 domain MRS，jsDelivr）。
 全部规则集走 jsDelivr 分支加速直链（DustinWin `ruleset_geodata@mihomo-ruleset`、MetaCubeX `meta-rules-dat@meta`），不使用 github releases 直链（国内直连不稳）；模板不依赖 geodata（无 GEOIP/GEOSITE 规则，不配 `geox-url`）。

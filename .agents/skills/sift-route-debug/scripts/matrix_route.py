@@ -138,8 +138,7 @@ def default_expectations() -> List[Expectation]:
     # through the DustinWin media domain set.
     exp.append(("challenges.cloudflare.com", FULLS, {"流媒体"}, "FAIL"))
 
-    exp.append(("chatgpt.com", FULLS, {"AI"}, "FAIL"))
-    exp.append(("chatgpt.com", CORES, {"节点选择", "漏网之鱼"}, "FAIL"))
+    exp.append(("chatgpt.com", FULLS + CORES, {"AI"}, "FAIL"))
     exp.append(("chatgpt.com", NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.netflix.com", FULLS, {"节点选择", "流媒体", "漏网之鱼"}, "WARN"))
@@ -150,8 +149,7 @@ def default_expectations() -> List[Expectation]:
     for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
         exp.append((domestic, ALL, {"全球直连"}, "FAIL"))
 
-    exp.append(("github.com", FULLS, {"GitHub"}, "FAIL"))
-    exp.append(("github.com", CORES, {"节点选择"}, "FAIL"))
+    exp.append(("github.com", FULLS + CORES, {"GitHub"}, "FAIL"))
     exp.append(("github.com", NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
     # OneDrive: merged into Microsoft service group on Full/Core; Nano has no group.
