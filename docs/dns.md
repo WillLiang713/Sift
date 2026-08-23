@@ -4,21 +4,21 @@
 
 ## 解析与出口分工
 
-`respect-rules: false` 表示 DNS 上游不自动套用业务路由规则；海外 DoH 通过 URL 的 `#节点选择` 参数固定跟随主节点入口。`nameserver-policy` 仍按查询域名选择解析器，因此继续按意图明确分层：
+`respect-rules: true` 表示 DNS 上游连接遵循业务路由规则；上游地址不再通过 URL 参数固定策略组。`nameserver-policy` 仍按查询域名选择解析器，因此继续按意图明确分层：
 
 - 明确代理域名（`proxy`）通过 `nameserver-policy` 强制使用海外 DoH（优先于 cn）。
 - `cn` + `private` 域名通过 `nameserver-policy` 使用国内解析（`system` + 国内 DoH 并发）。
 - 未命中 `nameserver-policy` 的域名只使用海外 `nameserver`，**不**启用 `fallback` / `fallback-filter`。
-- 海外 DoH（代理域 policy + 默认 `nameserver`）固定经 `节点选择`，随主代理出口切换。
-- 国内解析（`cn`/`private` policy 与 `direct-nameserver`：`system` + 国内 DoH）固定直连，**不**挂策略组，避免把国内解析一并改道到代理。
+- 海外 DoH（代理域 policy + 默认 `nameserver`）的上游连接遵循路由规则。
+- 国内解析（`cn`/`private` policy 与 `direct-nameserver`：`system` + 国内 DoH）不指定策略组。
 - `proxy-server-nameserver` 使用国内解析（`system` + 国内 DoH）解析代理节点域名，避免启动环路；DoH 作为 system 不可用时的兜底。
 
 ```yaml
 nameserver-policy:
   # 明确代理域名使用海外 DoH
   "rule-set:proxy":
-    - "https://1.1.1.1/dns-query#节点选择"
-    - "https://8.8.8.8/dns-query#节点选择"
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
 
   # 国内及私有域名：system（运营商/路由器 DNS）与国内 DoH 并发竞速
   "rule-set:cn,private":
@@ -26,7 +26,7 @@ nameserver-policy:
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
 
-respect-rules: false
+respect-rules: true
 direct-nameserver:
   - system
   - https://223.5.5.5/dns-query
@@ -39,8 +39,8 @@ proxy-server-nameserver:
 
 # 默认解析：仅海外 DoH（无 fallback）
 nameserver:
-  - "https://1.1.1.1/dns-query#节点选择"
-  - "https://8.8.8.8/dns-query#节点选择"
+  - https://1.1.1.1/dns-query
+  - https://8.8.8.8/dns-query
 ```
 
 Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡顿）。
@@ -57,9 +57,9 @@ Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡�
 
 | 域名意图 | 解析器 |
 | --- | --- |
-| 明确代理（`proxy`） | 海外 DoH（`nameserver-policy`）经 `节点选择` |
+| 明确代理（`proxy`） | 海外 DoH（`nameserver-policy`），上游连接遵循路由规则 |
 | 明确国内 / 内网（`cn,private`） | 国内解析 `system` + DoH（`nameserver-policy`）固定直连 |
-| 未分类 | 仅海外 `nameserver`，经 `节点选择` |
+| 未分类 | 仅海外 `nameserver`，上游连接遵循路由规则 |
 | 实际 `DIRECT` 流量 | `direct-nameserver`（`system` + 国内 DoH），固定直连 |
 | 代理节点域名 | `proxy-server-nameserver`（`system` + 国内 DoH） |
 
@@ -110,7 +110,7 @@ DustinWin `proxy` 是 domain-only `geolocation-!cn + gfwlist`，同时覆盖 `go
 | DNS 劫持 | 开启 |
 | DNS 劫持方式 | 优先防火墙转发 |
 | 自定义 DNS 设置 | 关闭 |
-| Respect Rules | 关闭（遵循模板的 `respect-rules: false`） |
+| Respect Rules | 开启（遵循模板的 `respect-rules: true`） |
 | Fake-IP Range | `198.18.0.1/16` |
 | Fake-IP 持久化 | 开启 |
 | Fake-IP-Filter 覆写 | 关闭 |
@@ -148,8 +148,8 @@ DNS 泄露检测网站通常会发起一批随机域名查询，再把收到查�
 
 - 检测页列出的是 **DNS 服务器 IP** 时：出现中国 IP 可能只是国内意图域名 / 直连重解析 / 节点域名解析的预期行为，不能单凭此项判定整站连接使用中国 IP 直连，也不能说明代理域名的 DNS 被国内解析器看到。
 - 检测页或网络面板中的 **浏览器实际公网出口 IP** 若与预期代理出口不符，需要继续排查路由与客户端劫持。
-- 明确代理域名应命中 `nameserver-policy` 的海外 DoH；该 DoH 上游连接固定跟随当前 `节点选择`，而域名对应的业务连接仍应在 Mihomo 面板中进入预期的代理策略链。
+- 明确代理域名应命中 `nameserver-policy` 的海外 DoH；该 DoH 上游连接遵循路由规则，而域名对应的业务连接仍应在 Mihomo 面板中进入预期的代理策略链。
 
 本模板对国内解析（`system` + 国内 DoH）的使用范围刻意收窄为「明确国内/内网 policy、明确直连重解析、代理节点域名解析」。`system` 优先吃到运营商/路由器 DNS 的低延迟与本地记录，国内 DoH 作并发兜底。它追求的是按域名意图分配解析器、缩短 DNS 链路，并避免未分类查询再并发暴露给国内 DNS；不是把 DNS 元数据隐藏到代理所在地。海外 DoH 内容受 HTTPS 加密，但解析器会看到本地公网出口 IP。
 
-海外 DoH 查询固定随 `节点选择` 的当前出口；国内解析（含 `system` 与国内 DoH）与 `proxy-server-nameserver` 仍固定直连，避免国内解析被改道或节点域名解析环路。若还要避免国内解析器看到查询，则需同时改写 `cn,private` policy 与 `direct-nameserver` 的上游地址（甚至改走海外 DoH），并接受国内解析与 CDN 体验可能下降的代价。
+DNS 上游连接统一遵循路由规则，海外 DoH 不再固定到 `节点选择`；`proxy-server-nameserver` 继续负责代理节点域名解析，避免启动环路。若还要避免国内解析器看到查询，则需同时改写 `cn,private` policy 与 `direct-nameserver` 的上游地址（甚至改走海外 DoH），并接受国内解析与 CDN 体验可能下降的代价。

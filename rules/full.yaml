@@ -12,8 +12,8 @@ dns-anchor:
     - https://223.5.5.5/dns-query
     - https://1.12.12.12/dns-query
   overseas: &overseas-dns
-    - "https://1.1.1.1/dns-query#节点选择"
-    - "https://8.8.8.8/dns-query#节点选择"
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
 
 dns:
   enable: true
@@ -28,7 +28,7 @@ dns:
   nameserver-policy:
     "rule-set:proxy": *overseas-dns
     "rule-set:cn,private": *domestic-dns
-  respect-rules: false
+  respect-rules: true
   direct-nameserver: *domestic-dns
   proxy-server-nameserver: *domestic-dns
   nameserver: *overseas-dns
