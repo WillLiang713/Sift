@@ -20,6 +20,8 @@
 
 三档均不内置广告拦截；广告域按后续服务 / 代理 / 国内 / 兜底规则分流。
 
+Full/Core 的无条件直连域优先返回 real-IP（Full 包含 Apple/Microsoft 国内服务）；其他明确代理域名继续使用 fake-IP。
+
 ## 文档
 
 [DNS](./docs/dns.md) · [规则集](./docs/rulesets.md) · [维护](./AGENTS.md)

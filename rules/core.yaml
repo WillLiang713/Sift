@@ -22,9 +22,13 @@ dns:
   listen: ":53"
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
-  fake-ip-filter-mode: whitelist
+  fake-ip-filter-mode: rule
   fake-ip-filter:
-    - rule-set:proxy
+    # 无条件直连域优先 real-IP，避免与 proxy 重叠时强制进核
+    - RULE-SET,private,real-ip
+    - RULE-SET,games-cn,real-ip
+    - RULE-SET,proxy,fake-ip
+    - MATCH,real-ip
   nameserver-policy:
     "rule-set:proxy": *overseas-dns
     "rule-set:cn,private": *domestic-dns

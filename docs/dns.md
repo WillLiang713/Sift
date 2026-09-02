@@ -1,4 +1,4 @@
-# DNS 泄露与 Fake-IP 白名单
+# DNS 泄露与 Fake-IP 规则
 
 本文记录 Full / Core 模板的 DNS 分工。Nano 模板不接管 DNS。
 
@@ -69,24 +69,43 @@ Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡�
 
 模板不依赖 GeoIP 数据库：路由与 DNS 全部使用 RULE-SET（域名/IP 数据由 rule-provider 自带），**无 GEOIP/GEOSITE 规则，不配置 `geodata-mode` / `geox-url` / `geo-auto-update`**，避免无谓下载。
 
-## Fake-IP 白名单
+## Fake-IP 优先级规则
 
 Full/Core 统一使用：
 
 ```yaml
-fake-ip-filter-mode: whitelist
+fake-ip-filter-mode: rule
 ```
 
-在 whitelist 模式下，`fake-ip-filter` 中列出的域名返回 `198.18.0.0/16` fake-IP；未列入的私有、国内、Tracker、NTP 和其他兼容域名默认返回 real-IP。
+rule 模式与路由规则一样自上而下匹配。无条件直连域在与 `proxy` 重叠时优先返回 real-IP，其他明确代理域继续返回 `198.18.0.0/16` fake-IP。
 
-### Full/Core
+### Full
 
 ```yaml
 fake-ip-filter:
-  - rule-set:proxy
+  - RULE-SET,private,real-ip
+  - RULE-SET,apple-cn,real-ip
+  - RULE-SET,microsoft-cn,real-ip
+  - RULE-SET,games-cn,real-ip
+  - RULE-SET,proxy,fake-ip
+  - MATCH,real-ip
 ```
 
-DustinWin `proxy` 是 domain-only `geolocation-!cn + gfwlist`，同时覆盖 `googleapis.cn`、`gvt1.com`、`googleusercontent.com` 和 `xn--ngstr-lra8j.com` 等明确代理域名。它在路由侧仍位于 `cn-lite` 之前。
+### Core
+
+```yaml
+fake-ip-filter:
+  - RULE-SET,private,real-ip
+  - RULE-SET,games-cn,real-ip
+  - RULE-SET,proxy,fake-ip
+  - MATCH,real-ip
+```
+
+Full 的 `apple-cn`、`microsoft-cn`、`games-cn` 以及两档共有的 `private` 都位于路由 `proxy` 前，并且选择无条件直连。它们与 `proxy` 存在交集，例如 `apps.apple.com`、`download.windowsupdate.com`、`steamserver.net` 与 `metacubex.github.io`，因此在 fake-IP 规则中保持相同优先级。Core 的 Apple/Microsoft 服务组可由用户改选代理，不属于无条件直连，故不加入 real-IP 例外。
+
+随后 `proxy` 仍覆盖 `googleapis.cn`、`gvt1.com`、`googleusercontent.com` 和 `xn--ngstr-lra8j.com` 等明确代理域名；其余国内、Tracker、NTP 和兼容域名由 `MATCH` 返回 real-IP。路由侧的 `proxy` 仍位于 `cn-lite` 之前，不能把 `cn-lite` 整体放到 `proxy` 前，否则会让 Google `.cn` 等硬锚点绕过内核。
+
+real-IP 为 OpenWrt/Nikki 等客户端的防火墙前置旁路创造条件，但不保证一定绕过 Mihomo：目标地址若不属于客户端的大陆 IP 旁路范围（例如 Steam 香港 CDN），或客户端未启用相应旁路，连接仍会进入内核再走 `DIRECT`。
 
 ## 为什么 Google `.cn` 需要 fake-IP
 
@@ -96,11 +115,11 @@ DustinWin `proxy` 是 domain-only `geolocation-!cn + gfwlist`，同时覆盖 `go
 2. OpenWrt/Nikki 等客户端可能在防火墙层按 China IP 提前直连。
 3. 流量没有进入 Mihomo，因而无法命中更高意图的 `proxy` 规则。
 
-白名单模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口。`nameserver-policy` 为 `proxy` 指定海外 DoH，为 `cn,private` 指定国内解析（`system` + 国内 DoH）；未分类域名只走海外 `nameserver`，不再进入国内主解析与海外 fallback 的并发选择流程。
+规则模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口；只有位于路由 `proxy` 前的无条件直连域以更高优先级取得 real-IP。`nameserver-policy` 仍为 `proxy` 指定海外 DoH、为 `cn,private` 指定国内解析（`system` + 国内 DoH）；未分类域名只走海外 `nameserver`，不再进入国内主解析与海外 fallback 的并发选择流程。
 
 ## 国内域名为什么仍然直连
 
-国内域名未列入 fake-IP 白名单，因此返回 real-IP，并由 `nameserver-policy` 的国内解析（`system` + 国内 DoH）解析。路由侧仍使用 `cn-lite` + `cnip`。不要把 DNS 用的 MetaCubeX `cn.mrs` 换入路由兜底。
+国内域名由 fake-IP 规则末尾的 `MATCH,real-ip` 返回 real-IP，并由 `nameserver-policy` 的国内解析（`system` + 国内 DoH）解析。显式直连例外只改变 fake-IP 输出，解析器仍由 `nameserver-policy` 独立判断；与 `proxy` 重叠的域名继续使用海外 DoH。路由侧仍使用 `cn-lite` + `cnip`。不要把 DNS 用的 MetaCubeX `cn.mrs` 换入路由兜底。
 
 ## 客户端设置
 

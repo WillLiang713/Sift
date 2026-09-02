@@ -11,7 +11,7 @@
 说明：
 
 - 以下 DustinWin URL 使用 GitHub release 下载链接，与官方示例保持一致。jsDelivr 同等链接遵循相同文件名，路径中使用发布分支名。
-- Full/Core 使用 fake-IP 白名单模式；Tracker 不在代理域名白名单中，因此自然返回 real-IP，无需额外引用 `trackerslist.mrs`。
+- Full/Core 使用 fake-IP 规则模式：路由中位于 `proxy` 前的无条件直连域优先 `real-ip`，随后 `proxy → fake-ip`，其余域名自然返回 real-IP；Tracker 无需额外引用 `trackerslist.mrs`。
 - blackmatrix7 条目以 master 分支作为每日更新来源，当 release 分支存在相同文件时同时列出 release 链接。
 - 当前模板优先使用 DustinWin `.mrs`；品牌与 DNS-only `cn` 使用 MetaCubeX `.mrs`。下方 text/classical 条目仅作为换源研究资料，不代表当前接线。
 - hybrid 模板使用 `proxy`（`geolocation-!cn` + gfwlist）作为明确非中国域名代理层，放在场景/品牌规则之后、`cn-lite` 之前，避免 `googleapis.cn` 等被宽泛的 `+.cn` 规则误直连。
@@ -52,9 +52,9 @@
 | `ProxyMedia` | 流媒体聚合包 | `classical` / `text` | `Clash/ProxyMedia.list` | 上游聚合媒体列表，含 `challenges.cloudflare.com` 等。 |
 | `YouTube` / `Netflix` / `NetflixIP` / `DisneyPlus` / `Spotify` / `TikTok` | 主流流媒体 | `classical` / `text` | `Ruleset/YouTube.list` 等；`Netflix.list` 在 `Clash/` 根目录 | 分服务规则包。 |
 | `Telegram` | Telegram | `classical` / `text` | `Clash/Telegram.list` | Full 进入 `Telegram`。 |
-| `proxy`（DNS） | Full/Core fake-IP 白名单 | `domain` / `text` | DustinWin `mihomo-ruleset/proxy.list` | 仅供 ACL4SSR DNS 引用；路由仍用 `ProxyLite`。 |
-| `private` | DNS fake-ip 私有域名例外 | `domain` / `text` | DustinWin `mihomo-ruleset/private.list` | 上游参考；当前 Full/Core 使用 MRS。 |
-| `cn`（DNS） | Full/Core 国内 nameserver policy | `domain` / `mrs` | DustinWin `mihomo-ruleset/cn.mrs`（jsDelivr） | DustinWin 全量国内域名；**不**用于 fake-IP 白名单或路由（路由用 `cn-lite`）。 |
+| `proxy`（DNS） | Full/Core `proxy → fake-ip` | `domain` / `text` | DustinWin `mihomo-ruleset/proxy.list` | 仅供 ACL4SSR DNS 引用；路由仍用 `ProxyLite`。 |
+| `private` | Full/Core `private → real-ip` | `domain` / `text` | DustinWin `mihomo-ruleset/private.list` | 上游参考；当前 Full/Core 使用 MRS。 |
+| `cn`（DNS） | Full/Core 国内 nameserver policy | `domain` / `mrs` | DustinWin `mihomo-ruleset/cn.mrs`（jsDelivr） | DustinWin 全量国内域名；**不**用于 fake-IP 规则或路由（路由用 `cn-lite`）。 |
 
 ## DustinWin Rule Sets
 

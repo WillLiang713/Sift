@@ -109,7 +109,8 @@ Keep these aligned with `AGENTS.md` / `README.md` when routing design changes:
 
 | Area | Contract (summary) |
 | --- | --- |
-| **Google/Play anchors** | **`googleapis.cn`** + **`play.googleapis.com`**: Full → `谷歌服务`; Core/Nano → `节点选择`. Must not fall through to broad CN direct. DNS half of the same contract is Full/Core `rule-set:proxy` fake-IP whitelist. |
+| **Google/Play anchors** | **`googleapis.cn`** + **`play.googleapis.com`**: Full → `谷歌服务`; Core/Nano → `节点选择`. Must not fall through to broad CN direct. DNS half of the same contract is Full/Core `proxy → fake-ip`, after higher-priority unconditional-direct real-IP exceptions. |
+| **Direct/proxy overlaps** | Full DNS keeps `private` / `apple-cn` / `microsoft-cn` / `games-cn → real-ip` before `proxy → fake-ip`; Core keeps `private` / `games-cn`. Route probes include representative private, Apple CN, Microsoft CN, and Steam overlaps. Do not promote broad `cn-lite` to a real-IP exception. |
 | Other Google | `www.google.com` same policy split as anchors (Full `谷歌服务` / Core-Nano `节点选择`) |
 | CF challenge | Full binds `challenges.cloudflare.com` to `流媒体` via the DustinWin `media` set. |
 | Full/Core AI | `chatgpt.com` → `AI` |

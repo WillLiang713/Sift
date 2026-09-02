@@ -60,6 +60,10 @@ DEFAULT_DOMAINS: List[str] = [
     "gstatic.cn",
     "www.google.com",
     "play.googleapis.com",
+    "cmp1-hkg1.steamserver.net",
+    "apps.apple.com",
+    "download.windowsupdate.com",
+    "metacubex.github.io",
     "www.youtube.com",
     "scholar.google.com",
     "challenges.cloudflare.com",
@@ -119,14 +123,33 @@ def default_expectations() -> List[Expectation]:
 
     exp.append(("localhost", ALL, {"DIRECT"}, "FAIL"))
 
-    # Google/Play hard anchors (routing contract). Pair with Full/Core DNS whitelist
-    # (rule-set:proxy) so these domains enter Mihomo
+    # Google/Play hard anchors (routing contract). Pair with Full/Core DNS rule
+    # (proxy -> fake-ip, after unconditional-direct real-IP exceptions) so
+    # these domains enter Mihomo
     # with overseas DoH — DNS is not re-asserted by this domain matrix.
     # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN).
     exp.append(("googleapis.cn", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("googleapis.cn", CORES + NANOS, {"节点选择"}, "FAIL"))
     exp.append(("play.googleapis.com", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("play.googleapis.com", CORES + NANOS, {"节点选择"}, "FAIL"))
+
+    # steamserver.net overlaps games-cn and proxy. Full/Core must preserve the
+    # higher-intent direct route; their DNS rule independently returns real-IP.
+    exp.append(("cmp1-hkg1.steamserver.net", FULLS + CORES, {"全球直连"}, "FAIL"))
+    exp.append(("cmp1-hkg1.steamserver.net", NANOS, {"节点选择"}, "FAIL"))
+
+    # Full-only CN service sets are unconditional direct routes and therefore
+    # precede proxy in both routing and fake-IP decisions.
+    exp.append(("apps.apple.com", FULLS, {"全球直连"}, "FAIL"))
+    exp.append(("apps.apple.com", CORES, {"苹果服务"}, "FAIL"))
+    exp.append(("apps.apple.com", NANOS, {"节点选择"}, "FAIL"))
+    exp.append(("download.windowsupdate.com", FULLS, {"全球直连"}, "FAIL"))
+    exp.append(("download.windowsupdate.com", CORES, {"微软服务"}, "FAIL"))
+    exp.append(("download.windowsupdate.com", NANOS, {"节点选择"}, "FAIL"))
+
+    # Private remains the highest-intent direct rule on every tier. Only
+    # Full/Core manage DNS, where it also precedes proxy in fake-IP decisions.
+    exp.append(("metacubex.github.io", ALL, {"DIRECT"}, "FAIL"))
 
     exp.append(("www.google.com", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))

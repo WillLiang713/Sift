@@ -28,7 +28,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 
 | 文件 | 何时读 | 内容 |
 | --- | --- | --- |
-| [`docs/dns.md`](./docs/dns.md) | 改 Full/Core DNS、fake-IP、DNS 出口、防泄露 | 本仓库模板 DNS 分工与白名单约定 |
+| [`docs/dns.md`](./docs/dns.md) | 改 Full/Core DNS、fake-IP、DNS 出口、防泄露 | 本仓库模板 DNS 分工与 fake-IP 优先级约定 |
 | [`docs/dns-flow.md`](./docs/dns-flow.md) | 排查「先规则后解析」、理解 Mihomo 何时才做 DNS | 上游 DNS 解析流程摘要 |
 | [`docs/rulesets.md`](./docs/rulesets.md) | 换源/选型规则集、查上游有哪些 list/mrs | DustinWin / blackmatrix7 / ACL 等目录参考（**体积大**，按关键词搜） |
 | [`docs/icons.md`](./docs/icons.md) | 改策略组 `icon` | Vbaethon/HOMOMIX CDN 路径与映射表 |
@@ -84,7 +84,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 - `googleapis.cn`
 - `play.googleapis.com`
 
-出口约定：Full → `谷歌服务`；Core / Nano → `节点选择`；Full/Core DNS fake-IP 白名单须覆盖。
+出口约定：Full → `谷歌服务`；Core / Nano → `节点选择`；Full/Core DNS fake-IP 规则须覆盖并输出 `fake-ip`。
 
 - `gstatic.cn` **不是**硬锚点（展示可以，失败不判契约破）。
 - 默认**不要**加 `google@cn → 直连`（Play/API 国内直连易挂）。
@@ -98,7 +98,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | 明确代理域 | policy → 海外 DoH（见附录 B） |
 | DNS 出口 | 开启 `respect-rules`，上游连接遵循路由规则；国内解析（`system` + 国内 DoH）/ `direct-nameserver` 仍用于直连解析 |
 | **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
-| fake-IP | **白名单**模式；名单外（国内、Tracker 等）自然真 IP |
+| fake-IP | **规则**模式；无条件直连域的 `real-ip` 规则在 `proxy → fake-ip` 前，其余自然真 IP |
 | GeoIP | 不依赖 geodata：路由与 DNS 全 RULE-SET（数据自带），不配 `geox-url`，无 GEOIP/GEOSITE 规则 |
 
 **禁止**：
@@ -174,11 +174,11 @@ DustinWin `cn.mrs` 仅作 Full/Core 的 **DNS `nameserver-policy`**，不进 rou
 
 仅 Full/Core。
 
-### fake-IP 白名单
+### fake-IP 优先级规则
 
-fake-IP 白名单使用 `rule-set:proxy`。
+Full/Core 使用 rule 模式，并镜像路由中位于 `proxy` 前的无条件直连意图。Full 顺序固定为 `private / apple-cn / microsoft-cn / games-cn → real-ip`、`proxy → fake-ip`、`MATCH → real-ip`；Core 不提供 `apple-cn` / `microsoft-cn`，其余相同。Google / Play 等其余明确代理域仍须返回 fake-IP。不要把 `cn-lite` 放进前置 real-IP 例外。
 
-未进白名单的 private / CN / Tracker / 兼容域 → 真 IP。故无需、也不应再塞 `trackerslist`。
+`private` 由前置规则显式返回真 IP；其余 CN / Tracker / 兼容域由末尾 `MATCH` 返回真 IP。故无需、也不应再塞 `trackerslist`。
 
 ### nameserver-policy 两层
 
