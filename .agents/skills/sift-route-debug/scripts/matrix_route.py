@@ -129,14 +129,13 @@ def default_expectations() -> List[Expectation]:
     # real-IP exceptions so these domains enter Mihomo with overseas DoH —
     # DNS is not re-asserted by this domain matrix.
     # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN).
-    exp.append(("googleapis.cn", FULLS, {"谷歌服务"}, "FAIL"))
-    exp.append(("googleapis.cn", CORES + NANOS, {"节点选择"}, "FAIL"))
-    exp.append(("play.googleapis.com", FULLS, {"谷歌服务"}, "FAIL"))
-    exp.append(("play.googleapis.com", CORES + NANOS, {"节点选择"}, "FAIL"))
+    exp.append(("googleapis.cn", FULLS + CORES, {"谷歌服务"}, "FAIL"))
+    exp.append(("googleapis.cn", NANOS, {"节点选择"}, "FAIL"))
+    exp.append(("play.googleapis.com", FULLS + CORES, {"谷歌服务"}, "FAIL"))
+    exp.append(("play.googleapis.com", NANOS, {"节点选择"}, "FAIL"))
     # recaptcha.net is in cn-lite / google-cn but not in proxy; Full/Core must
     # intercept it via geosite google before cn-lite (Google login "Next").
-    exp.append(("recaptcha.net", FULLS, {"谷歌服务"}, "FAIL"))
-    exp.append(("recaptcha.net", CORES, {"节点选择"}, "FAIL"))
+    exp.append(("recaptcha.net", FULLS + CORES, {"谷歌服务"}, "FAIL"))
 
     # steamserver.net overlaps games-cn and proxy. Full/Core must preserve the
     # higher-intent direct route; their DNS rule independently returns real-IP.
@@ -156,11 +155,12 @@ def default_expectations() -> List[Expectation]:
     # Full/Core manage DNS, where it also precedes proxy in fake-IP decisions.
     exp.append(("metacubex.github.io", ALL, {"DIRECT"}, "FAIL"))
 
-    exp.append(("www.google.com", FULLS, {"谷歌服务"}, "FAIL"))
-    exp.append(("www.google.com", CORES + NANOS, {"节点选择"}, "FAIL"))
+    exp.append(("www.google.com", FULLS + CORES, {"谷歌服务"}, "FAIL"))
+    exp.append(("www.google.com", NANOS, {"节点选择"}, "FAIL"))
 
     exp.append(("www.youtube.com", FULLS, {"流媒体"}, "FAIL"))
-    exp.append(("www.youtube.com", CORES + NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
+    exp.append(("www.youtube.com", CORES, {"谷歌服务"}, "FAIL"))
+    exp.append(("www.youtube.com", NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
 
     # Full intentionally binds CF verification traffic to the streaming group
     # through the DustinWin media domain set.

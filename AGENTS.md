@@ -42,25 +42,25 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | | Full | Core | Nano |
 | --- | --- | --- | --- |
 | 代表文件 | `rules/full.yaml` | `rules/core.yaml` | `rules/nano.yaml` |
-| UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `AI` + `GitHub` + `苹果服务` + `微软服务` + `全球直连` | 极简 |
+| UI 策略组 | 场景 + 品牌 + 地区 | 基础组 + `AI` + `GitHub` + `谷歌服务` + `苹果服务` + `微软服务` + `全球直连` | 极简 |
 | DNS / sniffer | 有 | 有 | **无** |
 | AI | 独立 `AI` 组 | 独立 `AI` 组（默认 `节点选择`） | 无独立组 |
 | Apple / Microsoft | 独立服务组（Full） | 独立服务组（默认 `全球直连`） | 无独立组 |
 | 广告拦截 | 无（广告域走后续服务 / `proxy` / `cn-lite` / 兜底） | 同左 | 同左 |
 | OneDrive | 无独立规则：域在 `微软服务` 集内（geosite microsoft） | 同左 | 无 |
 | GitHub | 独立 `GitHub` 组（`geosite/github` 规则前置） | 独立 `GitHub` 组（默认 `节点选择`） | 无 |
-| Google | 独立 `谷歌服务` 组 | geosite `google` → `节点选择`（无独立组） | 无 |
+| Google | 独立 `谷歌服务` 组 | 独立 `谷歌服务` 组（默认 `节点选择`） | 无 |
 | 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
 三档均不提供广告拦截组与 `ads` 规则；广告域按后续服务 / `proxy` / `cn-lite` / 兜底自然分流。`漏网之鱼` 统一默认选择 `节点选择`。
 
 **不要随意扩档位**：
 
-- Core：保留 `AI`、`GitHub` 与 Apple/Microsoft 服务组（OneDrive 无独立组）；不要添加其他服务/品牌 UI、广告组或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
+- Core：保留 `AI`、`GitHub`、`谷歌服务` 与 Apple/Microsoft 服务组（OneDrive 无独立组）；不要添加其他服务/品牌 UI、广告组或地区节点组（`漏网之鱼` 兜底组已纳入 Core 合同，成员对齐 Nano）。
 - Nano：不要加 DNS、场景组、品牌/地区组、广告组（除非明确改 Nano 定位）。
 - 全档：不要加回 `广告拦截` / `RULE-SET,ads`（除非明确改产品定位）。
 
-常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `AI`、`GitHub`、`苹果服务`、`微软服务`（`AI` / `GitHub` 仅 Full/Core）。`GitHub` 组（Full/Core）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组。Core `geosite/google` 置于 `cn-lite` 前 → `节点选择`（无 `谷歌服务` 组；覆盖 recaptcha / google.cn 等不在 `proxy` 的 Google 域）。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，DNS 上游连接开启 `respect-rules` 遵循路由规则。
+常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `AI`、`GitHub`、`谷歌服务`、`苹果服务`、`微软服务`（`AI` / `GitHub` / `谷歌服务` 仅 Full/Core）。`GitHub` 组（Full/Core）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组。`谷歌服务` 组（Full/Core）：规则 `geosite/google` 置于 `cn-lite` 前 → `谷歌服务`（覆盖 recaptcha / google.cn 等不在 `proxy` 的 Google 域；Core 默认 `节点选择`）。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，DNS 上游连接开启 `respect-rules` 遵循路由规则。
 
 ---
 
@@ -85,7 +85,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 - `googleapis.cn`
 - `play.googleapis.com`
 
-出口约定：Full → `谷歌服务`；Core / Nano → `节点选择`；Full/Core DNS fake-IP 规则须覆盖并输出 `fake-ip`。
+出口约定：Full / Core → `谷歌服务`；Nano → `节点选择`；Full/Core DNS fake-IP 规则须覆盖并输出 `fake-ip`。
 
 - `gstatic.cn` **不是**硬锚点（展示可以，失败不判契约破）。
 - 默认**不要**加 `google@cn → 直连`（Play/API 国内直连易挂）。
@@ -134,7 +134,7 @@ git diff --check
 
 - 路由矩阵 / 域名诊断：见 skill `sift-route-debug`。
 
-YAML：两空格缩进；按意图分块并加短注释。
+YAML：两空格缩进；按意图分块。模板 yaml **不要写注释**（意图写在本文件 / `docs/`，不要堆进配置）。
 
 ---
 

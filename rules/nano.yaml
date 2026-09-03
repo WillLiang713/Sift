@@ -16,7 +16,6 @@ group-anchor:
     - DIRECT
 
 proxy-groups:
-  # 无地区组：通用节点入口直接包含全部可用节点，同时过滤订阅信息节点。
   - name: 节点选择
     type: select
     include-all: true

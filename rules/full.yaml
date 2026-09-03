@@ -23,7 +23,6 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: rule
   fake-ip-filter:
-    # 无条件直连域优先 real-IP，避免与 proxy 重叠时强制进核
     - RULE-SET,private,real-ip
     - RULE-SET,apple-cn,real-ip
     - RULE-SET,microsoft-cn,real-ip

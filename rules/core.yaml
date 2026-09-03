@@ -23,14 +23,12 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: rule
   fake-ip-filter:
-    # 无条件直连域优先 real-IP；google / proxy 进核（含 recaptcha、google.cn）
     - RULE-SET,private,real-ip
     - RULE-SET,games-cn,real-ip
     - RULE-SET,google,fake-ip
     - RULE-SET,proxy,fake-ip
     - MATCH,real-ip
   nameserver-policy:
-    # google 含 recaptcha / .cn 谷歌域，须先于 cn 走海外 DoH
     "rule-set:google,proxy": *overseas-dns
     "rule-set:cn,private": *domestic-dns
   respect-rules: true
@@ -80,7 +78,6 @@ group-anchor:
     - 自动测速
 
 proxy-groups:
-  # 无地区组：节点入口和服务组直接包含全部可用节点，同时过滤订阅信息节点。
   - name: 节点选择
     type: select
     include-all: true
@@ -116,6 +113,12 @@ proxy-groups:
     exclude-filter: *node-exclude
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"
     proxies: *proxy-options
+  - name: 谷歌服务
+    type: select
+    include-all: true
+    exclude-filter: *node-exclude
+    icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png"
+    proxies: *proxy-options
   - name: 全球直连
     type: select
     icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Direct.png"
@@ -131,7 +134,6 @@ proxy-groups:
     proxies: *proxy-options
 
 rule-anchor:
-  # MetaCubeX geosite 品牌集（纯 domain MRS；github 须前置，因 geosite microsoft 含 github）
   mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
   mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
@@ -193,7 +195,7 @@ rules:
   - RULE-SET,ai,AI
   - RULE-SET,microsoft,微软服务
   - RULE-SET,games-cn,全球直连
-  - RULE-SET,google,节点选择
+  - RULE-SET,google,谷歌服务
   - RULE-SET,proxy,节点选择
   - RULE-SET,cn-lite,全球直连
   - RULE-SET,cnip,全球直连
