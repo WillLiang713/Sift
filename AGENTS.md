@@ -94,9 +94,9 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | 原则 | 做法 |
 | --- | --- |
 | 默认解析 | 海外 DoH（`nameserver`） |
-| 明确国内/内网 | `nameserver-policy` → 国内解析（`system` + 国内 DoH，`cn` + `private`） |
+| 明确国内/内网 | `nameserver-policy` → 国内 DoH（`cn` + `private`） |
 | 明确代理域 | policy → 海外 DoH（见附录 B） |
-| DNS 出口 | 开启 `respect-rules`，上游连接遵循路由规则；国内解析（`system` + 国内 DoH）/ `direct-nameserver` 仍用于直连解析 |
+| DNS 出口 | 开启 `respect-rules`，上游连接遵循路由规则；国内 DoH / `direct-nameserver` 仍用于直连解析 |
 | **禁止** | 并发 `fallback` / `fallback-filter`（会把未分类域名也扔给国内解析器） |
 | fake-IP | **规则**模式；无条件直连域的 `real-ip` 规则在 `proxy → fake-ip` 前，其余自然真 IP |
 | GeoIP | 不依赖 geodata：路由与 DNS 全 RULE-SET（数据自带），不配 `geox-url`，无 GEOIP/GEOSITE 规则 |
@@ -185,9 +185,9 @@ Full/Core 使用 rule 模式，并镜像路由中位于 `proxy` 前的无条件�
 | 匹配 | 解析器 |
 | --- | --- |
 | 代理域：`proxy` | 海外 DoH |
-| 国内/内网：`cn,private` | 国内解析（`system` + 国内 DoH 并发） |
+| 国内/内网：`cn,private` | 国内 DoH |
 
-未命中 policy → 只用海外 `nameserver`。DNS 上游地址不固定策略组，并通过 `respect-rules: true` 遵循路由规则；国内解析（`system` + 国内 DoH：`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 继续分工。`system` 吃运营商/路由器低延迟与本地记录，国内 DoH 作并发兜底。
+未命中 policy → 只用海外 `nameserver`。DNS 上游地址不固定策略组，并通过 `respect-rules: true` 遵循路由规则；国内 DoH（`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 继续分工。国内解析不使用 `system`，避免 TUN / DNS 劫持把查询打回内核。
 
 `googleapis.cn` 等 `.cn` 代理域若误走 `cn` policy，会吃到污染或 CDN 锁定解析，故默认海外 + 代理域 policy 强制海外。
 
