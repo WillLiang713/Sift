@@ -60,6 +60,7 @@ DEFAULT_DOMAINS: List[str] = [
     "gstatic.cn",
     "www.google.com",
     "play.googleapis.com",
+    "recaptcha.net",
     "cmp1-hkg1.steamserver.net",
     "apps.apple.com",
     "download.windowsupdate.com",
@@ -123,15 +124,19 @@ def default_expectations() -> List[Expectation]:
 
     exp.append(("localhost", ALL, {"DIRECT"}, "FAIL"))
 
-    # Google/Play hard anchors (routing contract). Pair with Full/Core DNS rule
-    # (proxy -> fake-ip, after unconditional-direct real-IP exceptions) so
-    # these domains enter Mihomo
-    # with overseas DoH — DNS is not re-asserted by this domain matrix.
+    # Google/Play hard anchors (routing contract). Pair with Full/Core DNS
+    # (proxy -> fake-ip; Core also google -> fake-ip) after unconditional-direct
+    # real-IP exceptions so these domains enter Mihomo with overseas DoH —
+    # DNS is not re-asserted by this domain matrix.
     # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN).
     exp.append(("googleapis.cn", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("googleapis.cn", CORES + NANOS, {"节点选择"}, "FAIL"))
     exp.append(("play.googleapis.com", FULLS, {"谷歌服务"}, "FAIL"))
     exp.append(("play.googleapis.com", CORES + NANOS, {"节点选择"}, "FAIL"))
+    # recaptcha.net is in cn-lite / google-cn but not in proxy; Full/Core must
+    # intercept it via geosite google before cn-lite (Google login "Next").
+    exp.append(("recaptcha.net", FULLS, {"谷歌服务"}, "FAIL"))
+    exp.append(("recaptcha.net", CORES, {"节点选择"}, "FAIL"))
 
     # steamserver.net overlaps games-cn and proxy. Full/Core must preserve the
     # higher-intent direct route; their DNS rule independently returns real-IP.

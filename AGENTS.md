@@ -49,6 +49,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 | 广告拦截 | 无（广告域走后续服务 / `proxy` / `cn-lite` / 兜底） | 同左 | 同左 |
 | OneDrive | 无独立规则：域在 `微软服务` 集内（geosite microsoft） | 同左 | 无 |
 | GitHub | 独立 `GitHub` 组（`geosite/github` 规则前置） | 独立 `GitHub` 组（默认 `节点选择`） | 无 |
+| Google | 独立 `谷歌服务` 组 | geosite `google` → `节点选择`（无独立组） | 无 |
 | 未命中 | `漏网之鱼` | `漏网之鱼` | `漏网之鱼` |
 
 三档均不提供广告拦截组与 `ads` 规则；广告域按后续服务 / `proxy` / `cn-lite` / 兜底自然分流。`漏网之鱼` 统一默认选择 `节点选择`。
@@ -59,7 +60,7 @@ Sift 是 **Mihomo 无节点分流模板**仓库：只提供策略组、远程规
 - Nano：不要加 DNS、场景组、品牌/地区组、广告组（除非明确改 Nano 定位）。
 - 全档：不要加回 `广告拦截` / `RULE-SET,ads`（除非明确改产品定位）。
 
-常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `AI`、`GitHub`、`苹果服务`、`微软服务`（`AI` / `GitHub` 仅 Full/Core）。`GitHub` 组（Full/Core）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，DNS 上游连接开启 `respect-rules` 遵循路由规则。
+常用组名保持稳定：`节点选择`、`自动测速`、`全球直连`、`漏网之鱼`；Full 保留 `手动切换`，Core/Nano 不提供该组；服务类组名 `AI`、`GitHub`、`苹果服务`、`微软服务`（`AI` / `GitHub` 仅 Full/Core）。`GitHub` 组（Full/Core）：规则 `geosite/github` 置于 `microsoft` 前 → `GitHub` 组。Core `geosite/google` 置于 `cn-lite` 前 → `节点选择`（无 `谷歌服务` 组；覆盖 recaptcha / google.cn 等不在 `proxy` 的 Google 域）。`OneDrive` 无独立组与规则，域在 `geosite microsoft` 内 → `微软服务`。Full/Core 不提供独立 DNS 策略组，DNS 上游连接开启 `respect-rules` 遵循路由规则。
 
 ---
 
@@ -176,7 +177,7 @@ DustinWin `cn.mrs` 仅作 Full/Core 的 **DNS `nameserver-policy`**，不进 rou
 
 ### fake-IP 优先级规则
 
-Full/Core 使用 rule 模式，并镜像路由中位于 `proxy` 前的无条件直连意图。Full 顺序固定为 `private / apple-cn / microsoft-cn / games-cn → real-ip`、`proxy → fake-ip`、`MATCH → real-ip`；Core 不提供 `apple-cn` / `microsoft-cn`，其余相同。Google / Play 等其余明确代理域仍须返回 fake-IP。不要把 `cn-lite` 放进前置 real-IP 例外。
+Full/Core 使用 rule 模式，并镜像路由中位于 `proxy` 前的无条件直连意图。Full 顺序固定为 `private / apple-cn / microsoft-cn / games-cn → real-ip`、`proxy → fake-ip`、`MATCH → real-ip`；Core 为 `private / games-cn → real-ip`、`google / proxy → fake-ip`、`MATCH → real-ip`（`google` 覆盖 recaptcha / google.cn 等不在 `proxy` 的 Google 域）。Google / Play 等其余明确代理域仍须返回 fake-IP。不要把 `cn-lite` 放进前置 real-IP 例外。
 
 `private` 由前置规则显式返回真 IP；其余 CN / Tracker / 兼容域由末尾 `MATCH` 返回真 IP。故无需、也不应再塞 `trackerslist`。
 
@@ -184,7 +185,7 @@ Full/Core 使用 rule 模式，并镜像路由中位于 `proxy` 前的无条件�
 
 | 匹配 | 解析器 |
 | --- | --- |
-| 代理域：`proxy` | 海外 DoH |
+| 代理域：`proxy`（Core 另含 `google`） | 海外 DoH |
 | 国内/内网：`cn,private` | 国内 DoH |
 
 未命中 policy → 只用海外 `nameserver`。DNS 上游地址不固定策略组，并通过 `respect-rules: true` 遵循路由规则；国内 DoH（`cn`/`private` policy、`direct-nameserver`）与代理节点地址的 `proxy-server-nameserver` 继续分工。国内解析不使用 `system`，避免 TUN / DNS 劫持把查询打回内核。

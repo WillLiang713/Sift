@@ -6,7 +6,7 @@
 
 `respect-rules: true` 表示 DNS 上游连接遵循业务路由规则；上游地址不再通过 URL 参数固定策略组。`nameserver-policy` 仍按查询域名选择解析器，因此继续按意图明确分层：
 
-- 明确代理域名（`proxy`）通过 `nameserver-policy` 强制使用海外 DoH（优先于 cn）。
+- 明确代理域名（`proxy`；Core 另含 geosite `google`）通过 `nameserver-policy` 强制使用海外 DoH（优先于 cn）。
 - `cn` + `private` 域名通过 `nameserver-policy` 使用国内 DoH。
 - 未命中 `nameserver-policy` 的域名只使用海外 `nameserver`，**不**启用 `fallback` / `fallback-filter`。
 - 海外 DoH（代理域 policy + 默认 `nameserver`）的上游连接遵循路由规则。
@@ -16,7 +16,7 @@
 
 ```yaml
 nameserver-policy:
-  # 明确代理域名使用海外 DoH
+  # 明确代理域名使用海外 DoH（Core 为 rule-set:google,proxy）
   "rule-set:proxy":
     - https://1.1.1.1/dns-query
     - https://8.8.8.8/dns-query
@@ -43,7 +43,7 @@ nameserver:
 
 Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡顿）。
 
-模板的 policy key 为 `rule-set:proxy` / `rule-set:cn,private`。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
+模板的 policy key：Full 为 `rule-set:proxy` / `rule-set:cn,private`；Core 为 `rule-set:google,proxy` / `rule-set:cn,private`（`google` 覆盖 recaptcha / google.cn）。所有 DoH 上游都使用 IP 形式，无需额外的 `default-nameserver` bootstrap。
 
 ## 为什么禁止 fallback
 
@@ -55,7 +55,7 @@ Full/Core 建议显式 `prefer-h3: false`（降低部分网络 DoH H3 首包卡�
 
 | 域名意图 | 解析器 |
 | --- | --- |
-| 明确代理（`proxy`） | 海外 DoH（`nameserver-policy`），上游连接遵循路由规则 |
+| 明确代理（`proxy`；Core 另含 `google`） | 海外 DoH（`nameserver-policy`），上游连接遵循路由规则 |
 | 明确国内 / 内网（`cn,private`） | 国内 DoH（`nameserver-policy`）固定直连 |
 | 未分类 | 仅海外 `nameserver`，上游连接遵循路由规则 |
 | 实际 `DIRECT` 流量 | `direct-nameserver`（国内 DoH），固定直连 |
@@ -95,13 +95,14 @@ fake-ip-filter:
 fake-ip-filter:
   - RULE-SET,private,real-ip
   - RULE-SET,games-cn,real-ip
+  - RULE-SET,google,fake-ip
   - RULE-SET,proxy,fake-ip
   - MATCH,real-ip
 ```
 
 Full 的 `apple-cn`、`microsoft-cn`、`games-cn` 以及两档共有的 `private` 都位于路由 `proxy` 前，并且选择无条件直连。它们与 `proxy` 存在交集，例如 `apps.apple.com`、`download.windowsupdate.com`、`steamserver.net` 与 `metacubex.github.io`，因此在 fake-IP 规则中保持相同优先级。Core 的 Apple/Microsoft 服务组可由用户改选代理，不属于无条件直连，故不加入 real-IP 例外。
 
-随后 `proxy` 仍覆盖 `googleapis.cn`、`gvt1.com`、`googleusercontent.com` 和 `xn--ngstr-lra8j.com` 等明确代理域名；其余国内、Tracker、NTP 和兼容域名由 `MATCH` 返回 real-IP。路由侧的 `proxy` 仍位于 `cn-lite` 之前，不能把 `cn-lite` 整体放到 `proxy` 前，否则会让 Google `.cn` 等硬锚点绕过内核。
+随后 `proxy` 仍覆盖 `googleapis.cn`、`gvt1.com`、`googleusercontent.com` 和 `xn--ngstr-lra8j.com` 等明确代理域名。Core 另有 geosite `google → fake-ip`，覆盖 `recaptcha.net`、`gstatic.cn` 等不在 `proxy` 的 Google 域，避免国内解析出大陆 IP 后被防火墙旁路。其余国内、Tracker、NTP 和兼容域名由 `MATCH` 返回 real-IP。路由侧的 `google` / `proxy` 仍位于 `cn-lite` 之前，不能把 `cn-lite` 整体放到它们前，否则会让 Google `.cn` 等硬锚点绕过内核。
 
 real-IP 为 OpenWrt/Nikki 等客户端的防火墙前置旁路创造条件，但不保证一定绕过 Mihomo：目标地址若不属于客户端的大陆 IP 旁路范围（例如 Steam 香港 CDN），或客户端未启用相应旁路，连接仍会进入内核再走 `DIRECT`。
 
@@ -113,7 +114,7 @@ real-IP 为 OpenWrt/Nikki 等客户端的防火墙前置旁路创造条件，但
 2. OpenWrt/Nikki 等客户端可能在防火墙层按 China IP 提前直连。
 3. 流量没有进入 Mihomo，因而无法命中更高意图的 `proxy` 规则。
 
-规则模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口；只有位于路由 `proxy` 前的无条件直连域以更高优先级取得 real-IP。`nameserver-policy` 仍为 `proxy` 指定海外 DoH、为 `cn,private` 指定国内 DoH；未分类域名只走海外 `nameserver`，不再进入国内主解析与海外 fallback 的并发选择流程。
+规则模式让这类明确代理域名先获得 fake-IP，确保连接进入 Mihomo 后再按域名规则选择出口；只有位于路由 `proxy` 前的无条件直连域以更高优先级取得 real-IP。`nameserver-policy` 仍为代理域指定海外 DoH（Full：`proxy`；Core：`google,proxy`）、为 `cn,private` 指定国内 DoH；未分类域名只走海外 `nameserver`，不再进入国内主解析与海外 fallback 的并发选择流程。
 
 ## 国内域名为什么仍然直连
 

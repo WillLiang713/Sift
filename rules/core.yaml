@@ -23,13 +23,15 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: rule
   fake-ip-filter:
-    # 无条件直连域优先 real-IP，避免与 proxy 重叠时强制进核
+    # 无条件直连域优先 real-IP；google / proxy 进核（含 recaptcha、google.cn）
     - RULE-SET,private,real-ip
     - RULE-SET,games-cn,real-ip
+    - RULE-SET,google,fake-ip
     - RULE-SET,proxy,fake-ip
     - MATCH,real-ip
   nameserver-policy:
-    "rule-set:proxy": *overseas-dns
+    # google 含 recaptcha / .cn 谷歌域，须先于 cn 走海外 DoH
+    "rule-set:google,proxy": *overseas-dns
     "rule-set:cn,private": *domestic-dns
   respect-rules: true
   direct-nameserver: *domestic-dns
@@ -154,6 +156,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/metacubex/microsoft.mrs
     url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/microsoft.mrs"
+  google:
+    <<: *mrs-domain
+    path: ./ruleset/metacubex/google.mrs
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/google.mrs"
   games-cn:
     <<: *mrs-domain
     path: ./ruleset/dustinwin/games-cn.list
@@ -187,6 +193,7 @@ rules:
   - RULE-SET,ai,AI
   - RULE-SET,microsoft,微软服务
   - RULE-SET,games-cn,全球直连
+  - RULE-SET,google,节点选择
   - RULE-SET,proxy,节点选择
   - RULE-SET,cn-lite,全球直连
   - RULE-SET,cnip,全球直连
