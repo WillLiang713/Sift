@@ -2,9 +2,9 @@
 
 当前唯一模板为 [core.yaml](../rules/core.yaml)。
 
-- `fake-ip` 使用规则过滤：`private`、`cn-lite` 返回真实 IP，`MATCH` 返回 fake-IP。
+- `fake-ip` 使用规则过滤：`private`、`cn` 返回真实 IP，`MATCH` 返回 fake-IP。
 - IPv4 fake-IP 地址池为 `198.18.0.1/16`，开启映射持久化。
-- `private` / `cn-lite` 域名使用阿里 DoH，按路由直连。
+- `nameserver-policy` 与路由、fake-IP 白名单同源：`private` / 全量 `cn`（DustinWin `cn.mrs`，不用 `cn-lite`）走阿里 DoH 并直连。
 - 其他域名先返回 fake-IP；需要真实解析时使用 Google DoH，通过“节点选择”访问。
 - 代理节点域名使用阿里 DoH 做启动解析。
 - 未使用 `fallback`、`fallback-filter`、`system` 或独立 geodata。

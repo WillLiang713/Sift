@@ -5,12 +5,12 @@ Sift 只维护 `rules/core.yaml`：Mihomo 无节点大陆白名单模板。用�
 ## 产品合同
 
 - 仅“节点选择”“自动测速”两个组；不恢复 Full/Core/Nano、品牌、地区、广告或兜底组。
-- 私有域名/IP → DIRECT；cn-lite → DIRECT；cnip → DIRECT；MATCH → 节点选择。
+- 私有域名/IP → DIRECT；cn → DIRECT；cnip → DIRECT；MATCH → 节点选择。
 - 不设置 Google Play 等服务专用代理例外，统一按白名单和 IP 判断。
-- 使用 fake-ip 规则模式：private / cn-lite → real-ip，MATCH → fake-ip；保留映射持久化。国内白名单/私有域名走国内 DoH，其余需要真实解析时走代理海外 DoH。
+- 使用 fake-ip 规则模式：private / cn → real-ip，MATCH → fake-ip；保留映射持久化。国内白名单/私有域名走国内 DoH，其余需要真实解析时走代理海外 DoH。
 - 不照搬 HomeProxy 的防火墙旁路、常用端口限制、QUIC 拒绝或 sing-box DNS 应答筛选。
 - 不使用并发 fallback、system DNS、GeoIP 数据库；保持 RULE-SET、MRS、jsDelivr、provider 下载 DIRECT。
-- 路由白名单保持 cn-lite，不随意换成宽 cn。
+- 路由、fake-IP、nameserver-policy 均使用全量 cn，不用 cn-lite。
 - 保留 include-all、信息节点 exclude-filter；测速 timeout 3000、expected-status 204、lazy true。
 - 不提交节点、订阅、密钥或生成的私有配置。
 
