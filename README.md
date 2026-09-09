@@ -1,26 +1,22 @@
 <h1 align="center">Sift</h1>
 
 <p align="center">
-无节点分流模板 · 策略组 / 远程规则 / 分流顺序
+无节点分流模板 · 大陆白名单直连 · 其余默认代理
 </p>
 
 <p align="center">
-  <img alt="Rules" src="https://img.shields.io/badge/rules-MRS%20%2F%20list-green?style=flat-square">
+  <img alt="Rules" src="https://img.shields.io/badge/rules-MRS-green?style=flat-square">
   <img alt="Nodes" src="https://img.shields.io/badge/nodes-not%20included-lightgrey?style=flat-square">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
 </p>
 
 ## 模板
 
-| | 说明 |
+| 文件 | 说明 |
 | --- | --- |
-| **[Full](./rules/full.yaml)** | 场景 · 品牌 · 地区 · DNS |
-| **[Core](./rules/core.yaml)** | 基础分流 · AI / GitHub / Google / Apple / Microsoft 服务可切换 · DNS |
-| **[Nano](./rules/nano.yaml)** | 极简 · 无 DNS |
+| **[core.yaml](./rules/core.yaml)** | 大陆白名单分流 · 节点选择 / 自动测速 · DNS |
 
-三档均不内置广告拦截；广告域按后续服务 / 代理 / 国内 / 兜底规则分流。
-
-Full/Core 的无条件直连域优先返回 real-IP（Full 包含 Apple/Microsoft 国内服务）；其他明确代理域名继续使用 fake-IP。
+国内白名单与私有域名返回真实 IP，其余返回 fake-IP。模板需配合客户端导入节点使用。
 
 ## 文档
 

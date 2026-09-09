@@ -433,6 +433,12 @@ class RouteEngine:
                         "raw": "missing cache: " + ", ".join(missing),
                     }
                 return {"policy": policy_from_rule(rule.parts), "rule": rule.raw}
+            if kind in ("DOMAIN", "DOMAIN-SUFFIX") and len(rule.parts) >= 3:
+                target = normalize_domain(domain)
+                value = normalize_domain(rule.parts[1])
+                if target == value or (kind == "DOMAIN-SUFFIX" and target.endswith("." + value)):
+                    return {"policy": policy_from_rule(rule.parts), "rule": rule.raw}
+                continue
             if kind == "GEOIP":
                 continue
             if kind != "RULE-SET" or len(rule.parts) < 3:

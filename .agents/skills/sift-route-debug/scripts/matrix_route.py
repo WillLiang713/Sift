@@ -45,11 +45,7 @@ def utf8_python_env() -> Dict[str, str]:
     return env
 
 
-TEMPLATES: Dict[str, str] = {
-    "HY-f": "rules/full.yaml",
-    "HY-c": "rules/core.yaml",
-    "HY-n": "rules/nano.yaml",
-}
+TEMPLATES: Dict[str, str] = {"Sift": "rules/core.yaml"}
 
 # Canonical probe domains for whole-tree regression after routing design changes.
 DEFAULT_DOMAINS: List[str] = [
@@ -92,6 +88,11 @@ DEFAULT_DOMAINS: List[str] = [
     "www.qq.com",
     "www.taobao.com",
     "www.bilibili.com",
+    "services.googleapis.cn",
+    "192.168.1.1",
+    "223.5.5.5",
+    "8.8.8.8",
+    "unlisted-sift-probe-73921.com",
 ]
 
 SHORT = {
@@ -109,87 +110,18 @@ SHORT = {
 }
 
 ALL = list(TEMPLATES.keys())
-FULLS = ["HY-f"]
-CORES = ["HY-c"]
-NANOS = ["HY-n"]
-
-# (domain, template_labels, allowed_policies, level)
-# level: "FAIL" fails the run; "WARN" is informational only.
 Expectation = Tuple[str, Sequence[str], Set[str], str]
 
 
 def default_expectations() -> List[Expectation]:
-    """Product-contract expectations for the current Sift routing design."""
-    exp: List[Expectation] = []
-
-    exp.append(("localhost", ALL, {"DIRECT"}, "FAIL"))
-
-    # Google/Play hard anchors (routing contract). Pair with Full/Core DNS
-    # (proxy -> fake-ip; Core also google -> fake-ip) after unconditional-direct
-    # real-IP exceptions so these domains enter Mihomo with overseas DoH —
-    # DNS is not re-asserted by this domain matrix.
-    # gstatic.cn stays in DEFAULT_DOMAINS for display only (no FAIL/WARN).
-    exp.append(("googleapis.cn", FULLS + CORES, {"谷歌服务"}, "FAIL"))
-    exp.append(("googleapis.cn", NANOS, {"节点选择"}, "FAIL"))
-    exp.append(("play.googleapis.com", FULLS + CORES, {"谷歌服务"}, "FAIL"))
-    exp.append(("play.googleapis.com", NANOS, {"节点选择"}, "FAIL"))
-    # recaptcha.net is in cn-lite / google-cn but not in proxy; Full/Core must
-    # intercept it via geosite google before cn-lite (Google login "Next").
-    exp.append(("recaptcha.net", FULLS + CORES, {"谷歌服务"}, "FAIL"))
-
-    # steamserver.net overlaps games-cn and proxy. Full/Core must preserve the
-    # higher-intent direct route; their DNS rule independently returns real-IP.
-    exp.append(("cmp1-hkg1.steamserver.net", FULLS + CORES, {"全球直连"}, "FAIL"))
-    exp.append(("cmp1-hkg1.steamserver.net", NANOS, {"节点选择"}, "FAIL"))
-
-    # Full-only CN service sets are unconditional direct routes and therefore
-    # precede proxy in both routing and fake-IP decisions.
-    exp.append(("apps.apple.com", FULLS, {"全球直连"}, "FAIL"))
-    exp.append(("apps.apple.com", CORES, {"苹果服务"}, "FAIL"))
-    exp.append(("apps.apple.com", NANOS, {"节点选择"}, "FAIL"))
-    exp.append(("download.windowsupdate.com", FULLS, {"全球直连"}, "FAIL"))
-    exp.append(("download.windowsupdate.com", CORES, {"微软服务"}, "FAIL"))
-    exp.append(("download.windowsupdate.com", NANOS, {"节点选择"}, "FAIL"))
-
-    # Private remains the highest-intent direct rule on every tier. Only
-    # Full/Core manage DNS, where it also precedes proxy in fake-IP decisions.
-    exp.append(("metacubex.github.io", ALL, {"DIRECT"}, "FAIL"))
-
-    exp.append(("www.google.com", FULLS + CORES, {"谷歌服务"}, "FAIL"))
-    exp.append(("www.google.com", NANOS, {"节点选择"}, "FAIL"))
-
-    exp.append(("www.youtube.com", FULLS, {"流媒体"}, "FAIL"))
-    exp.append(("www.youtube.com", CORES, {"谷歌服务"}, "FAIL"))
-    exp.append(("www.youtube.com", NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
-
-    # Full intentionally binds CF verification traffic to the streaming group
-    # through the DustinWin media domain set.
-    exp.append(("challenges.cloudflare.com", FULLS, {"流媒体"}, "FAIL"))
-
-    exp.append(("chatgpt.com", FULLS + CORES, {"AI"}, "FAIL"))
-    exp.append(("chatgpt.com", NANOS, {"节点选择"}, "FAIL"))
-
-    exp.append(("www.netflix.com", FULLS, {"节点选择", "流媒体", "漏网之鱼"}, "WARN"))
-
-    exp.append(("web.telegram.org", FULLS, {"Telegram"}, "FAIL"))
-    exp.append(("web.telegram.org", CORES + NANOS, {"节点选择"}, "FAIL"))
-
-    for domestic in ("www.baidu.com", "www.qq.com", "www.taobao.com", "www.bilibili.com"):
-        exp.append((domestic, ALL, {"全球直连"}, "FAIL"))
-
-    exp.append(("github.com", FULLS + CORES, {"GitHub"}, "FAIL"))
-    exp.append(("github.com", NANOS, {"节点选择", "漏网之鱼"}, "FAIL"))
-
-    # OneDrive: merged into Microsoft service group on Full/Core; Nano has no group.
-    exp.append(("onedrive.live.com", FULLS + CORES, {"微软服务"}, "FAIL"))
-    exp.append(("onedrive.live.com", NANOS, {"节点选择"}, "FAIL"))
-
-    exp.append(("icloud.com", CORES, {"苹果服务"}, "FAIL"))
-    exp.append(("office.com", CORES, {"微软服务"}, "FAIL"))
-    exp.append(("icloud.com", FULLS, {"苹果服务"}, "FAIL"))
-    exp.append(("office.com", FULLS, {"微软服务"}, "FAIL"))
-
-    return exp
+    """Whitelist routing without service-specific exceptions."""
+    direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
+              "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
+              "googleapis.cn", "services.googleapis.cn")
+    proxy = ("play.googleapis.com",
+             "chatgpt.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com")
+    return ([(d, ALL, {"DIRECT"}, "FAIL") for d in direct]
+            + [(d, ALL, {"节点选择"}, "FAIL") for d in proxy])
 
 
 def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> bool:
@@ -462,7 +394,7 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - Google/Play FAIL anchors: googleapis.cn + play.googleapis.com (gstatic.cn display-only).")
+    print("  - Google Play follows the same whitelist rules as other services; no forced-proxy anchors.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:
         print("FAIL")

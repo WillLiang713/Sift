@@ -115,38 +115,9 @@ fallback-filter:
 
 这些条件决定采用哪一侧的结果，不代表只向该侧发送查询；进入该分支后，`nameserver` 与 `fallback` 已经并发查询。
 
-### 4.1 Sift 的混合实现
+### 4.1 Sift 的当前实现
 
-Sift Full/Core 保留高意图 `nameserver-policy`，只让未分类域名进入 fallback：
-
-```yaml
-nameserver-policy:
-  # Sift 使用 rule-set selector
-  "rule-set:proxy":
-    - https://1.1.1.1/dns-query
-    - https://8.8.8.8/dns-query
-  "rule-set:cn,private":
-    - https://223.5.5.5/dns-query
-    - https://1.12.12.12/dns-query
-
-nameserver:
-  - https://223.5.5.5/dns-query
-  - https://1.12.12.12/dns-query
-
-fallback:
-  - https://1.1.1.1/dns-query
-  - https://8.8.8.8/dns-query
-
-fallback-filter:
-  geoip: true
-  geoip-code: CN
-  ipcidr:
-    - 240.0.0.0/4
-```
-
-Sift 不在这里重复配置 `geosite:gfw` 或 Google/Facebook/YouTube 手写域名，因为它们已由 `rule-set:proxy` policy 提前交给海外 DoH。这样既保留明确域名的解析意图，也避免新增 GeoSite 数据库依赖。
-
-Sift 不依赖 GeoIP 数据库：无 GEOIP/GEOSITE 规则，不配置 `geodata-mode` / `geox-url`（不下载 MMDB）。路由 CN IP 判断由 `cnip` provider（IP-CIDR 自带数据）完成。
+Sift 不启用 fallback；国内白名单使用国内 DoH，其余使用代理海外 DoH。大陆 IP 由 cnip 规则判断，不依赖 GeoIP 数据库。详见 [DNS 设计](./dns.md)。
 
 ### 5. 得到 IP 后再次决定代理或直连
 

@@ -75,7 +75,7 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
    中确认文件存在。
 2. 文件名大小写敏感；以仓库中的真实文件名为准。
 3. 浏览器打开最终 Raw URL，确认返回图片而不是 404 页面。
-4. Full/Core/Nano 的同名策略组必须使用同一个图标 URL。
+4. 当前 core.yaml 不配置图标；本文仅作新增图标时的参考。
 5. 不要把图标库 JSON 地址写进 Mihomo 的 `icon:`。
 6. 远程图标引用仅使用 `Koolson/Qure`；换源或 vendoring 前先核对授权与署名。
 
