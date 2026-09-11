@@ -1,15 +1,19 @@
 # DNS 设计
 
-当前模板为 [core.yaml](../rules/core.yaml)（大陆白名单）与 [gfwlist.yaml](../rules/gfwlist.yaml)（GFWlist）。两档共用 fake-IP 地址池、“代理域名走海外 DoH”的分工和映射持久化，区别只在“谁需要代理”。
+当前模板为 [core.yaml](../rules/core.yaml)（大陆白名单）、[gfwlist.yaml](../rules/gfwlist.yaml)（GFWlist）与 [full.yaml](../rules/full.yaml)（完整服务组）。三档共用 fake-IP 地址池、“代理域名走海外 DoH”的分工和映射持久化，区别在“谁需要代理”以及 Full 是否按服务拆组。
 
-- 两档都使用 `fake-ip` 规则过滤：只有需要代理的域名返回 fake-IP，直连域名返回真实 IP。
+- 三档都使用 `fake-ip` 规则过滤：只有需要代理的域名返回 fake-IP，直连域名返回真实 IP。
 - IPv4 fake-IP 地址池为 `198.18.0.1/16`，开启映射持久化。
+- 国内 DoH 为阿里 `https://223.5.5.5/dns-query`，海外 DoH 为 Google `https://8.8.8.8/dns-query#节点选择`。
 - `core.yaml`：`private`、全量 `cn`（DustinWin `cn.mrs`，不用 `cn-lite`）返回真实 IP，`MATCH` 返回 fake-IP；`nameserver-policy` 与路由、fake-IP 同源，这两类走阿里 DoH 并直连。
 - `gfwlist.yaml`：`private` 返回真实 IP，`gfw`（DustinWin `gfw.mrs`）返回 fake-IP，`MATCH`（其余域名）返回真实 IP；`gfw` 域名经“节点选择”走 Google DoH，其余域名走阿里 DoH。
+- `full.yaml`：`private`、`apple-cn`、`microsoft-cn`、`google-cn`、`games-cn` 返回真实 IP，`proxy` 返回 fake-IP，`MATCH` 返回真实 IP；`nameserver-policy` 与 fake-IP 同源。未收录域名不造假 IP，路由落到漏网之鱼。
 - 代理节点域名使用阿里 DoH 做启动解析。
 - 未使用 `fallback`、`fallback-filter`、`system` 或独立 geodata。
 
-DNS 与连接路由分别判断。`core.yaml` 里国内域名直接放行，未分类域名解析到大陆 IP 后也直连，否则代理；`gfwlist.yaml` 里只有 `gfw` 域名交给节点，其余域名解析后直连。两档都不会为了试探国内 IP 而先把未分类域名发给国内 DNS，因此与 HomeProxy 的应答 IP 筛选不是完全相同的算法。
+DNS 与连接路由分别判断。`core.yaml` 里国内域名直接放行，未分类域名解析到大陆 IP 后也直连，否则代理；`gfwlist.yaml` 里只有 `gfw` 域名交给节点，其余域名解析后直连；`full.yaml` 里国内可直连服务进对应组（默认全球直连），`proxy` 集合走节点选择，其余进漏网之鱼。三档都不会为了试探国内 IP 而先把未分类域名发给国内 DNS，因此与 HomeProxy 的应答 IP 筛选不是完全相同的算法。
+
+嗅探器从 HTTP Host、TLS / QUIC SNI 取回域名，再走同一套规则。`parse-pure-ip` 覆盖绕过系统 DNS、直连目标 IP 的流量；`force-dns-mapping` 覆盖 redir-host 映射。全局不覆盖实际目标，仅 HTTP 用 Host 覆盖。局域网、连通性检测和苹果推送域名跳过嗅探。域名矩阵不覆盖嗅探行为。
 
 `respect-rules` 让 DNS 上游遵循路由；海外上游额外指定“节点选择”，避免出口随 IP 规则变化。不配置 `direct-nameserver`，避免根据一份解析结果判为大陆后，又重解析成另一目标地址。
 

@@ -126,9 +126,9 @@ def default_expectations() -> List[Expectation]:
 
     ``Sift`` is the mainland whitelist: listed domains and mainland IPs go
     direct, everything else is proxied. ``Sift-GFW`` is the GFWlist: only the
-    ``gfw`` set is proxied, everything else goes direct. ``Sift-Full`` keeps the
-    same mainland-direct baseline but sends each foreign service to its own
-    group, so its expectations name those groups instead of a single policy.
+    ``gfw`` set is proxied, everything else goes direct. ``Sift-Full`` uses
+    DustinWin service sets: CN Apple/Microsoft/Google go to their groups,
+    AI/media/games/Telegram-IP to theirs, ``proxy`` to 节点选择, MATCH to 漏网之鱼.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
@@ -147,20 +147,21 @@ def default_expectations() -> List[Expectation]:
         ("www.qq.com", "全球直连"),
         ("www.bilibili.com", "全球直连"),
         ("223.5.5.5", "全球直连"),
-        ("apps.apple.com", "全球直连"),
-        ("www.apple.com", "全球直连"),
-        ("www.microsoft.com", "全球直连"),
-        ("download.windowsupdate.com", "全球直连"),
+        ("apps.apple.com", "苹果服务"),
+        ("www.apple.com", "苹果服务"),
+        ("www.microsoft.com", "微软服务"),
+        ("download.windowsupdate.com", "微软服务"),
         ("cmp1-hkg1.steamserver.net", "全球直连"),
-        ("googleapis.cn", "谷歌服务"),
-        ("www.google.com", "谷歌服务"),
-        ("services.googleapis.cn", "谷歌服务"),
+        ("googleapis.cn", "节点选择"),
+        ("www.google.com", "节点选择"),
+        ("services.googleapis.cn", "节点选择"),
+        ("gstatic.cn", "谷歌服务"),
         ("www.youtube.com", "流媒体"),
         ("chatgpt.com", "AI"),
-        ("github.com", "GitHub"),
-        ("web.telegram.org", "Telegram"),
-        ("icloud.com", "苹果服务"),
-        ("office.com", "微软服务"),
+        ("github.com", "节点选择"),
+        ("web.telegram.org", "节点选择"),
+        ("icloud.com", "节点选择"),
+        ("office.com", "节点选择"),
         ("x.com", "节点选择"),
         ("discord.com", "节点选择"),
         ("8.8.8.8", "漏网之鱼"),
@@ -445,7 +446,7 @@ def main() -> int:
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
     print("  - Sift is the mainland whitelist: listed domains and mainland IPs direct, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
-    print("  - Sift-Full keeps mainland direct but sends each foreign service to its own group.")
+    print("  - Sift-Full uses DustinWin service sets; CN Apple/Microsoft/Google go to their groups, MATCH to 漏网之鱼.")
     print("  - Sift and Sift-GFW define no service-specific exceptions; Google Play follows the same rules as other domains.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:

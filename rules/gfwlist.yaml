@@ -26,6 +26,27 @@ dns:
   nameserver-policy:
     "rule-set:gfw": "https://8.8.8.8/dns-query#节点选择"
 
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "+.lan"
+    - "+.local"
+    - "Mijia Cloud"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "+.push.apple.com"
+
 proxy-groups:
   - name: 节点选择
     type: select

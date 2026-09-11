@@ -4,8 +4,8 @@
 > Qure Color 图标库：`https://raw.githubusercontent.com/Koolson/Qure/master/Other/QureColor.json`
 > Qure mini 图标库：`https://raw.githubusercontent.com/Koolson/Qure/master/Other/Quremini.json`
 
-本仓库三个模板的 `proxy-groups[].icon` 统一使用
-Qure **Color**。`demo/` 下的第三方示例配置不在此约束内。
+仅 [full.yaml](../rules/full.yaml) 配置策略组图标，统一使用 Qure **Color** 的 jsDelivr 直链。
+`core.yaml` 与 `gfwlist.yaml` 不配图标。`demo/` 下的第三方示例不在此约束内。
 
 `QureColor.json` 与 `Quremini.json` 是 Quantumult X 的图标库索引，不能直接写进
 Mihomo 的 `icon:`。Mihomo 模板必须引用具体的 PNG 文件。
@@ -14,25 +14,25 @@ Mihomo 的 `icon:`。Mihomo 模板必须引用具体的 PNG 文件。
 
 ## URL 格式
 
-模板使用 GitHub Raw：
-
-```text
-https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/{图标名}.png
-```
-
-例如：
-
-```yaml
-icon: "https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Rocket.png"
-```
-
-需要 CDN 时可将同一文件写成：
+模板使用 jsDelivr，与规则集同一套加速：
 
 ```text
 https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
 ```
 
-同一批模板应保持相同的 URL 基址，不要混用 Raw、jsDelivr 和第三方代理。
+例如：
+
+```yaml
+icon: "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Rocket.png"
+```
+
+`full.yaml` 把全部图标 URL 收在 `group-anchor`，策略组只引用锚点。换 CDN 时只改那一处基址。
+
+不要混用 GitHub Raw、jsDelivr 和第三方代理。上游仓库对照用：
+
+```text
+https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/{图标名}.png
+```
 
 ---
 
@@ -44,9 +44,7 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
 | 策略组 | 文件名 | 说明 |
 | --- | --- | --- |
 | 节点选择 | `Rocket.png` | 主代理选择 |
-| 手动切换 | `Available.png` | 手动选择可用节点 |
 | 自动测速 | `Auto.png` | 自动测速 |
-| DNS | `Hijacking.png` | DNS 接管与出口 |
 | AI | `AI.png` | AI 服务 |
 | 流媒体 | `Streaming.png` | 国际流媒体 |
 | 游戏平台 | `Game.png` | 游戏平台 |
@@ -54,18 +52,16 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
 | 苹果服务 | `Apple_1.png` | Apple 服务 |
 | 谷歌服务 | `Google_Search.png` | Google 服务 |
 | 微软服务 | `Windows_11.png` | Microsoft 服务 |
-| OneDrive | `OneDrive.png` | OneDrive 服务 |
-| GitHub | `GitHub.png` | GitHub 服务 |
 | 香港节点 | `Hong_Kong.png` | 香港地区节点 |
 | 美国节点 | `United_States.png` | 美国地区节点 |
 | 日本节点 | `Japan.png` | 日本地区节点 |
 | 新加坡节点 | `Singapore.png` | 新加坡地区节点 |
 | 其他节点 | `Airport.png` | 其他地区节点集合 |
-| 直连 | `Direct.png` | 直连出口 |
+| 全球直连 | `Direct.png` | 直连出口 |
 | 漏网之鱼 | `Final.png` | 最终兜底 |
 
-图标只表达 UI 语义，与策略组名称没有强制对应关系。更换图标时只改 `icon` URL，
-不要改组名、组成员或路由规则。
+图标只表达 UI 语义，与策略组名称没有强制对应关系。更换图标时只改 `group-anchor`
+里的 URL，不要改组名、组成员或路由规则。
 
 ---
 
@@ -74,10 +70,11 @@ https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/{图标名}.png
 1. 在 [Qure Color 目录](https://github.com/Koolson/Qure/tree/master/IconSet/Color)
    中确认文件存在。
 2. 文件名大小写敏感；以仓库中的真实文件名为准。
-3. 浏览器打开最终 Raw URL，确认返回图片而不是 404 页面。
-4. 当前 core.yaml 不配置图标；本文仅作新增图标时的参考。
-5. 不要把图标库 JSON 地址写进 Mihomo 的 `icon:`。
-6. 远程图标引用仅使用 `Koolson/Qure`；换源或 vendoring 前先核对授权与署名。
+3. 浏览器打开最终 jsDelivr URL，确认返回图片而不是 404 页面。
+4. 只在 `full.yaml` 的 `group-anchor` 增加或修改图标 URL，策略组引用对应锚点。
+5. `core.yaml` 与 `gfwlist.yaml` 不配置图标。
+6. 不要把图标库 JSON 地址写进 Mihomo 的 `icon:`。
+7. 远程图标引用仅使用 `Koolson/Qure`；换源或 vendoring 前先核对授权与署名。
 
 ---
 
@@ -115,10 +112,10 @@ https://raw.githubusercontent.com/Koolson/Qure/master/Other/QureColor.json
 
 ## 校验
 
-检查模板中不存在旧图标源：
+检查模板中不存在旧图标源或未加速的 GitHub Raw：
 
 ```bash
-rg -n 'Vbaethon|HOMOMIX|Icon/Color/Large' rules
+rg -n 'Vbaethon|HOMOMIX|Icon/Color/Large|raw.githubusercontent.com/Koolson/Qure' rules
 ```
 
 检查模板没有误用图标库 JSON：
