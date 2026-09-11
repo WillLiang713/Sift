@@ -63,9 +63,6 @@ group-anchor:
   icon-streaming: &icon-streaming "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Streaming.png"
   icon-game: &icon-game "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
   icon-telegram: &icon-telegram "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram_X.png"
-  icon-apple: &icon-apple "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Apple_1.png"
-  icon-google: &icon-google "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Google_Search.png"
-  icon-microsoft: &icon-microsoft "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Windows_11.png"
   icon-hk: &icon-hk "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
   icon-us: &icon-us "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png"
   icon-jp: &icon-jp "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
@@ -98,15 +95,6 @@ group-anchor:
     - 新加坡节点
     - 其他节点
     - DIRECT
-  direct-first-options: &direct-first-options
-    - 全球直连
-    - 节点选择
-    - 自动测速
-    - 香港节点
-    - 美国节点
-    - 日本节点
-    - 新加坡节点
-    - 其他节点
 
 proxy-groups:
   - name: 节点选择
@@ -141,18 +129,6 @@ proxy-groups:
     type: select
     icon: *icon-telegram
     proxies: *proxy-options
-  - name: 苹果服务
-    type: select
-    icon: *icon-apple
-    proxies: *direct-first-options
-  - name: 谷歌服务
-    type: select
-    icon: *icon-google
-    proxies: *direct-first-options
-  - name: 微软服务
-    type: select
-    icon: *icon-microsoft
-    proxies: *direct-first-options
   - name: 香港节点
     <<: *url-test
     filter: *filter-hk
@@ -251,9 +227,9 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
-  - RULE-SET,apple-cn,苹果服务
-  - RULE-SET,microsoft-cn,微软服务
-  - RULE-SET,google-cn,谷歌服务
+  - RULE-SET,apple-cn,全球直连
+  - RULE-SET,microsoft-cn,全球直连
+  - RULE-SET,google-cn,全球直连
   - RULE-SET,games-cn,全球直连
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台

@@ -33,8 +33,8 @@ Sift 维护三档 Mihomo 无节点分流模板：`rules/core.yaml`（大陆白�
 
 `full.yaml`（完整服务组，国内直连，未收录走漏网之鱼）：
 
-- 入口为“节点选择”（含 include-all）与“自动测速”；地区组香港/美国/日本/新加坡/其他节点；服务组 AI、流媒体、游戏平台、Telegram、苹果服务、谷歌服务、微软服务；另有全球直连与漏网之鱼。不设广告组，不设 GitHub 独立组（DustinWin 无对应集合）。
-- 苹果服务 / 微软服务 / 谷歌服务默认全球直连优先（接线 apple-cn / microsoft-cn / google-cn）。games-cn → 全球直连；ai → AI；games → 游戏平台；media / mediaip → 流媒体；telegramip → Telegram；proxy → 节点选择；cn / cnip → 全球直连；MATCH → 漏网之鱼。`proxy` 先于 `cn`，故 `googleapis.cn` 等同时出现在两集的域名走节点选择。
+- 入口为“节点选择”（含 include-all）与“自动测速”；地区组香港/美国/日本/新加坡/其他节点；服务组 AI、流媒体、游戏平台、Telegram；另有全球直连与漏网之鱼。不设广告组，不设苹果/谷歌/微软独立组，不设 GitHub 独立组（DustinWin 无对应集合）。
+- apple-cn / microsoft-cn / google-cn / games-cn → 全球直连；ai → AI；games → 游戏平台；media / mediaip → 流媒体；telegramip → Telegram；proxy → 节点选择；cn / cnip → 全球直连；MATCH → 漏网之鱼。`proxy` 先于 `cn`，故 `googleapis.cn` 等同时出现在两集的域名走节点选择。
 - fake-ip 规则模式：private / apple-cn / microsoft-cn / google-cn / games-cn → real-ip，proxy → fake-ip，MATCH → real-ip；nameserver-policy 与 fake-IP 同源。漏网之鱼只提供策略选项，不含 include-all。
 - 策略组图标用 Qure Color 的 jsDelivr 直链，收在 group-anchor。
 
