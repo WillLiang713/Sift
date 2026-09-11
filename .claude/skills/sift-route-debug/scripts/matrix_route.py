@@ -107,9 +107,6 @@ SHORT = {
     "节点选择": "节点",
     "全球直连": "直连",
     "漏网之鱼": "漏网",
-    "苹果服务": "苹果",
-    "微软服务": "微软",
-    "谷歌服务": "谷歌",
     "游戏平台": "游戏",
     "流媒体": "流媒",
     "Telegram": "TG",
@@ -127,7 +124,7 @@ def default_expectations() -> List[Expectation]:
     ``Sift`` is the mainland whitelist: listed domains and mainland IPs go
     direct, everything else is proxied. ``Sift-GFW`` is the GFWlist: only the
     ``gfw`` set is proxied, everything else goes direct. ``Sift-Full`` uses
-    DustinWin service sets: CN Apple/Microsoft/Google go to their groups,
+    DustinWin service sets: CN Apple/Microsoft/Google/games go to 全球直连,
     AI/media/games/Telegram-IP to theirs, ``proxy`` to 节点选择, MATCH to 漏网之鱼.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
@@ -147,15 +144,15 @@ def default_expectations() -> List[Expectation]:
         ("www.qq.com", "全球直连"),
         ("www.bilibili.com", "全球直连"),
         ("223.5.5.5", "全球直连"),
-        ("apps.apple.com", "苹果服务"),
-        ("www.apple.com", "苹果服务"),
-        ("www.microsoft.com", "微软服务"),
-        ("download.windowsupdate.com", "微软服务"),
+        ("apps.apple.com", "全球直连"),
+        ("www.apple.com", "全球直连"),
+        ("www.microsoft.com", "全球直连"),
+        ("download.windowsupdate.com", "全球直连"),
         ("cmp1-hkg1.steamserver.net", "全球直连"),
         ("googleapis.cn", "节点选择"),
         ("www.google.com", "节点选择"),
         ("services.googleapis.cn", "节点选择"),
-        ("gstatic.cn", "谷歌服务"),
+        ("gstatic.cn", "全球直连"),
         ("www.youtube.com", "流媒体"),
         ("chatgpt.com", "AI"),
         ("github.com", "节点选择"),
@@ -446,7 +443,7 @@ def main() -> int:
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
     print("  - Sift is the mainland whitelist: listed domains and mainland IPs direct, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
-    print("  - Sift-Full uses DustinWin service sets; CN Apple/Microsoft/Google go to their groups, MATCH to 漏网之鱼.")
+    print("  - Sift-Full uses DustinWin service sets; CN Apple/Microsoft/Google/games go to 全球直连, MATCH to 漏网之鱼.")
     print("  - Sift and Sift-GFW define no service-specific exceptions; Google Play follows the same rules as other domains.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:

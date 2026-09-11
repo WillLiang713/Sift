@@ -49,9 +49,6 @@ https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/{图标名}.
 | 流媒体 | `Streaming.png` | 国际流媒体 |
 | 游戏平台 | `Game.png` | 游戏平台 |
 | Telegram | `Telegram_X.png` | Telegram 服务 |
-| 苹果服务 | `Apple_1.png` | Apple 服务 |
-| 谷歌服务 | `Google_Search.png` | Google 服务 |
-| 微软服务 | `Windows_11.png` | Microsoft 服务 |
 | 香港节点 | `Hong_Kong.png` | 香港地区节点 |
 | 美国节点 | `United_States.png` | 美国地区节点 |
 | 日本节点 | `Japan.png` | 日本地区节点 |

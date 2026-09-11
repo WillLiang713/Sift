@@ -11,7 +11,7 @@
 - 代理节点域名使用阿里 DoH 做启动解析。
 - 未使用 `fallback`、`fallback-filter`、`system` 或独立 geodata。
 
-DNS 与连接路由分别判断。`core.yaml` 里国内域名直接放行，未分类域名解析到大陆 IP 后也直连，否则代理；`gfwlist.yaml` 里只有 `gfw` 域名交给节点，其余域名解析后直连；`full.yaml` 里国内可直连服务进对应组（默认全球直连），`proxy` 集合走节点选择，其余进漏网之鱼。三档都不会为了试探国内 IP 而先把未分类域名发给国内 DNS，因此与 HomeProxy 的应答 IP 筛选不是完全相同的算法。
+DNS 与连接路由分别判断。`core.yaml` 里国内域名直接放行，未分类域名解析到大陆 IP 后也直连，否则代理；`gfwlist.yaml` 里只有 `gfw` 域名交给节点，其余域名解析后直连；`full.yaml` 里 `apple-cn` / `microsoft-cn` / `google-cn` / `games-cn` 与 `cn` / `cnip` 进全球直连，`proxy` 集合走节点选择，AI / 流媒体 / 游戏 / Telegram 进对应服务组，其余进漏网之鱼。三档都不会为了试探国内 IP 而先把未分类域名发给国内 DNS，因此与 HomeProxy 的应答 IP 筛选不是完全相同的算法。
 
 嗅探器从 HTTP Host、TLS / QUIC SNI 取回域名，再走同一套规则。`parse-pure-ip` 覆盖绕过系统 DNS、直连目标 IP 的流量；`force-dns-mapping` 覆盖 redir-host 映射。全局不覆盖实际目标，仅 HTTP 用 Host 覆盖。局域网、连通性检测和苹果推送域名跳过嗅探。域名矩阵不覆盖嗅探行为。
 
