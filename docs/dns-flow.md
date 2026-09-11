@@ -117,7 +117,7 @@ fallback-filter:
 
 ### 4.1 Sift 的当前实现
 
-Sift 不启用 fallback；国内白名单使用国内 DoH，其余使用代理海外 DoH。大陆 IP 由 cnip 规则判断，不依赖 GeoIP 数据库。详见 [DNS 设计](./dns.md)。
+Sift 不启用 fallback：`core.yaml` 的国内白名单走国内 DoH，其余经代理走海外 DoH；`gfwlist.yaml` 只让 `gfw` 域名经代理走海外 DoH，其余走国内 DoH。大陆 IP 由 cnip 规则判断，不依赖 GeoIP 数据库。详见 [DNS 设计](./dns.md)。
 
 ### 5. 得到 IP 后再次决定代理或直连
 

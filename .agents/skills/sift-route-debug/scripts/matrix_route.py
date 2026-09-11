@@ -45,7 +45,13 @@ def utf8_python_env() -> Dict[str, str]:
     return env
 
 
-TEMPLATES: Dict[str, str] = {"Sift": "rules/core.yaml"}
+WHITELIST = "Sift"
+GFWLIST = "Sift-GFW"
+
+TEMPLATES: Dict[str, str] = {
+    WHITELIST: "rules/core.yaml",
+    GFWLIST: "rules/gfwlist.yaml",
+}
 
 # Canonical probe domains for whole-tree regression after routing design changes.
 DEFAULT_DOMAINS: List[str] = [
@@ -114,14 +120,27 @@ Expectation = Tuple[str, Sequence[str], Set[str], str]
 
 
 def default_expectations() -> List[Expectation]:
-    """Whitelist routing without service-specific exceptions."""
-    direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
-              "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
-              "googleapis.cn", "services.googleapis.cn")
-    proxy = ("play.googleapis.com",
-             "chatgpt.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com")
-    return ([(d, ALL, {"DIRECT"}, "FAIL") for d in direct]
-            + [(d, ALL, {"节点选择"}, "FAIL") for d in proxy])
+    """Per-template product contract, without service-specific exceptions.
+
+    ``Sift`` is the mainland whitelist: listed domains and mainland IPs go
+    direct, everything else is proxied. ``Sift-GFW`` is the GFWlist: only the
+    ``gfw`` set is proxied, everything else goes direct.
+    """
+    whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
+                        "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
+                        "googleapis.cn", "services.googleapis.cn")
+    whitelist_proxy = ("play.googleapis.com",
+                       "chatgpt.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com")
+    gfwlist_direct = ("localhost", "www.baidu.com", "www.qq.com", "www.taobao.com",
+                      "www.bilibili.com", "192.168.1.1", "223.5.5.5", "8.8.8.8",
+                      "googleapis.cn", "services.googleapis.cn",
+                      "unlisted-sift-probe-73921.com")
+    gfwlist_proxy = ("www.google.com", "play.googleapis.com", "github.com", "chatgpt.com",
+                     "openai.com", "www.youtube.com", "x.com", "discord.com")
+    return ([(d, [WHITELIST], {"DIRECT"}, "FAIL") for d in whitelist_direct]
+            + [(d, [WHITELIST], {"节点选择"}, "FAIL") for d in whitelist_proxy]
+            + [(d, [GFWLIST], {"DIRECT"}, "FAIL") for d in gfwlist_direct]
+            + [(d, [GFWLIST], {"节点选择"}, "FAIL") for d in gfwlist_proxy])
 
 
 def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> bool:
@@ -350,7 +369,7 @@ def main() -> int:
         "--templates",
         nargs="*",
         choices=list(TEMPLATES.keys()),
-        help="Subset of template labels (default: all three)",
+        help="Subset of template labels (default: every Sift template)",
     )
     args = parser.parse_args()
 
@@ -374,13 +393,13 @@ def main() -> int:
     results = run_matrix(engine, labels, domains)
 
     print("=" * 130)
-    print(f"{'domain':<28}" + "".join(f"{lab:<8}" for lab in labels))
+    print(f"{'domain':<28}" + "".join(f"{lab:<10}" for lab in labels))
     print("-" * 130)
     for domain in domains:
         cells = []
         for lab in labels:
             pol = results[domain][lab].get("policy") or "?"
-            cells.append(f"{SHORT.get(pol, (pol or '?')[:6]):<8}")
+            cells.append(f"{SHORT.get(pol, (pol or '?')[:8]):<10}")
         print(f"{domain:<28}" + "".join(cells))
 
     if args.no_assert:
@@ -394,7 +413,9 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - Google Play follows the same whitelist rules as other services; no forced-proxy anchors.")
+    print("  - Sift is the mainland whitelist: listed domains and mainland IPs direct, rest proxied.")
+    print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
+    print("  - No service-specific exceptions; Google Play follows the same rules as other domains.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:
         print("FAIL")

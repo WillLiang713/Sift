@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 import sys
 import unittest
 from pathlib import Path
@@ -11,6 +10,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import validate_configs as vc  # noqa: E402
+import matrix_route as mr  # noqa: E402
 
 
 class ValidateConfigsTest(unittest.TestCase):
@@ -52,48 +52,16 @@ class ValidateConfigsTest(unittest.TestCase):
 
     def test_discovers_all_repository_templates(self) -> None:
         templates = vc.discover_templates([])
-        self.assertEqual(len(templates), 3)
-        self.assertIn(vc.REPO_ROOT / "rules" / "full.yaml", templates)
+        self.assertEqual(
+            [path.relative_to(vc.REPO_ROOT).as_posix() for path in templates],
+            ["rules/core.yaml", "rules/gfwlist.yaml"],
+        )
 
-    def test_full_region_filters_cover_expected_node_names(self) -> None:
-        text = (vc.REPO_ROOT / "rules" / "full.yaml").read_text(encoding="utf-8")
-
-        def anchor(name: str) -> str:
-            match = re.search(rf'^  {name}: &{name} "(.*)"$', text, re.MULTILINE)
-            self.assertIsNotNone(match, f"missing {name} anchor")
-            return match.group(1)
-
-        filters = {
-            "filter-hk": anchor("filter-hk"),
-            "filter-us": anchor("filter-us"),
-            "filter-jp": anchor("filter-jp"),
-            "filter-sg": anchor("filter-sg"),
+    def test_route_matrix_covers_every_repository_template(self) -> None:
+        discovered = {
+            path.relative_to(vc.REPO_ROOT).as_posix() for path in vc.discover_templates([])
         }
-        fixtures = {
-            "filter-hk": ["🇭🇰 香港 01", "HK-HKG-01"],
-            "filter-us": ["US-LAX-01", "Seattle Premium"],
-            "filter-jp": ["JP-NRT-01", "日本 东京"],
-            "filter-sg": ["SG-SIN-01", "Singapore 01"],
-        }
-        for name, node_names in fixtures.items():
-            regex = re.compile(filters[name])
-            for node_name in node_names:
-                self.assertRegex(node_name, regex)
-
-        self.assertNotRegex("Russia Premium", re.compile(filters["filter-us"]))
-        self.assertNotRegex("Business Premium", re.compile(filters["filter-sg"]))
-
-    def test_other_region_filter_is_exact_union(self) -> None:
-        text = (vc.REPO_ROOT / "rules" / "full.yaml").read_text(encoding="utf-8")
-
-        def anchor(name: str) -> str:
-            match = re.search(rf'^  {name}: &{name} "(.*)"$', text, re.MULTILINE)
-            self.assertIsNotNone(match, f"missing {name} anchor")
-            return match.group(1)
-
-        region_filters = [anchor(name) for name in ("filter-hk", "filter-us", "filter-jp", "filter-sg")]
-        expected = "(?i)" + "|".join(pattern.removeprefix("(?i)") for pattern in region_filters)
-        self.assertEqual(anchor("other-region-exclude"), expected)
+        self.assertEqual(set(mr.TEMPLATES.values()), discovered)
 
 
 if __name__ == "__main__":

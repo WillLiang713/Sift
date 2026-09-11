@@ -1,7 +1,7 @@
 <h1 align="center">Sift</h1>
 
 <p align="center">
-无节点分流模板 · 大陆白名单直连 · 其余默认代理
+无节点分流模板 · 大陆白名单 与 GFWlist 双模式
 </p>
 
 <p align="center">
@@ -12,11 +12,12 @@
 
 ## 模板
 
-| 文件 | 说明 |
-| --- | --- |
-| **[core.yaml](./rules/core.yaml)** | 大陆白名单分流 · 节点选择 / 自动测速 · DNS |
+| 文件 | 模式 | 说明 |
+| --- | --- | --- |
+| **[core.yaml](./rules/core.yaml)** | 大陆白名单 | 大陆域名与私有地址直连，其余走节点选择。 |
+| **[gfwlist.yaml](./rules/gfwlist.yaml)** | GFWlist | 仅 GFWlist 域名走节点选择，其余直连。 |
 
-国内白名单与私有域名返回真实 IP，其余返回 fake-IP。模板需配合客户端导入节点使用。
+两档模板都只保留“节点选择”“自动测速”两个组，都用 fake-ip 规则模式：需要代理的域名返回 fake-IP，直连域名返回真实 IP。模板需配合客户端导入节点使用。
 
 ## 文档
 

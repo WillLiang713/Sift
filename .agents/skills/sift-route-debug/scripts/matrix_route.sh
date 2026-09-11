@@ -7,7 +7,7 @@ ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
 cd "$ROOT"
 
 # Default: refresh caches then run full matrix with assertions.
-# Pass-through extra args, e.g. --no-assert, --domain foo.com, --templates Sift
+# Pass-through extra args, e.g. --no-assert, --domain foo.com, --templates Sift Sift-GFW
 exec python3 "$ROOT/.agents/skills/sift-route-debug/scripts/matrix_route.py" \
   --update-cache \
   "$@"

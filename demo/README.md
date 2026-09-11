@@ -1,6 +1,6 @@
 # 上游参考
 
-第三方 YAML 快照已移除，唯一产品模板是 [core.yaml](../rules/core.yaml)。以下链接供查阅，版权与许可归各上游作者。
+第三方 YAML 快照已移除，产品模板是 [core.yaml](../rules/core.yaml) 与 [gfwlist.yaml](../rules/gfwlist.yaml)。以下链接供查阅，版权与许可归各上游作者。
 
 | 原示例 | 上游 |
 | --- | --- |
