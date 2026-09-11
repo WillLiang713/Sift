@@ -10,6 +10,7 @@ SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import validate_configs as vc  # noqa: E402
+import matrix_route as mr  # noqa: E402
 
 
 class ValidateConfigsTest(unittest.TestCase):
@@ -51,8 +52,16 @@ class ValidateConfigsTest(unittest.TestCase):
 
     def test_discovers_all_repository_templates(self) -> None:
         templates = vc.discover_templates([])
-        self.assertEqual(len(templates), 12)
-        self.assertIn(vc.REPO_ROOT / "rules" / "full.yaml", templates)
+        self.assertEqual(
+            [path.relative_to(vc.REPO_ROOT).as_posix() for path in templates],
+            ["rules/core.yaml", "rules/gfwlist.yaml"],
+        )
+
+    def test_route_matrix_covers_every_repository_template(self) -> None:
+        discovered = {
+            path.relative_to(vc.REPO_ROOT).as_posix() for path in vc.discover_templates([])
+        }
+        self.assertEqual(set(mr.TEMPLATES.values()), discovered)
 
 
 if __name__ == "__main__":

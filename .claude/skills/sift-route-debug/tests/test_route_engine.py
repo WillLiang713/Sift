@@ -19,7 +19,7 @@ class DomainProviderIndexTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             failed = mock.Mock(returncode=1)
             with mock.patch.object(mr.subprocess, "run", return_value=failed):
-                self.assertFalse(mr.update_all_caches(Path(temp_dir), ["HY-f"]))
+                self.assertFalse(mr.update_all_caches(Path(temp_dir), list(mr.TEMPLATES)))
 
     def test_first_match_order_and_suffix_exact(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
