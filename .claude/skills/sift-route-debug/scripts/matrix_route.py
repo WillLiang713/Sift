@@ -47,10 +47,12 @@ def utf8_python_env() -> Dict[str, str]:
 
 WHITELIST = "Sift"
 GFWLIST = "Sift-GFW"
+FULL = "Sift-Full"
 
 TEMPLATES: Dict[str, str] = {
     WHITELIST: "rules/core.yaml",
     GFWLIST: "rules/gfwlist.yaml",
+    FULL: "rules/full.yaml",
 }
 
 # Canonical probe domains for whole-tree regression after routing design changes.
@@ -124,7 +126,9 @@ def default_expectations() -> List[Expectation]:
 
     ``Sift`` is the mainland whitelist: listed domains and mainland IPs go
     direct, everything else is proxied. ``Sift-GFW`` is the GFWlist: only the
-    ``gfw`` set is proxied, everything else goes direct.
+    ``gfw`` set is proxied, everything else goes direct. ``Sift-Full`` keeps the
+    same mainland-direct baseline but sends each foreign service to its own
+    group, so its expectations name those groups instead of a single policy.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
@@ -137,10 +141,36 @@ def default_expectations() -> List[Expectation]:
                       "unlisted-sift-probe-73921.com")
     gfwlist_proxy = ("www.google.com", "play.googleapis.com", "github.com", "chatgpt.com",
                      "openai.com", "www.youtube.com", "x.com", "discord.com")
+    full_groups = (
+        ("localhost", "DIRECT"),
+        ("www.baidu.com", "全球直连"),
+        ("www.qq.com", "全球直连"),
+        ("www.bilibili.com", "全球直连"),
+        ("223.5.5.5", "全球直连"),
+        ("apps.apple.com", "全球直连"),
+        ("www.apple.com", "全球直连"),
+        ("www.microsoft.com", "全球直连"),
+        ("download.windowsupdate.com", "全球直连"),
+        ("cmp1-hkg1.steamserver.net", "全球直连"),
+        ("googleapis.cn", "谷歌服务"),
+        ("www.google.com", "谷歌服务"),
+        ("services.googleapis.cn", "谷歌服务"),
+        ("www.youtube.com", "流媒体"),
+        ("chatgpt.com", "AI"),
+        ("github.com", "GitHub"),
+        ("web.telegram.org", "Telegram"),
+        ("icloud.com", "苹果服务"),
+        ("office.com", "微软服务"),
+        ("x.com", "节点选择"),
+        ("discord.com", "节点选择"),
+        ("8.8.8.8", "漏网之鱼"),
+        ("unlisted-sift-probe-73921.com", "漏网之鱼"),
+    )
     return ([(d, [WHITELIST], {"DIRECT"}, "FAIL") for d in whitelist_direct]
             + [(d, [WHITELIST], {"节点选择"}, "FAIL") for d in whitelist_proxy]
             + [(d, [GFWLIST], {"DIRECT"}, "FAIL") for d in gfwlist_direct]
-            + [(d, [GFWLIST], {"节点选择"}, "FAIL") for d in gfwlist_proxy])
+            + [(d, [GFWLIST], {"节点选择"}, "FAIL") for d in gfwlist_proxy]
+            + [(d, [FULL], {policy}, "FAIL") for d, policy in full_groups])
 
 
 def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> bool:
@@ -415,7 +445,8 @@ def main() -> int:
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
     print("  - Sift is the mainland whitelist: listed domains and mainland IPs direct, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
-    print("  - No service-specific exceptions; Google Play follows the same rules as other domains.")
+    print("  - Sift-Full keeps mainland direct but sends each foreign service to its own group.")
+    print("  - Sift and Sift-GFW define no service-specific exceptions; Google Play follows the same rules as other domains.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:
         print("FAIL")

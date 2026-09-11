@@ -54,7 +54,7 @@ class ValidateConfigsTest(unittest.TestCase):
         templates = vc.discover_templates([])
         self.assertEqual(
             [path.relative_to(vc.REPO_ROOT).as_posix() for path in templates],
-            ["rules/core.yaml", "rules/gfwlist.yaml"],
+            ["rules/core.yaml", "rules/full.yaml", "rules/gfwlist.yaml"],
         )
 
     def test_route_matrix_covers_every_repository_template(self) -> None:
