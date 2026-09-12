@@ -16,6 +16,7 @@ dns:
   fake-ip-filter:
     - RULE-SET,private,real-ip
     - RULE-SET,cn,real-ip
+    - RULE-SET,games-cn,real-ip
     - MATCH,fake-ip
   prefer-h3: false
   respect-rules: true
@@ -24,7 +25,7 @@ dns:
   nameserver:
     - "https://8.8.8.8/dns-query#节点选择"
   nameserver-policy:
-    "rule-set:private,cn": https://223.5.5.5/dns-query
+    "rule-set:private,games-cn,cn": https://223.5.5.5/dns-query
 
 sniffer:
   enable: true
@@ -79,6 +80,14 @@ rule-providers:
     <<: *mrs-ip
     path: ./ruleset/privateip.mrs
     url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs
+  games-cn:
+    <<: *mrs-domain
+    path: ./ruleset/games-cn.mrs
+    url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs
+  steam-cdn-ip:
+    <<: *mrs-ip
+    path: ./ruleset/steam-cdn-ip.mrs
+    url: https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Steam_CDN_IP.mrs
   cn:
     <<: *mrs-domain
     path: ./ruleset/cn.mrs
@@ -91,6 +100,8 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
+  - RULE-SET,games-cn,DIRECT
   - RULE-SET,cn,DIRECT
+  - RULE-SET,steam-cdn-ip,DIRECT
   - RULE-SET,cnip,DIRECT
   - MATCH,节点选择

@@ -191,6 +191,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/games-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs"
+  steam-cdn-ip:
+    <<: *mrs-ip
+    path: ./ruleset/steam-cdn-ip.mrs
+    url: "https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Steam_CDN_IP.mrs"
   ai:
     <<: *mrs-domain
     path: ./ruleset/ai.mrs
@@ -238,5 +242,6 @@ rules:
   - RULE-SET,cn,全球直连
   - RULE-SET,mediaip,流媒体
   - RULE-SET,telegramip,Telegram
+  - RULE-SET,steam-cdn-ip,全球直连
   - RULE-SET,cnip,全球直连
   - MATCH,漏网之鱼

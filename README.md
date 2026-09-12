@@ -14,7 +14,7 @@
 
 | 文件 | 模式 | 说明 |
 | --- | --- | --- |
-| **[core.yaml](./rules/core.yaml)** | 大陆白名单 | 大陆域名与私有地址直连，其余走节点选择。 |
+| **[core.yaml](./rules/core.yaml)** | 大陆白名单 | 私有地址、大陆域名与国内游戏服务（DustinWin `games-cn`，含 Steam 下载 CDN）直连，其余走节点选择。 |
 | **[gfwlist.yaml](./rules/gfwlist.yaml)** | GFWlist | 仅 GFWlist 域名走节点选择，其余直连。 |
 | **[full.yaml](./rules/full.yaml)** | 完整服务组 | 国内直连（含 apple-cn / microsoft-cn / google-cn / games-cn），AI / 流媒体 / 游戏 / Telegram 独立成组，未收录走漏网之鱼。 |
 

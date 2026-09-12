@@ -65,7 +65,14 @@ DEFAULT_DOMAINS: List[str] = [
     "www.google.com",
     "play.googleapis.com",
     "recaptcha.net",
+    "cm.steampowered.com",
+    "steamcontent.com",
+    "steamserver.net",
+    "st.dl.eccdnx.com",
+    "store.steampowered.com",
+    "steamcommunity.com",
     "cmp1-hkg1.steamserver.net",
+    "45.121.184.5",
     "apps.apple.com",
     "download.windowsupdate.com",
     "metacubex.github.io",
@@ -119,25 +126,31 @@ Expectation = Tuple[str, Sequence[str], Set[str], str]
 
 
 def default_expectations() -> List[Expectation]:
-    """Per-template product contract, without service-specific exceptions.
+    """Per-template product contract.
 
-    ``Sift`` is the mainland whitelist: listed domains and mainland IPs go
-    direct, everything else is proxied. ``Sift-GFW`` is the GFWlist: only the
-    ``gfw`` set is proxied, everything else goes direct. ``Sift-Full`` uses
-    DustinWin service sets: CN Apple/Microsoft/Google/games go to 全球直连,
+    ``Sift`` is the mainland whitelist: private / games-cn / cn / cnip /
+    steam-cdn-ip and mainland IPs go direct, everything else is proxied.
+    ``Sift-GFW`` is the GFWlist: only the ``gfw`` set is proxied, everything
+    else goes direct. ``Sift-Full`` uses DustinWin service sets plus
+    steam-cdn-ip: CN Apple/Microsoft/Google/games go to 全球直连,
     AI/media/games/Telegram-IP to theirs, ``proxy`` to 节点选择, MATCH to 漏网之鱼.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
-                        "googleapis.cn", "services.googleapis.cn")
+                        "googleapis.cn", "services.googleapis.cn",
+                        "cm.steampowered.com", "steamcontent.com", "st.dl.eccdnx.com",
+                        "cmp1-hkg1.steamserver.net", "45.121.184.5")
     whitelist_proxy = ("play.googleapis.com",
-                       "chatgpt.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com")
+                       "chatgpt.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
+                       "store.steampowered.com", "steamcommunity.com")
     gfwlist_direct = ("localhost", "www.baidu.com", "www.qq.com", "www.taobao.com",
                       "www.bilibili.com", "192.168.1.1", "223.5.5.5", "8.8.8.8",
                       "googleapis.cn", "services.googleapis.cn",
-                      "unlisted-sift-probe-73921.com")
+                      "unlisted-sift-probe-73921.com",
+                      "cm.steampowered.com", "steamcontent.com", "steamserver.net")
     gfwlist_proxy = ("www.google.com", "play.googleapis.com", "github.com", "chatgpt.com",
-                     "openai.com", "www.youtube.com", "x.com", "discord.com")
+                     "openai.com", "www.youtube.com", "x.com", "discord.com",
+                     "store.steampowered.com", "steamcommunity.com")
     full_groups = (
         ("localhost", "DIRECT"),
         ("www.baidu.com", "全球直连"),
@@ -149,6 +162,7 @@ def default_expectations() -> List[Expectation]:
         ("www.microsoft.com", "全球直连"),
         ("download.windowsupdate.com", "全球直连"),
         ("cmp1-hkg1.steamserver.net", "全球直连"),
+        ("45.121.184.5", "全球直连"),
         ("googleapis.cn", "节点选择"),
         ("www.google.com", "节点选择"),
         ("services.googleapis.cn", "节点选择"),
@@ -441,10 +455,10 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - Sift is the mainland whitelist: listed domains and mainland IPs direct, rest proxied.")
+    print("  - Sift is the mainland whitelist: private / games-cn / cn / cnip / steam-cdn-ip direct, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
-    print("  - Sift-Full uses DustinWin service sets; CN Apple/Microsoft/Google/games go to 全球直连, MATCH to 漏网之鱼.")
-    print("  - Sift and Sift-GFW define no service-specific exceptions; Google Play follows the same rules as other domains.")
+    print("  - Sift-Full uses DustinWin service sets plus steam-cdn-ip; CN Apple/Microsoft/Google/games go to 全球直连, MATCH to 漏网之鱼.")
+    print("  - Steam download path: cm.steampowered.com / steamserver.net pick the region, steamcontent.com carries the payload.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:
         print("FAIL")
