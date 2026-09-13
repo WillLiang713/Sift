@@ -1,8 +1,6 @@
 <h1 align="center">Sift</h1>
 
-<p align="center">
-无节点分流模板 · 大陆白名单、GFWlist 与完整服务组
-</p>
+<p align="center">无节点 Mihomo 分流模板</p>
 
 <p align="center">
   <img alt="Rules" src="https://img.shields.io/badge/rules-MRS-green?style=flat-square">
@@ -10,13 +8,15 @@
   <img alt="License" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square">
 </p>
 
-## 模板
+## 规则模板
 
 | 文件 | 模式 | 说明 |
 | --- | --- | --- |
-| **[core.yaml](./rules/core.yaml)** | 大陆白名单 | 私有地址、大陆域名与国内游戏服务（DustinWin `games-cn`，含 Steam 下载 CDN）直连；`proxy` 先于 `cn`，其余走节点选择。 |
-| **[gfwlist.yaml](./rules/gfwlist.yaml)** | GFWlist | 仅 GFWlist 域名走节点选择，其余直连。 |
-| **[full.yaml](./rules/full.yaml)** | 完整服务组 | 国内直连（含 apple-cn / microsoft-cn / google-cn / games-cn），AI / 流媒体 / 游戏 / Telegram 独立成组，未收录走漏网之鱼。 |
+| [core.yaml](./rules/core.yaml) | 大陆白名单 | 国内服务直连，其余走节点选择。 |
+| [gfwlist.yaml](./rules/gfwlist.yaml) | GFWlist | GFWlist 域名走节点，其余直连。 |
+| [full.yaml](./rules/full.yaml) | 完整服务组 | 按国内、AI、流媒体、游戏和 Telegram 等服务分组。 |
+
+规则集会从上游自动更新，配置不包含节点。
 
 ## 开源许可
 
