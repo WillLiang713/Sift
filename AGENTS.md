@@ -17,13 +17,13 @@ Sift 维护三档 Mihomo 无节点分流模板：`rules/core.yaml`（大陆白�
 `core.yaml` 与 `gfwlist.yaml` 共用：
 
 - 仅“节点选择”“自动测速”两个组；不恢复品牌、地区、广告或兜底组。
-- 不设置 Google Play 等服务专用代理例外，统一按规则集判断。
+- 不设 Google Play 独立组；`core.yaml` 靠 `proxy` 先于 `cn` 处理 `googleapis.cn`，`gfwlist.yaml` 不接线 `proxy`。
 
 `core.yaml`（大陆白名单，其余默认代理）：
 
-- 私有域名/IP → DIRECT；games-cn → DIRECT；cn → DIRECT；cnip → DIRECT；steam-cdn-ip → DIRECT；MATCH → 节点选择。
-- 路由、fake-IP、nameserver-policy 均使用全量 cn 与 DustinWin `games-cn`，不用 cn-lite。Steam CDN 的 IP 兜底用 Aethersailor `steam-cdn-ip`（不在 `cnip` 内，实测 0/23 覆盖）。
-- fake-ip 规则模式：private / games-cn / cn → real-ip，MATCH → fake-ip；保留映射持久化。私有域名、国内白名单与国内游戏服务（含 Steam 下载 CDN）走国内 DoH，其余需要真实解析时经“节点选择”走海外 DoH。
+- 私有域名/IP → DIRECT；games-cn → DIRECT；proxy → 节点选择；cn → DIRECT；cnip → DIRECT；steam-cdn-ip → DIRECT；MATCH → 节点选择。
+- 路由、fake-IP、nameserver-policy 均使用全量 cn 与 DustinWin `games-cn` / `proxy`，不用 cn-lite。`proxy` 先于 `cn`，故 `googleapis.cn` 等同时出现在两集的域名走节点选择。Steam CDN 的 IP 兜底用 Aethersailor `steam-cdn-ip`（不在 `cnip` 内，实测 0/23 覆盖）。
+- fake-ip 规则模式：private / games-cn / cn → real-ip，proxy → fake-ip，MATCH → fake-ip；保留映射持久化。私有域名、国内白名单与国内游戏服务（含 Steam 下载 CDN）走国内 DoH，`proxy` 与其余需要真实解析的域名经“节点选择”走海外 DoH。
 
 `gfwlist.yaml`（GFWlist，其余默认直连）：
 

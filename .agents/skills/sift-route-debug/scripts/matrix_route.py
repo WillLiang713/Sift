@@ -64,6 +64,7 @@ DEFAULT_DOMAINS: List[str] = [
     "gstatic.cn",
     "www.google.com",
     "play.googleapis.com",
+    "xn--ngstr-lra8j.com",
     "recaptcha.net",
     "cm.steampowered.com",
     "steamcontent.com",
@@ -129,7 +130,8 @@ def default_expectations() -> List[Expectation]:
     """Per-template product contract.
 
     ``Sift`` is the mainland whitelist: private / games-cn / cn / cnip /
-    steam-cdn-ip and mainland IPs go direct, everything else is proxied.
+    steam-cdn-ip and mainland IPs go direct, ``proxy`` before ``cn`` goes to
+    节点选择, everything else is proxied.
     ``Sift-GFW`` is the GFWlist: only the ``gfw`` set is proxied, everything
     else goes direct. ``Sift-Full`` uses DustinWin service sets plus
     steam-cdn-ip: CN Apple/Microsoft/Google/games go to 全球直连,
@@ -137,10 +139,10 @@ def default_expectations() -> List[Expectation]:
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
-                        "googleapis.cn", "services.googleapis.cn",
                         "cm.steampowered.com", "steamcontent.com", "st.dl.eccdnx.com",
                         "cmp1-hkg1.steamserver.net", "45.121.184.5")
-    whitelist_proxy = ("play.googleapis.com",
+    whitelist_proxy = ("play.googleapis.com", "googleapis.cn", "services.googleapis.cn",
+                       "xn--ngstr-lra8j.com",
                        "chatgpt.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
                        "store.steampowered.com", "steamcommunity.com")
     gfwlist_direct = ("localhost", "www.baidu.com", "www.qq.com", "www.taobao.com",
@@ -166,6 +168,7 @@ def default_expectations() -> List[Expectation]:
         ("googleapis.cn", "节点选择"),
         ("www.google.com", "节点选择"),
         ("services.googleapis.cn", "节点选择"),
+        ("xn--ngstr-lra8j.com", "节点选择"),
         ("gstatic.cn", "全球直连"),
         ("www.youtube.com", "流媒体"),
         ("chatgpt.com", "AI"),
@@ -455,7 +458,7 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - Sift is the mainland whitelist: private / games-cn / cn / cnip / steam-cdn-ip direct, rest proxied.")
+    print("  - Sift is the mainland whitelist: private / games-cn / cn / cnip / steam-cdn-ip direct, proxy before cn, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
     print("  - Sift-Full uses DustinWin service sets plus steam-cdn-ip; CN Apple/Microsoft/Google/games go to 全球直连, MATCH to 漏网之鱼.")
     print("  - Steam download path: cm.steampowered.com / steamserver.net pick the region, steamcontent.com carries the payload.")
