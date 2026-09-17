@@ -59,6 +59,7 @@ sniffer:
 group-anchor:
   icon-rocket: &icon-rocket "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Rocket.png"
   icon-auto: &icon-auto "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  icon-fallback: &icon-fallback "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
   icon-ai: &icon-ai "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"
   icon-streaming: &icon-streaming "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Streaming.png"
   icon-game: &icon-game "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
@@ -86,9 +87,19 @@ group-anchor:
     timeout: 3000
     tolerance: 50
     lazy: true
+  fallback: &fallback
+    type: fallback
+    include-all: true
+    exclude-filter: *node-exclude
+    url: https://cp.cloudflare.com/generate_204
+    expected-status: 204
+    interval: 300
+    timeout: 3000
+    lazy: true
   proxy-options: &proxy-options
     - 节点选择
     - 自动测速
+    - 故障转移
     - 香港节点
     - 美国节点
     - 日本节点
@@ -104,6 +115,7 @@ proxy-groups:
     icon: *icon-rocket
     proxies:
       - 自动测速
+      - 故障转移
       - 香港节点
       - 美国节点
       - 日本节点
@@ -113,6 +125,9 @@ proxy-groups:
   - name: 自动测速
     <<: *url-test
     icon: *icon-auto
+  - name: 故障转移
+    <<: *fallback
+    icon: *icon-fallback
   - name: AI
     type: select
     icon: *icon-ai
@@ -157,6 +172,7 @@ proxy-groups:
       - DIRECT
       - 节点选择
       - 自动测速
+      - 故障转移
   - name: 漏网之鱼
     type: select
     icon: *icon-final
