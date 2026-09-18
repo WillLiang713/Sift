@@ -83,8 +83,9 @@ group-anchor:
     exclude-filter: *node-exclude
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 300
-    timeout: 3000
+    interval: 60
+    timeout: 1500
+    max-failed-times: 2
     tolerance: 50
     lazy: true
   fallback: &fallback
@@ -93,8 +94,9 @@ group-anchor:
     exclude-filter: *node-exclude
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 300
-    timeout: 3000
+    interval: 60
+    timeout: 1500
+    max-failed-times: 2
     lazy: true
   proxy-options: &proxy-options
     - 节点选择

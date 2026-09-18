@@ -65,8 +65,9 @@ proxy-groups:
     exclude-filter: *node-exclude
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 300
-    timeout: 3000
+    interval: 60
+    timeout: 1500
+    max-failed-times: 2
     tolerance: 50
     lazy: true
   - name: 故障转移
@@ -75,8 +76,9 @@ proxy-groups:
     exclude-filter: *node-exclude
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 300
-    timeout: 3000
+    interval: 60
+    timeout: 1500
+    max-failed-times: 2
     lazy: true
 
 rule-anchor:
