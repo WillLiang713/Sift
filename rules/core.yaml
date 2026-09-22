@@ -50,16 +50,27 @@ sniffer:
     - "+.msftncsi.com"
     - "+.push.apple.com"
 
-proxy-groups:
-  - name: 节点选择
-    type: select
-    include-all: true
-    exclude-filter: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
-    proxies:
-      - 自动测速
-      - 故障转移
-      - DIRECT
-  - name: 自动测速
+group-anchor:
+  icon-rocket: &icon-rocket "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Rocket.png"
+  icon-auto: &icon-auto "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
+  icon-fallback: &icon-fallback "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
+  icon-self: &icon-self "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Server.png"
+  icon-airport: &icon-airport "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
+  icon-hk: &icon-hk "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
+  icon-us: &icon-us "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png"
+  icon-jp: &icon-jp "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
+  icon-sg: &icon-sg "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png"
+  icon-tw: &icon-tw "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png"
+  icon-other: &icon-other "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Airport.png"
+  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+  filter-self: &filter-self "(?i)^(自建|私人|VPS|SELF)[-_ ]?"
+  filter-hk: &filter-hk "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)"
+  filter-us: &filter-us "(?i)🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)"
+  filter-jp: &filter-jp "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|Japan|Tokyo|Osaka|(^|[^A-Za-z])(JP|NRT|HND|KIX|CTS|FUK)([^A-Za-z]|$)"
+  filter-sg: &filter-sg "(?i)🇸🇬|Singapore|新加坡|狮城|(^|[^A-Za-z])(SG|SGP|SIN)([^A-Za-z]|$)"
+  filter-tw: &filter-tw "(?i)🇹🇼|台|臺|台湾|台灣|臺灣|新北|高雄|Taiwan|Taipei|Kaohsiung|Taichung|(^|[^A-Za-z])(TW|TPE|TSA|KHH|RMQ)([^A-Za-z]|$)"
+  other-region-exclude: &other-region-exclude "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)|🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|Japan|Tokyo|Osaka|(^|[^A-Za-z])(JP|NRT|HND|KIX|CTS|FUK)([^A-Za-z]|$)|🇸🇬|Singapore|新加坡|狮城|(^|[^A-Za-z])(SG|SGP|SIN)([^A-Za-z]|$)|🇹🇼|台|臺|台湾|台灣|臺灣|新北|高雄|Taiwan|Taipei|Kaohsiung|Taichung|(^|[^A-Za-z])(TW|TPE|TSA|KHH|RMQ)([^A-Za-z]|$)|^(自建|私人|VPS|SELF)[-_ ]?"
+  url-test: &url-test
     type: url-test
     include-all: true
     exclude-filter: *node-exclude
@@ -70,7 +81,7 @@ proxy-groups:
     max-failed-times: 2
     tolerance: 50
     lazy: true
-  - name: 故障转移
+  fallback: &fallback
     type: fallback
     include-all: true
     exclude-filter: *node-exclude
@@ -80,6 +91,71 @@ proxy-groups:
     timeout: 1500
     max-failed-times: 2
     lazy: true
+
+proxy-groups:
+  - name: 节点选择
+    type: select
+    include-all: true
+    exclude-filter: *node-exclude
+    icon: *icon-rocket
+    proxies:
+      - 自动测速
+      - 故障转移
+      - 自建节点
+      - 机场节点
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 台湾节点
+      - 其他节点
+      - DIRECT
+  - name: 自动测速
+    <<: *url-test
+    icon: *icon-auto
+  - name: 故障转移
+    <<: *fallback
+    icon: *icon-fallback
+  - name: 自建节点
+    <<: *fallback
+    filter: *filter-self
+    icon: *icon-self
+  - name: 机场节点
+    type: select
+    icon: *icon-airport
+    default-selected: 香港节点
+    proxies:
+      - 香港节点
+      - 美国节点
+      - 日本节点
+      - 新加坡节点
+      - 台湾节点
+      - 其他节点
+  - name: 香港节点
+    <<: *url-test
+    filter: *filter-hk
+    icon: *icon-hk
+  - name: 美国节点
+    <<: *url-test
+    filter: *filter-us
+    icon: *icon-us
+  - name: 日本节点
+    <<: *url-test
+    filter: *filter-jp
+    icon: *icon-jp
+  - name: 新加坡节点
+    <<: *url-test
+    filter: *filter-sg
+    icon: *icon-sg
+  - name: 台湾节点
+    <<: *url-test
+    filter: *filter-tw
+    icon: *icon-tw
+  - name: 其他节点
+    type: select
+    include-all: true
+    exclude-filter: *other-region-exclude
+    icon: *icon-other
 
 rule-anchor:
   domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
