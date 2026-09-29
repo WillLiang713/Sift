@@ -86,7 +86,7 @@ group-anchor:
     type: url-test
     include-all: true
     exclude-filter: *node-exclude
-    url: https://cp.cloudflare.com/generate_204
+    url: https://www.gstatic.com/generate_204
     expected-status: 204
     interval: 60
     timeout: 1500
@@ -97,7 +97,22 @@ group-anchor:
     type: fallback
     include-all: true
     exclude-filter: *node-exclude
-    url: https://cp.cloudflare.com/generate_204
+    url: https://www.gstatic.com/generate_204
+    expected-status: 204
+    interval: 60
+    timeout: 1500
+    max-failed-times: 2
+    lazy: true
+  airport-fallback: &airport-fallback
+    type: fallback
+    proxies:
+      - 香港节点
+      - 日本节点
+      - 新加坡节点
+      - 美国节点
+      - 台湾节点
+      - 其他节点
+    url: https://www.gstatic.com/generate_204
     expected-status: 204
     interval: 60
     timeout: 1500
@@ -107,6 +122,8 @@ group-anchor:
     - 节点选择
     - 自动测速
     - 故障转移
+    - 自建优先
+    - 机场故转
     - 自建节点
     - 机场节点
     - 香港节点
@@ -126,6 +143,8 @@ proxy-groups:
     proxies:
       - 自动测速
       - 故障转移
+      - 自建优先
+      - 机场故转
       - 自建节点
       - 机场节点
       - 香港节点
@@ -145,6 +164,21 @@ proxy-groups:
     <<: *fallback
     filter: *filter-self
     icon: *icon-self
+  - name: 机场故转
+    <<: *airport-fallback
+    icon: *icon-airport
+  - name: 自建优先
+    type: fallback
+    proxies:
+      - 自建节点
+      - 机场故转
+    url: https://www.gstatic.com/generate_204
+    expected-status: 204
+    interval: 60
+    timeout: 1500
+    max-failed-times: 2
+    lazy: true
+    icon: *icon-fallback
   - name: 机场节点
     type: select
     icon: *icon-airport
@@ -175,22 +209,27 @@ proxy-groups:
   - name: 香港节点
     <<: *url-test
     filter: *filter-hk
+    exclude-filter: *filter-self
     icon: *icon-hk
   - name: 美国节点
     <<: *url-test
     filter: *filter-us
+    exclude-filter: *filter-self
     icon: *icon-us
   - name: 日本节点
     <<: *url-test
     filter: *filter-jp
+    exclude-filter: *filter-self
     icon: *icon-jp
   - name: 新加坡节点
     <<: *url-test
     filter: *filter-sg
+    exclude-filter: *filter-self
     icon: *icon-sg
   - name: 台湾节点
     <<: *url-test
     filter: *filter-tw
+    exclude-filter: *filter-self
     icon: *icon-tw
   - name: 其他节点
     type: select
