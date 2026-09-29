@@ -57,23 +57,6 @@ sniffer:
     - "+.push.apple.com"
 
 group-anchor:
-  icon-rocket: &icon-rocket "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Rocket.png"
-  icon-auto: &icon-auto "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Auto.png"
-  icon-fallback: &icon-fallback "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Available.png"
-  icon-self: &icon-self "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Server.png"
-  icon-airport: &icon-airport "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Global.png"
-  icon-ai: &icon-ai "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/AI.png"
-  icon-streaming: &icon-streaming "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Streaming.png"
-  icon-game: &icon-game "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Game.png"
-  icon-telegram: &icon-telegram "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Telegram_X.png"
-  icon-hk: &icon-hk "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Hong_Kong.png"
-  icon-us: &icon-us "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/United_States.png"
-  icon-jp: &icon-jp "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Japan.png"
-  icon-sg: &icon-sg "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Singapore.png"
-  icon-tw: &icon-tw "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Taiwan.png"
-  icon-other: &icon-other "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Airport.png"
-  icon-direct: &icon-direct "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Direct.png"
-  icon-final: &icon-final "https://cdn.jsdelivr.net/gh/Koolson/Qure@master/IconSet/Color/Final.png"
   node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场(?!节点)|订阅|通知|频道|过期|Traffic|Expire"
   filter-self: &filter-self "(?i)自建|^(私人|VPS|SELF)[-_ ]?"
   filter-hk: &filter-hk "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)"
@@ -139,7 +122,6 @@ proxy-groups:
     type: select
     include-all: true
     exclude-filter: *node-exclude
-    icon: *icon-rocket
     proxies:
       - 自动测速
       - 故障转移
@@ -156,17 +138,13 @@ proxy-groups:
       - DIRECT
   - name: 自动测速
     <<: *url-test
-    icon: *icon-auto
   - name: 故障转移
     <<: *fallback
-    icon: *icon-fallback
   - name: 自建节点
     <<: *fallback
     filter: *filter-self
-    icon: *icon-self
   - name: 机场故转
     <<: *airport-fallback
-    icon: *icon-airport
   - name: 自建优先
     type: fallback
     proxies:
@@ -178,10 +156,8 @@ proxy-groups:
     timeout: 1500
     max-failed-times: 2
     lazy: true
-    icon: *icon-fallback
   - name: 机场节点
     type: select
-    icon: *icon-airport
     default-selected: 香港节点
     proxies:
       - 香港节点
@@ -192,53 +168,42 @@ proxy-groups:
       - 其他节点
   - name: AI
     type: select
-    icon: *icon-ai
     proxies: *proxy-options
   - name: 流媒体
     type: select
-    icon: *icon-streaming
     proxies: *proxy-options
   - name: 游戏平台
     type: select
-    icon: *icon-game
     proxies: *proxy-options
   - name: Telegram
     type: select
-    icon: *icon-telegram
     proxies: *proxy-options
   - name: 香港节点
     <<: *url-test
     filter: *filter-hk
     exclude-filter: *filter-self
-    icon: *icon-hk
   - name: 美国节点
     <<: *url-test
     filter: *filter-us
     exclude-filter: *filter-self
-    icon: *icon-us
   - name: 日本节点
     <<: *url-test
     filter: *filter-jp
     exclude-filter: *filter-self
-    icon: *icon-jp
   - name: 新加坡节点
     <<: *url-test
     filter: *filter-sg
     exclude-filter: *filter-self
-    icon: *icon-sg
   - name: 台湾节点
     <<: *url-test
     filter: *filter-tw
     exclude-filter: *filter-self
-    icon: *icon-tw
   - name: 其他节点
     type: select
     include-all: true
     exclude-filter: *other-region-exclude
-    icon: *icon-other
   - name: 全球直连
     type: select
-    icon: *icon-direct
     proxies:
       - DIRECT
       - 节点选择
@@ -246,7 +211,6 @@ proxy-groups:
       - 故障转移
   - name: 漏网之鱼
     type: select
-    icon: *icon-final
     proxies: *proxy-options
 
 rule-anchor:
