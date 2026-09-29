@@ -69,22 +69,22 @@ group-anchor:
     type: url-test
     include-all: true
     exclude-filter: *node-exclude
-    url: https://www.gstatic.com/generate_204
+    url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 60
-    timeout: 1500
-    max-failed-times: 2
+    interval: 30
+    timeout: 1000
+    max-failed-times: 1
     tolerance: 50
     lazy: true
   fallback: &fallback
     type: fallback
     include-all: true
     exclude-filter: *node-exclude
-    url: https://www.gstatic.com/generate_204
+    url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 60
-    timeout: 1500
-    max-failed-times: 2
+    interval: 30
+    timeout: 1000
+    max-failed-times: 1
     lazy: true
   airport-fallback: &airport-fallback
     type: fallback
@@ -95,11 +95,11 @@ group-anchor:
       - 美国节点
       - 台湾节点
       - 其他节点
-    url: https://www.gstatic.com/generate_204
+    url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 60
-    timeout: 1500
-    max-failed-times: 2
+    interval: 30
+    timeout: 1000
+    max-failed-times: 1
     lazy: true
   proxy-options: &proxy-options
     - 节点选择
@@ -143,6 +143,7 @@ proxy-groups:
   - name: 自建节点
     <<: *fallback
     filter: *filter-self
+    interval: 10
   - name: 机场故转
     <<: *airport-fallback
   - name: 自建优先
@@ -150,11 +151,11 @@ proxy-groups:
     proxies:
       - 自建节点
       - 机场故转
-    url: https://www.gstatic.com/generate_204
+    url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 60
-    timeout: 1500
-    max-failed-times: 2
+    interval: 10
+    timeout: 1000
+    max-failed-times: 1
     lazy: true
   - name: 机场节点
     type: select
