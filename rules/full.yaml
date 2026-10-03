@@ -57,7 +57,7 @@ sniffer:
     - "+.push.apple.com"
 
 group-anchor:
-  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场(?!节点|故转|延迟)|订阅|通知|频道|过期|Traffic|Expire"
+  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场(?!节点|故转)|订阅|通知|频道|过期|Traffic|Expire"
   filter-self: &filter-self "(?i)自建|^(私人|VPS|SELF)[-_ ]?"
   filter-hk: &filter-hk "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)"
   filter-us: &filter-us "(?i)🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)"
@@ -110,7 +110,6 @@ group-anchor:
     - 自建优先
     - 机场故转
     - 自建节点
-    - 机场延迟
     - 香港节点
     - 美国节点
     - 日本节点
@@ -127,14 +126,14 @@ proxy-groups:
     proxies:
       - 自动测速
       - 故障转移
-      - 自建优先
       - 机场故转
+      - 自建优先
       - 自建节点
-      - 机场延迟
       - 香港节点
-      - 美国节点
-      - 日本节点
       - 新加坡节点
+      - 日本节点
+      - 美国节点
+      - 澳门节点
       - 台湾节点
       - 其他节点
       - DIRECT
@@ -142,10 +141,6 @@ proxy-groups:
     <<: *url-test
   - name: 故障转移
     <<: *fallback
-  - name: 自建节点
-    <<: *fallback
-    filter: *filter-self
-    interval: 10
   - name: 机场故转
     <<: *airport-fallback
   - name: 自建优先
@@ -159,16 +154,10 @@ proxy-groups:
     timeout: 1000
     max-failed-times: 1
     lazy: true
-  - name: 机场延迟
-    <<: *url-test
-    proxies:
-      - 香港节点
-      - 澳门节点
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 台湾节点
-      - 其他节点
+  - name: 自建节点
+    <<: *fallback
+    filter: *filter-self
+    interval: 10
   - name: AI
     type: select
     proxies: *proxy-options
@@ -185,21 +174,21 @@ proxy-groups:
     <<: *url-test
     filter: *filter-hk
     exclude-filter: *filter-self
-  - name: 澳门节点
+  - name: 新加坡节点
     <<: *url-test
-    filter: *filter-mo
-    exclude-filter: *filter-self
-  - name: 美国节点
-    <<: *url-test
-    filter: *filter-us
+    filter: *filter-sg
     exclude-filter: *filter-self
   - name: 日本节点
     <<: *url-test
     filter: *filter-jp
     exclude-filter: *filter-self
-  - name: 新加坡节点
+  - name: 美国节点
     <<: *url-test
-    filter: *filter-sg
+    filter: *filter-us
+    exclude-filter: *filter-self
+  - name: 澳门节点
+    <<: *url-test
+    filter: *filter-mo
     exclude-filter: *filter-self
   - name: 台湾节点
     <<: *url-test
