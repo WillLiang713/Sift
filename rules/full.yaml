@@ -63,8 +63,9 @@ group-anchor:
   filter-us: &filter-us "(?i)🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)"
   filter-jp: &filter-jp "(?i)🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|Japan|Tokyo|Osaka|(^|[^A-Za-z])(JP|NRT|HND|KIX|CTS|FUK)([^A-Za-z]|$)"
   filter-sg: &filter-sg "(?i)🇸🇬|Singapore|新加坡|狮城|(^|[^A-Za-z])(SG|SGP|SIN)([^A-Za-z]|$)"
+  filter-mo: &filter-mo "(?i)🇲🇴|澳門|澳门|Macau|Macao|(^|[^A-Za-z])(MO|MAC)([^A-Za-z]|$)"
   filter-tw: &filter-tw "(?i)🇹🇼|台|臺|台湾|台灣|臺灣|新北|高雄|Taiwan|Taipei|Kaohsiung|Taichung|(^|[^A-Za-z])(TW|TPE|TSA|KHH|RMQ)([^A-Za-z]|$)"
-  other-region-exclude: &other-region-exclude "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)|🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|Japan|Tokyo|Osaka|(^|[^A-Za-z])(JP|NRT|HND|KIX|CTS|FUK)([^A-Za-z]|$)|🇸🇬|Singapore|新加坡|狮城|(^|[^A-Za-z])(SG|SGP|SIN)([^A-Za-z]|$)|🇹🇼|台|臺|台湾|台灣|臺灣|新北|高雄|Taiwan|Taipei|Kaohsiung|Taichung|(^|[^A-Za-z])(TW|TPE|TSA|KHH|RMQ)([^A-Za-z]|$)|自建|^(私人|VPS|SELF)[-_ ]?"
+  other-region-exclude: &other-region-exclude "(?i)🇭🇰|港|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)|🇺🇸|美|美国|United ?States|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|Portland|Dallas|Oregon|Phoenix|Fremont|Silicon Valley|Las Vegas|Los Angeles|San Jose|Santa Clara|Seattle|Chicago|(^|[^A-Za-z])(US|USA|LAX|SFO|SJC|SEA|JFK|ORD|DFW|IAD|MIA|ATL)([^A-Za-z]|$)|🇯🇵|日本|川日|东京|大阪|泉日|埼玉|沪日|深日|Japan|Tokyo|Osaka|(^|[^A-Za-z])(JP|NRT|HND|KIX|CTS|FUK)([^A-Za-z]|$)|🇸🇬|Singapore|新加坡|狮城|(^|[^A-Za-z])(SG|SGP|SIN)([^A-Za-z]|$)|🇲🇴|澳門|澳门|Macau|Macao|(^|[^A-Za-z])(MO|MAC)([^A-Za-z]|$)|🇹🇼|台|臺|台湾|台灣|臺灣|新北|高雄|Taiwan|Taipei|Kaohsiung|Taichung|(^|[^A-Za-z])(TW|TPE|TSA|KHH|RMQ)([^A-Za-z]|$)|自建|^(私人|VPS|SELF)[-_ ]?"
   url-test: &url-test
     type: url-test
     include-all: true
@@ -89,10 +90,11 @@ group-anchor:
   airport-fallback: &airport-fallback
     type: fallback
     proxies:
-      - 香港节点
-      - 日本节点
       - 新加坡节点
+      - 日本节点
       - 美国节点
+      - 香港节点
+      - 澳门节点
       - 台湾节点
       - 其他节点
     url: https://cp.cloudflare.com/generate_204
@@ -108,7 +110,7 @@ group-anchor:
     - 自建优先
     - 机场故转
     - 自建节点
-    - 机场节点
+    - 机场延迟
     - 香港节点
     - 美国节点
     - 日本节点
@@ -128,7 +130,7 @@ proxy-groups:
       - 自建优先
       - 机场故转
       - 自建节点
-      - 机场节点
+      - 机场延迟
       - 香港节点
       - 美国节点
       - 日本节点
@@ -157,11 +159,11 @@ proxy-groups:
     timeout: 1000
     max-failed-times: 1
     lazy: true
-  - name: 机场节点
-    type: select
-    default-selected: 香港节点
+  - name: 机场延迟
+    <<: *url-test
     proxies:
       - 香港节点
+      - 澳门节点
       - 美国节点
       - 日本节点
       - 新加坡节点
@@ -182,6 +184,10 @@ proxy-groups:
   - name: 香港节点
     <<: *url-test
     filter: *filter-hk
+    exclude-filter: *filter-self
+  - name: 澳门节点
+    <<: *url-test
+    filter: *filter-mo
     exclude-filter: *filter-self
   - name: 美国节点
     <<: *url-test
