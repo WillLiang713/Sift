@@ -85,12 +85,12 @@ group-anchor:
   airport-fallback: &airport-fallback
     type: fallback
     proxies:
-      - 新加坡节点
-      - 日本节点
       - 美国节点
+      - 日本节点
+      - 新加坡节点
       - 香港节点
-      - 澳门节点
       - 台湾节点
+      - 澳门节点
       - 其他节点
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
