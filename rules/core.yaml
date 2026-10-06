@@ -140,6 +140,8 @@ proxy-groups:
       - DIRECT
   - name: AI
     type: select
+    include-all-proxies: true
+    exclude-filter: *node-exclude
     proxies: *ai-options
   - name: 自动测速
     <<: *url-test
