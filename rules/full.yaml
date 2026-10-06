@@ -58,7 +58,7 @@ sniffer:
     - "+.push.apple.com"
 
 group-anchor:
-  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场(?!节点|故转)|订阅|通知|频道|过期|Traffic|Expire"
+  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场(?!节点)|订阅|通知|频道|过期|Traffic|Expire"
   filter-self: &filter-self "(?i)自建|^(私人|VPS|SELF)[-_ ]?"
   filter-node: &filter-node "(?i)官网|流量|到期|剩余|邀请|返利|订阅|通知|频道|过期|Traffic|Expire|自建|^(私人|VPS|SELF)[-_ ]?"
   filter-hk: &filter-hk "(?i)🇭🇰|香港|HongKong|Hong Kong|(^|[^A-Za-z])(HK|HKG)([^A-Za-z]|$)"
@@ -91,7 +91,7 @@ group-anchor:
     max-failed-times: 2
     empty-fallback: COMPATIBLE
     lazy: true
-  airport-fallback: &airport-fallback
+  line-fallback: &line-fallback
     type: fallback
     proxies:
       - 美国节点
@@ -112,7 +112,7 @@ group-anchor:
     - 节点选择
     - 自动测速
     - 故障转移
-    - 机场故转
+    - 线路故转
     - 自建优先
     - 自建节点
     - 香港节点
@@ -132,7 +132,7 @@ proxy-groups:
     proxies:
       - 自动测速
       - 故障转移
-      - 机场故转
+      - 线路故转
       - 自建优先
       - 自建节点
       - 香港节点
@@ -147,13 +147,13 @@ proxy-groups:
     <<: *url-test
   - name: 故障转移
     <<: *fallback
-  - name: 机场故转
-    <<: *airport-fallback
+  - name: 线路故转
+    <<: *line-fallback
   - name: 自建优先
     type: fallback
     proxies:
       - 自建节点
-      - 机场故转
+      - 线路故转
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
     interval: 10
