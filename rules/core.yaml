@@ -103,6 +103,22 @@ group-anchor:
     empty-fallback: COMPATIBLE
     lazy: true
 
+  ai-options: &ai-options
+    - 节点选择
+    - 自动测速
+    - 故障转移
+    - 机场故转
+    - 自建优先
+    - 自建节点
+    - 香港节点
+    - 新加坡节点
+    - 日本节点
+    - 美国节点
+    - 澳门节点
+    - 台湾节点
+    - 其他节点
+    - DIRECT
+
 proxy-groups:
   - name: 节点选择
     type: select
@@ -122,6 +138,9 @@ proxy-groups:
       - 台湾节点
       - 其他节点
       - DIRECT
+  - name: AI
+    type: select
+    proxies: *ai-options
   - name: 自动测速
     <<: *url-test
   - name: 故障转移
@@ -189,6 +208,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/games-cn.mrs
     url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs
+  ai:
+    <<: *mrs-domain
+    path: ./ruleset/ai.mrs
+    url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/ai.mrs
   proxy:
     <<: *mrs-domain
     path: ./ruleset/proxy.mrs
@@ -210,6 +233,7 @@ rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,games-cn,DIRECT
+  - RULE-SET,ai,AI
   - RULE-SET,proxy,节点选择
   - RULE-SET,cn,DIRECT
   - RULE-SET,steam-cdn-ip,DIRECT

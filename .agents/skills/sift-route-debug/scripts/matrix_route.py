@@ -130,8 +130,8 @@ def default_expectations() -> List[Expectation]:
     """Per-template product contract.
 
     ``Sift`` is the mainland whitelist: private / games-cn / cn / cnip /
-    steam-cdn-ip and mainland IPs go direct, ``proxy`` before ``cn`` goes to
-    节点选择, everything else is proxied.
+    steam-cdn-ip and mainland IPs go direct, AI domains go to AI,
+    ``proxy`` before ``cn`` goes to 节点选择, everything else is proxied.
     ``Sift-GFW`` is the GFWlist: only the ``gfw`` set is proxied, everything
     else goes direct. ``Sift-Full`` uses DustinWin service sets plus
     steam-cdn-ip: CN Apple/Microsoft/Google/games go to 全球直连,
@@ -142,9 +142,9 @@ def default_expectations() -> List[Expectation]:
                         "cm.steampowered.com", "steamcontent.com", "st.dl.eccdnx.com",
                         "cmp1-hkg1.steamserver.net", "45.121.184.5")
     whitelist_proxy = ("play.googleapis.com", "googleapis.cn", "services.googleapis.cn",
-                       "xn--ngstr-lra8j.com",
-                       "chatgpt.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
+                       "xn--ngstr-lra8j.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
                        "store.steampowered.com", "steamcommunity.com")
+    whitelist_ai = ("chatgpt.com", "openai.com", "claude.ai")
     gfwlist_direct = ("localhost", "www.baidu.com", "www.qq.com", "www.taobao.com",
                       "www.bilibili.com", "192.168.1.1", "223.5.5.5", "8.8.8.8",
                       "googleapis.cn", "services.googleapis.cn",
@@ -183,6 +183,7 @@ def default_expectations() -> List[Expectation]:
     )
     return ([(d, [WHITELIST], {"DIRECT"}, "FAIL") for d in whitelist_direct]
             + [(d, [WHITELIST], {"节点选择"}, "FAIL") for d in whitelist_proxy]
+            + [(d, [WHITELIST], {"AI"}, "FAIL") for d in whitelist_ai]
             + [(d, [GFWLIST], {"DIRECT"}, "FAIL") for d in gfwlist_direct]
             + [(d, [GFWLIST], {"节点选择"}, "FAIL") for d in gfwlist_proxy]
             + [(d, [FULL], {policy}, "FAIL") for d, policy in full_groups])
