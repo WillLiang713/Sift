@@ -82,23 +82,6 @@ group-anchor:
     max-failed-times: 2
     empty-fallback: COMPATIBLE
     lazy: true
-  line-fallback: &line-fallback
-    type: fallback
-    proxies:
-      - 美国节点
-      - 日本节点
-      - 新加坡节点
-      - 香港节点
-      - 台湾节点
-      - 澳门节点
-      - 其他节点
-    url: https://cp.cloudflare.com/generate_204
-    expected-status: 204
-    interval: 30
-    timeout: 3000
-    max-failed-times: 2
-    empty-fallback: COMPATIBLE
-    lazy: true
 
 proxy-groups:
   - name: 节点选择
@@ -108,7 +91,6 @@ proxy-groups:
     proxies:
       - 自动测速
       - 故障转移
-      - 线路故转
       - 自建优先
       - 自建节点
       - 香港节点
@@ -123,13 +105,11 @@ proxy-groups:
     <<: *url-test
   - name: 故障转移
     <<: *fallback
-  - name: 线路故转
-    <<: *line-fallback
   - name: 自建优先
     type: fallback
     proxies:
       - 自建节点
-      - 线路故转
+      - 美国节点
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
     interval: 10
