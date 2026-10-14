@@ -1,4 +1,4 @@
-ipv6: true
+ipv6: false
 unified-delay: true
 tcp-concurrent: true
 
@@ -16,7 +16,7 @@ dns:
   enable: true
   cache-algorithm: arc
   prefer-h3: false
-  ipv6: true
+  ipv6: false
   listen: ":53"
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
