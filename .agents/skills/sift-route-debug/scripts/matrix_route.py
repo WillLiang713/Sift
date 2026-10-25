@@ -126,11 +126,11 @@ ALL = list(TEMPLATES.keys())
 Expectation = Tuple[str, Sequence[str], Set[str], str]
 
 
-def default_expectations() -> List[Expectation]:
+def default_expectations() -> Sequence[Expectation]:
     """Per-template product contract.
 
     ``Sift`` is the mainland whitelist: private / games-cn / cn / cnip /
-    steam-cdn-ip and mainland IPs go direct, AI domains go to AI,
+    steam-cdn-ip and mainland IPs go direct, AI domains fall through to 节点选择,
     ``proxy`` before ``cn`` goes to 节点选择, everything else is proxied.
     ``Sift-GFW`` is the GFWlist: only the ``gfw`` set is proxied, everything
     else goes direct. ``Sift-Full`` uses DustinWin service sets plus
@@ -183,7 +183,7 @@ def default_expectations() -> List[Expectation]:
     )
     return ([(d, [WHITELIST], {"DIRECT"}, "FAIL") for d in whitelist_direct]
             + [(d, [WHITELIST], {"节点选择"}, "FAIL") for d in whitelist_proxy]
-            + [(d, [WHITELIST], {"AI"}, "FAIL") for d in whitelist_ai]
+            + [(d, [WHITELIST], {"节点选择"}, "FAIL") for d in whitelist_ai]
             + [(d, [GFWLIST], {"DIRECT"}, "FAIL") for d in gfwlist_direct]
             + [(d, [GFWLIST], {"节点选择"}, "FAIL") for d in gfwlist_proxy]
             + [(d, [FULL], {policy}, "FAIL") for d, policy in full_groups])
