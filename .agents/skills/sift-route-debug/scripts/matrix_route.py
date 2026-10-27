@@ -130,12 +130,13 @@ def default_expectations() -> Sequence[Expectation]:
     """Per-template product contract.
 
     ``Sift`` is the mainland whitelist: private / games-cn / cn / cnip /
-    steam-cdn-ip and mainland IPs go direct, AI domains fall through to 节点选择,
-    ``proxy`` before ``cn`` goes to 节点选择, everything else is proxied.
-    ``Sift-GFW`` is the GFWlist: only the ``gfw`` set is proxied, everything
-    else goes direct. ``Sift-Full`` uses DustinWin service sets plus
-    steam-cdn-ip: CN Apple/Microsoft/Google/games go to 全球直连,
-    AI/media/games/Telegram-IP to theirs, ``proxy`` to 节点选择, MATCH to 漏网之鱼.
+    steam-cdn-domain / steam-cdn-ip and mainland IPs go direct, telegram domain
+    and ``proxy`` go to 节点选择 (telegram before cn), AI fall through to 节点选择,
+    everything else is proxied. ``Sift-GFW`` proxies ``telegram`` + ``gfw``,
+    everything else goes direct. ``Sift-Full`` uses DustinWin service sets plus
+    steam-cdn-domain/ip and custom-direct-domain: CN Apple/Microsoft/Google/games
+    go to 全球直连, AI/media/games/Telegram(+IP) to theirs, ``proxy`` to 节点选择,
+    MATCH to 漏网之鱼.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
@@ -143,7 +144,7 @@ def default_expectations() -> Sequence[Expectation]:
                         "cmp1-hkg1.steamserver.net", "45.121.184.5")
     whitelist_proxy = ("play.googleapis.com", "googleapis.cn", "services.googleapis.cn",
                        "xn--ngstr-lra8j.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
-                       "store.steampowered.com", "steamcommunity.com")
+                       "store.steampowered.com", "steamcommunity.com", "web.telegram.org")
     whitelist_ai = ("chatgpt.com", "openai.com", "claude.ai")
     gfwlist_direct = ("localhost", "www.baidu.com", "www.qq.com", "www.taobao.com",
                       "www.bilibili.com", "192.168.1.1", "223.5.5.5", "8.8.8.8",
@@ -152,7 +153,7 @@ def default_expectations() -> Sequence[Expectation]:
                       "cm.steampowered.com", "steamcontent.com", "steamserver.net")
     gfwlist_proxy = ("www.google.com", "play.googleapis.com", "github.com", "chatgpt.com",
                      "openai.com", "www.youtube.com", "x.com", "discord.com",
-                     "store.steampowered.com", "steamcommunity.com")
+                     "store.steampowered.com", "steamcommunity.com", "web.telegram.org")
     full_groups = (
         ("localhost", "DIRECT"),
         ("www.baidu.com", "全球直连"),
@@ -173,7 +174,7 @@ def default_expectations() -> Sequence[Expectation]:
         ("www.youtube.com", "流媒体"),
         ("chatgpt.com", "AI"),
         ("github.com", "节点选择"),
-        ("web.telegram.org", "节点选择"),
+        ("web.telegram.org", "Telegram"),
         ("icloud.com", "节点选择"),
         ("office.com", "节点选择"),
         ("x.com", "节点选择"),
@@ -459,9 +460,9 @@ def main() -> int:
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
     print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - Sift is the mainland whitelist: private / games-cn / cn / cnip / steam-cdn-ip direct, proxy before cn, rest proxied.")
+    print("  - Sift is the mainland whitelist: private / games-cn / cn / cnip / steam-cdn-domain+ip direct, telegram+proxy before cn, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
-    print("  - Sift-Full uses DustinWin service sets plus steam-cdn-ip; CN Apple/Microsoft/Google/games go to 全球直连, MATCH to 漏网之鱼.")
+    print("  - Sift-Full uses DustinWin service sets plus steam-cdn-domain/ip; CN Apple/Microsoft/Google/games go to 全球直连, Telegram domain before proxy, MATCH to 漏网之鱼.")
     print("  - Steam download path: cm.steampowered.com / steamserver.net pick the region, steamcontent.com carries the payload.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:

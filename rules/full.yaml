@@ -22,6 +22,7 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: rule
   fake-ip-filter:
+    - RULE-SET,fakeip-filter,real-ip
     - RULE-SET,private,real-ip
     - RULE-SET,apple-cn,real-ip
     - RULE-SET,microsoft-cn,real-ip
@@ -33,6 +34,9 @@ dns:
     "rule-set:proxy": *overseas-dns
     "rule-set:cn,private,apple-cn,microsoft-cn,google-cn,games-cn": *domestic-dns
   respect-rules: true
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
   proxy-server-nameserver: *domestic-dns
   nameserver: *overseas-dns
 
@@ -210,6 +214,10 @@ rule-anchor:
   mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
 rule-providers:
+  fakeip-filter:
+    <<: *mrs-domain
+    path: ./ruleset/fakeip-filter.mrs
+    url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.mrs"
   private:
     <<: *mrs-domain
     path: ./ruleset/private.mrs
@@ -234,6 +242,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/games-cn.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games-cn.mrs"
+  steam-cdn-domain:
+    <<: *mrs-domain
+    path: ./ruleset/steam-cdn-domain.mrs
+    url: "https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Steam_CDN_Domain.mrs"
   steam-cdn-ip:
     <<: *mrs-ip
     path: ./ruleset/steam-cdn-ip.mrs
@@ -254,6 +266,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/games.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/games.mrs"
+  telegram:
+    <<: *mrs-domain
+    path: ./ruleset/telegram.mrs
+    url: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs"
   telegramip:
     <<: *mrs-ip
     path: ./ruleset/telegramip.mrs
@@ -266,6 +282,10 @@ rule-providers:
     <<: *mrs-ip
     path: ./ruleset/cnip.mrs
     url: "https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/cnip.mrs"
+  custom-direct-domain:
+    <<: *mrs-domain
+    path: ./ruleset/custom-direct-domain.mrs
+    url: "https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.mrs"
   cn:
     <<: *mrs-domain
     path: ./ruleset/cn.mrs
@@ -281,10 +301,13 @@ rules:
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台
   - RULE-SET,media,流媒体
+  - RULE-SET,telegram,Telegram
   - RULE-SET,proxy,节点选择
+  - RULE-SET,custom-direct-domain,全球直连
   - RULE-SET,cn,全球直连
   - RULE-SET,mediaip,流媒体
   - RULE-SET,telegramip,Telegram
+  - RULE-SET,steam-cdn-domain,全球直连
   - RULE-SET,steam-cdn-ip,全球直连
   - RULE-SET,cnip,全球直连
   - MATCH,漏网之鱼
