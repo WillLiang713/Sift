@@ -15,6 +15,7 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: rule
   fake-ip-filter:
+    - RULE-SET,fakeip-filter,real-ip
     - RULE-SET,private,real-ip
     - RULE-SET,games-cn,real-ip
     - RULE-SET,proxy,fake-ip
@@ -22,6 +23,9 @@ dns:
     - MATCH,fake-ip
   prefer-h3: false
   respect-rules: true
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
   proxy-server-nameserver:
     - https://223.5.5.5/dns-query
   nameserver:
@@ -96,6 +100,10 @@ rule-anchor:
   ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
 rule-providers:
+  fakeip-filter:
+    <<: *mrs-domain
+    path: ./ruleset/fakeip-filter.mrs
+    url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.mrs
   private:
     <<: *mrs-domain
     path: ./ruleset/private.mrs
@@ -112,10 +120,22 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/proxy.mrs
     url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/proxy.mrs
+  telegram:
+    <<: *mrs-domain
+    path: ./ruleset/telegram.mrs
+    url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs
+  steam-cdn-domain:
+    <<: *mrs-domain
+    path: ./ruleset/steam-cdn-domain.mrs
+    url: https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Steam_CDN_Domain.mrs
   steam-cdn-ip:
     <<: *mrs-ip
     path: ./ruleset/steam-cdn-ip.mrs
     url: https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Steam_CDN_IP.mrs
+  custom-direct-domain:
+    <<: *mrs-domain
+    path: ./ruleset/custom-direct-domain.mrs
+    url: https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.mrs
   cn:
     <<: *mrs-domain
     path: ./ruleset/cn.mrs
@@ -129,8 +149,11 @@ rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,games-cn,DIRECT
+  - RULE-SET,telegram,节点选择
   - RULE-SET,proxy,节点选择
+  - RULE-SET,custom-direct-domain,DIRECT
   - RULE-SET,cn,DIRECT
+  - RULE-SET,steam-cdn-domain,DIRECT
   - RULE-SET,steam-cdn-ip,DIRECT
   - RULE-SET,cnip,DIRECT
   - MATCH,节点选择
