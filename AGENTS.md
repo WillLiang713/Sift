@@ -2,6 +2,10 @@
 
 Sift 维护三档 Mihomo 无节点分流模板：`rules/core.yaml`（大陆白名单）、`rules/gfwlist.yaml`（GFWlist）与 `rules/full.yaml`（完整服务组）。用户文档以 README.md 为准。
 
+## 策略组（Stash 兼容）
+
+「节点选择」不要同时写 `include-all` 与嵌套策略组：Stash iOS 会压掉嵌套选项。手选节点放到独立的「全部节点」select（`include-all`）；「自动测速」「故障转移」继续各自 `include-all`。
+
 ## 规则集格式（MRS）
 
 - **尽可能使用 MRS**（`format: mrs`）作为 rule-provider 交付格式，优先于 `.list` / classical 文本集，以降低加载体积与匹配开销、保证性能。
@@ -17,7 +21,7 @@ Sift 维护三档 Mihomo 无节点分流模板：`rules/core.yaml`（大陆白�
 - 保留 include-all 与信息节点 exclude-filter；健康检查默认 interval 60、timeout 3000、expected-status 204、max-failed-times 2、lazy true。
 - 开启嗅探（HTTP / TLS / QUIC）；不提交节点、订阅或密钥。
 
-`core.yaml` / `gfwlist.yaml`：策略组保持精简（节点选择 / 自动测速 / 故障转移），不恢复品牌独立组。
+`core.yaml` / `gfwlist.yaml`：策略组保持精简（节点选择 / 自动测速 / 故障转移 / 全部节点），不恢复品牌独立组。
 
 `full.yaml`：可有服务组与地区组；`apple-cn` / `microsoft-cn` / `google-cn` / `games-cn` → 全球直连。
 

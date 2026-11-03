@@ -84,16 +84,19 @@ group-anchor:
 proxy-groups:
   - name: 节点选择
     type: select
-    include-all: true
-    exclude-filter: *node-exclude
     proxies:
       - 自动测速
       - 故障转移
+      - 全部节点
       - DIRECT
   - name: 自动测速
     <<: *url-test
   - name: 故障转移
     <<: *fallback
+  - name: 全部节点
+    type: select
+    include-all: true
+    exclude-filter: *node-exclude
 
 rule-anchor:
   domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
