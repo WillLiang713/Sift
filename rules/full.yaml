@@ -119,13 +119,12 @@ group-anchor:
     - 澳门节点
     - 台湾节点
     - 其他节点
+    - 全部节点
     - DIRECT
 
 proxy-groups:
   - name: 节点选择
     type: select
-    include-all: true
-    exclude-filter: *node-exclude
     proxies:
       - 自动测速
       - 故障转移
@@ -138,11 +137,16 @@ proxy-groups:
       - 澳门节点
       - 台湾节点
       - 其他节点
+      - 全部节点
       - DIRECT
   - name: 自动测速
     <<: *url-test
   - name: 故障转移
     <<: *fallback
+  - name: 全部节点
+    type: select
+    include-all: true
+    exclude-filter: *node-exclude
   - name: 自建优先
     type: fallback
     proxies:
