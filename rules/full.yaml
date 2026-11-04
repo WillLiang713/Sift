@@ -101,11 +101,11 @@ group-anchor:
     exclude-filter: *node-exclude
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 60
-    timeout: 3000
-    max-failed-times: 2
+    interval: 30
+    timeout: 2000
+    max-failed-times: 1
     empty-fallback: COMPATIBLE
-    lazy: true
+    lazy: false
   proxy-options: &proxy-options
     - 节点选择
     - 自动测速
@@ -154,14 +154,13 @@ proxy-groups:
       - 美国节点
     url: https://cp.cloudflare.com/generate_204
     expected-status: 204
-    interval: 60
-    timeout: 3000
-    max-failed-times: 2
-    lazy: true
+    interval: 30
+    timeout: 2000
+    max-failed-times: 1
+    lazy: false
   - name: 自建节点
     <<: *fallback
     filter: *filter-self
-    interval: 60
   - name: AI
     type: select
     proxies: *proxy-options

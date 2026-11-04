@@ -18,7 +18,7 @@ Sift 维护三档 Mihomo 无节点分流模板：`rules/core.yaml`（大陆白�
 三档共用：
 
 - 规则主源仍以 DustinWin 为主；Aethersailor / MetaCubeX 等仅作窄补充（如 Custom Direct、Steam CDN、Telegram 域名）。
-- 保留 include-all 与信息节点 exclude-filter；健康检查默认 interval 60、timeout 3000、expected-status 204、max-failed-times 2、lazy true。
+- 保留 include-all 与信息节点 exclude-filter；url-test/自动测速健康检查默认 interval 60、timeout 3000、expected-status 204、max-failed-times 2、lazy true；fallback/故障转移默认 interval 30、timeout 2000、expected-status 204、max-failed-times 1、lazy false。
 - 开启嗅探（HTTP / TLS / QUIC）；不提交节点、订阅或密钥。
 
 `core.yaml` / `gfwlist.yaml`：策略组保持精简（节点选择 / 自动测速 / 故障转移 / 全部节点），不恢复品牌独立组。
