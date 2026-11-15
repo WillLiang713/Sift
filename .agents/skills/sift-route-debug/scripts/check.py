@@ -5,16 +5,20 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 from typing import List
 
-import validate_configs as vc
+sys.dont_write_bytecode = True
+
+import validate_configs as vc  # noqa: E402
 
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 SCRIPTS = Path(__file__).resolve().parent
+TESTS = SCRIPTS.parent / "tests"
 
 
 def run(label: str, command: List[str], env: dict[str, str], concise: bool = False) -> bool:
@@ -35,7 +39,7 @@ def run(label: str, command: List[str], env: dict[str, str], concise: bool = Fal
             print(output.rstrip())
         else:
             for line in output.splitlines():
-                if line.startswith("SUMMARY:") or line == "PASS":
+                if line.startswith(("SUMMARY:", "Ran ")) or line in {"PASS", "OK"}:
                     print(line)
     return result.returncode == 0
 
@@ -63,6 +67,18 @@ def main() -> int:
     config_command = python + [str(SCRIPTS / "validate_configs.py"), "--mihomo", str(binary)]
     if not run("Mihomo config loading", config_command, env):
         return 1
+
+    unit_command = python + ["-m", "unittest", "discover", "-q", "-s", str(TESTS)]
+    if not run("Python unit tests", unit_command, env, concise=True):
+        return 1
+
+    node = shutil.which("node")
+    if node:
+        node_command = [node, "--test", str(TESTS / "test_dump_mrs.mjs")]
+        if not run("MRS decoder tests", node_command, env):
+            return 1
+    else:
+        print("\n## MRS decoder tests\n[SKIP] node not found on PATH")
 
     route_command = python + [str(SCRIPTS / "matrix_route.py")]
     if not args.quick:

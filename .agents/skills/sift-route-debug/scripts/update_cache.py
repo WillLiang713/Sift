@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Download route-debug cache from URLs declared in Sift templates.
 
-Collects rule-provider and geox-url sources across all given templates,
+Collects rule-provider sources across all given templates,
 deduplicates by URL, then downloads (and decodes MRS) in parallel.
 """
 
@@ -14,7 +14,6 @@ import json
 import os
 import shutil
 import subprocess
-import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
@@ -53,7 +52,6 @@ def clean_value(value: str) -> str:
 
 def parse_template(path: Path) -> Dict[str, object]:
     providers: Dict[str, Dict[str, str]] = {}
-    geox: Dict[str, str] = {}
     used_providers = set()
     section: Optional[str] = None
     provider: Optional[str] = None
@@ -68,11 +66,6 @@ def parse_template(path: Path) -> Dict[str, object]:
             if line and not line.startswith(" ") and not line.startswith("- ") and ":" in line:
                 section = line.split(":", 1)[0].strip()
                 provider = None
-                continue
-
-            if section == "geox-url" and line.startswith("  ") and ":" in line:
-                key, value = line.strip().split(":", 1)
-                geox[key.strip()] = clean_value(value)
                 continue
 
             if section == "rule-providers":
@@ -98,7 +91,7 @@ def parse_template(path: Path) -> Dict[str, object]:
                 if len(parts) >= 2 and parts[0].upper() == "RULE-SET":
                     used_providers.add(parts[1])
 
-    return {"providers": providers, "geox": geox, "used_providers": used_providers}
+    return {"providers": providers, "used_providers": used_providers}
 
 
 def cache_key(url: str) -> str:
@@ -197,9 +190,8 @@ def point_manifest_to_text(manifest_path: Path, source: Path, text: Path) -> Non
     )
 
 
-def iter_sources(parsed: Dict[str, object]) -> Iterable[Tuple[str, str, str, str, str]]:
+def iter_sources(parsed: Dict[str, object]) -> Iterable[Tuple[str, str, str, str]]:
     providers: Dict[str, Dict[str, str]] = parsed["providers"]  # type: ignore[assignment]
-    geox: Dict[str, str] = parsed["geox"]  # type: ignore[assignment]
     used_providers = parsed["used_providers"]  # type: ignore[assignment]
 
     for name, data in sorted(providers.items()):
@@ -208,12 +200,7 @@ def iter_sources(parsed: Dict[str, object]) -> Iterable[Tuple[str, str, str, str
         url = data.get("url", "")
         if url:
             source_format = "mrs" if is_mrs_source(data, url) else data.get("format", "")
-            yield ("ruleset", name, url, data.get("behavior", ""), source_format)
-
-    for name in ("geosite", "geoip", "mmdb"):
-        url = geox.get(name, "")
-        if url:
-            yield ("geo", name, url, "", "")
+            yield (name, url, data.get("behavior", ""), source_format)
 
 
 @dataclass
@@ -253,7 +240,7 @@ def resolve_template(template_arg: str) -> Path:
 
 
 def collect_jobs(templates: Sequence[Path]) -> Tuple[List[CacheJob], List[str]]:
-    """Deduplicate sources by (kind, url). Return jobs and empty-template warnings."""
+    """Deduplicate sources by URL. Return jobs and empty-template warnings."""
     by_key: Dict[Tuple[str, str], CacheJob] = {}
     empty: List[str] = []
 
@@ -263,12 +250,12 @@ def collect_jobs(templates: Sequence[Path]) -> Tuple[List[CacheJob], List[str]]:
         if not sources:
             empty.append(rel)
             continue
-        for kind, name, url, behavior, source_format in sources:
-            key = (kind, url)
+        for name, url, behavior, source_format in sources:
+            key = ("ruleset", url)
             job = by_key.get(key)
             if job is None:
                 by_key[key] = CacheJob(
-                    kind=kind,
+                    kind="ruleset",
                     url=url,
                     behavior=behavior,
                     source_format=source_format,
@@ -293,7 +280,7 @@ def collect_jobs(templates: Sequence[Path]) -> Tuple[List[CacheJob], List[str]]:
 def process_job(job: CacheJob, cache_dir: Path, force: bool) -> JobResult:
     primary = job.names[0] if job.names else "asset"
     key = cache_key(job.url)
-    filename = filename_from_url(job.url, f"{primary}.dat" if job.kind == "geo" else f"{primary}.list")
+    filename = filename_from_url(job.url, f"{primary}.list")
     dest = cache_dir / job.kind / key / filename
     manifest = cache_dir / job.kind / key / "manifest.json"
     try:
@@ -389,7 +376,7 @@ def main() -> int:
 
     jobs, empty = collect_jobs(templates)
     for rel in empty:
-        print(f"[WARN] no cacheable rule/geox URLs in {rel}")
+        print(f"[WARN] no cacheable rule URLs in {rel}")
 
     if not jobs:
         print("[WARN] no cacheable sources found")

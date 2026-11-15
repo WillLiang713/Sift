@@ -127,10 +127,6 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/telegram.mrs
     url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs
-  steam-cdn-domain:
-    <<: *mrs-domain
-    path: ./ruleset/steam-cdn-domain.mrs
-    url: https://cdn.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Steam_CDN_Domain.mrs
   steam-cdn-ip:
     <<: *mrs-ip
     path: ./ruleset/steam-cdn-ip.mrs
@@ -151,12 +147,11 @@ rule-providers:
 rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
+  - RULE-SET,custom-direct-domain,DIRECT
   - RULE-SET,games-cn,DIRECT
   - RULE-SET,telegram,节点选择
   - RULE-SET,proxy,节点选择
-  - RULE-SET,custom-direct-domain,DIRECT
   - RULE-SET,cn,DIRECT
-  - RULE-SET,steam-cdn-domain,DIRECT
   - RULE-SET,steam-cdn-ip,DIRECT
   - RULE-SET,cnip,DIRECT
   - MATCH,节点选择

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Regression matrix: first-match domain routes for all Sift templates under rules/.
 
-Uses template-declared providers / geox-url only (via explain_route helpers).
-Domain-only diagnosis: GEOIP rules and providers with behavior ipcidr are
+Uses template-declared providers only (via explain_route helpers).
+Domain-only diagnosis: providers with behavior ipcidr are
 skipped for domain input.
 
 Exit 0 if all FAIL-level expectations pass; exit 1 on any FAIL.
@@ -11,18 +11,11 @@ Exit 0 if all FAIL-level expectations pass; exit 1 on any FAIL.
 from __future__ import annotations
 
 import argparse
-import concurrent.futures
-import hashlib
-import json
 import os
-import platform
-import shutil
-import stat
 import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Set, Tuple
-from urllib.request import Request, urlopen
 
 # scripts/ -> sift-route-debug -> skills -> .agents -> repo root
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -33,8 +26,6 @@ import explain_route as er  # noqa: E402
 
 DEFAULT_CACHE = REPO_ROOT / ".cache" / "sift-route-debug"
 UPDATE_CACHE = SCRIPTS / "update_cache.py"
-GEO_VERSION = "v1.1"
-GEO_RELEASE_API = "https://api.github.com/repos/MetaCubeX/geo/releases/tags/{version}"
 
 
 def utf8_python_env() -> Dict[str, str]:
@@ -69,6 +60,7 @@ DEFAULT_DOMAINS: List[str] = [
     "cm.steampowered.com",
     "steamcontent.com",
     "steamserver.net",
+    "steamcdn-a.akamaihd.net",
     "st.dl.eccdnx.com",
     "store.steampowered.com",
     "steamcommunity.com",
@@ -90,6 +82,7 @@ DEFAULT_DOMAINS: List[str] = [
     "www.tiktok.com",
     "www.twitch.tv",
     "www.hulu.com",
+    "iq.com",
     "www.apple.com",
     "icloud.com",
     "www.microsoft.com",
@@ -104,6 +97,8 @@ DEFAULT_DOMAINS: List[str] = [
     "www.qq.com",
     "www.taobao.com",
     "www.bilibili.com",
+    "adobe.com",
+    "pool.ntp.org",
     "services.googleapis.cn",
     "192.168.1.1",
     "223.5.5.5",
@@ -122,26 +117,26 @@ SHORT = {
     "AI": "AI",
 }
 
-ALL = list(TEMPLATES.keys())
 Expectation = Tuple[str, Sequence[str], Set[str], str]
 
 
 def default_expectations() -> Sequence[Expectation]:
     """Per-template product contract.
 
-    ``Sift`` is the mainland whitelist: private / games-cn / cn / cnip /
-    steam-cdn-domain / steam-cdn-ip and mainland IPs go direct, telegram domain
-    and ``proxy`` go to 节点选择 (telegram before cn), AI fall through to 节点选择,
-    everything else is proxied. ``Sift-GFW`` proxies ``telegram`` + ``gfw``,
-    everything else goes direct. ``Sift-Full`` uses DustinWin service sets plus
-    steam-cdn-domain/ip and custom-direct-domain: CN Apple/Microsoft/Google/games
-    go to 全球直连, AI/media/games/Telegram(+IP) to theirs, ``proxy`` to 节点选择,
-    MATCH to 漏网之鱼.
+    ``Sift`` is the mainland whitelist: private / custom-direct / games-cn / cn /
+    cnip / steam-cdn-ip and mainland IPs go direct, telegram domain and ``proxy``
+    go to 节点选择 (telegram before cn), AI fall through to 节点选择, everything
+    else is proxied. ``Sift-GFW`` proxies ``telegram`` + ``gfw``, everything else
+    goes direct. ``Sift-Full`` uses DustinWin service sets plus custom-direct-domain
+    and steam-cdn-ip: Custom Direct wins over service groups, CN
+    Apple/Microsoft/Google/games go to 全球直连, AI/media/games/Telegram(+IP) to
+    theirs, ``proxy`` to 节点选择, MATCH to 漏网之鱼.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
                         "cm.steampowered.com", "steamcontent.com", "st.dl.eccdnx.com",
-                        "cmp1-hkg1.steamserver.net", "45.121.184.5")
+                        "cmp1-hkg1.steamserver.net", "45.121.184.5",
+                        "adobe.com", "pool.ntp.org", "steamcdn-a.akamaihd.net")
     whitelist_proxy = ("play.googleapis.com", "googleapis.cn", "services.googleapis.cn",
                        "xn--ngstr-lra8j.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
                        "store.steampowered.com", "steamcommunity.com", "web.telegram.org")
@@ -172,6 +167,7 @@ def default_expectations() -> Sequence[Expectation]:
         ("xn--ngstr-lra8j.com", "节点选择"),
         ("gstatic.cn", "全球直连"),
         ("www.youtube.com", "流媒体"),
+        ("iq.com", "全球直连"),
         ("chatgpt.com", "AI"),
         ("github.com", "节点选择"),
         ("web.telegram.org", "Telegram"),
@@ -181,6 +177,9 @@ def default_expectations() -> Sequence[Expectation]:
         ("discord.com", "节点选择"),
         ("8.8.8.8", "漏网之鱼"),
         ("unlisted-sift-probe-73921.com", "漏网之鱼"),
+        ("adobe.com", "全球直连"),
+        ("pool.ntp.org", "全球直连"),
+        ("steamcdn-a.akamaihd.net", "全球直连"),
     )
     return ([(d, [WHITELIST], {"DIRECT"}, "FAIL") for d in whitelist_direct]
             + [(d, [WHITELIST], {"节点选择"}, "FAIL") for d in whitelist_proxy]
@@ -191,7 +190,7 @@ def default_expectations() -> Sequence[Expectation]:
 
 
 def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> bool:
-    """Refresh rule/geox caches once for all selected templates (URL-deduped, parallel)."""
+    """Refresh rule caches once for all selected templates (URL-deduped, parallel)."""
     templates = [str(REPO_ROOT / TEMPLATES[label]) for label in labels]
     if not templates:
         return True
@@ -215,112 +214,6 @@ def update_all_caches(cache_dir: Path, labels: Sequence[str]) -> bool:
     return True
 
 
-def ensure_geo_bin(preferred: str) -> str:
-    """Return a usable geo binary, downloading the official platform build if needed."""
-    if preferred != "geo":
-        return preferred
-    installed = shutil.which("geo")
-    if installed:
-        return installed
-
-    system = platform.system().lower()
-    machine = platform.machine().lower()
-    arch = {
-        "amd64": "amd64",
-        "x86_64": "amd64",
-        "aarch64": "arm64",
-        "arm64": "arm64",
-        "i386": "386",
-        "i686": "386",
-    }.get(machine)
-    if system not in {"windows", "linux", "darwin"} or not arch:
-        return preferred
-    destination = REPO_ROOT / ".cache" / "tools" / "geo-bin" / GEO_VERSION / f"{system}-{arch}"
-    binary = destination / ("geo.exe" if system == "windows" else "geo")
-    if binary.is_file():
-        return str(binary)
-
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "User-Agent": "Sift route matrix",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    token = os.environ.get("GITHUB_TOKEN")
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    with urlopen(Request(GEO_RELEASE_API.format(version=GEO_VERSION), headers=headers), timeout=30) as response:
-        release = json.load(response)
-    assets = [asset for asset in release.get("assets", []) if isinstance(asset, dict)]
-    matches = [
-        asset
-        for asset in assets
-        if system in str(asset.get("name", "")).lower() and arch in str(asset.get("name", "")).lower()
-    ]
-    if not matches:
-        raise RuntimeError(f"geo {GEO_VERSION} has no asset for {system}/{arch}")
-    asset = matches[0]
-    destination.mkdir(parents=True, exist_ok=True)
-    temporary = binary.with_suffix(binary.suffix + ".tmp")
-    with urlopen(
-        Request(asset["browser_download_url"], headers={"User-Agent": "Sift route matrix"}),
-        timeout=120,
-    ) as response, temporary.open("wb") as output:
-        shutil.copyfileobj(response, output)
-    digest = asset.get("digest")
-    if isinstance(digest, str) and digest.startswith("sha256:"):
-        actual = hashlib.sha256(temporary.read_bytes()).hexdigest()
-        if actual.lower() != digest.removeprefix("sha256:").lower():
-            temporary.unlink(missing_ok=True)
-            raise RuntimeError("geo SHA-256 mismatch")
-    os.replace(temporary, binary)
-    binary.chmod(binary.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-    return str(binary)
-
-
-def _geosite_data_dirs(engine: er.RouteEngine, template_paths: Dict[str, Path]) -> List[Path]:
-    dirs: List[Path] = []
-    seen: Set[str] = set()
-    for path in template_paths.values():
-        template = engine.load_template(path)
-        if er.template_mode(template) != "geodata":
-            continue
-        url = template.geox.get("geosite")
-        if not url:
-            continue
-        geo_file = er.cache_file(engine.cache_dir, "geo", url)
-        if geo_file is None:
-            continue
-        key = str(geo_file.parent.resolve())
-        if key in seen:
-            continue
-        seen.add(key)
-        dirs.append(geo_file.parent)
-    return dirs
-
-
-def _warm_geo_outputs(engine: er.RouteEngine, data_dirs: Sequence[Path], domains: Sequence[str]) -> None:
-    """Prefetch MetaCubeX geo look results in parallel (shared across MC templates)."""
-    if not data_dirs or not domains:
-        return
-
-    # Resolve the working geo argv once so workers do not each try every variant.
-    first = domains[0]
-    for data_dir in data_dirs:
-        engine.geo_output(data_dir, first, no_resolve=True)
-
-    rest = list(domains[1:])
-    if not rest:
-        return
-
-    def one(domain: str) -> None:
-        for data_dir in data_dirs:
-            engine.geo_output(data_dir, domain, no_resolve=True)
-
-    workers = min(8, max(1, len(rest)))
-    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
-        list(pool.map(one, rest))
-
-
 def run_matrix(
     engine: er.RouteEngine,
     labels: Sequence[str],
@@ -339,9 +232,6 @@ def run_matrix(
             provider_file = er.resolve_provider_file(provider, engine.cache_dir)
             if provider_file is not None:
                 engine.domain_index_for(provider_file)
-
-    # MetaCubeX templates share geosite data; parallel-prefetch once per domain.
-    _warm_geo_outputs(engine, _geosite_data_dirs(engine, template_paths), domains)
 
     for domain in domains:
         row: Dict[str, Dict[str, Optional[str]]] = {}
@@ -397,11 +287,6 @@ def main() -> int:
         help="Run update_cache.py for selected templates before testing",
     )
     parser.add_argument(
-        "--geo-bin",
-        default="geo",
-        help="Geo CLI for MetaCubeX templates (default: geo on PATH or .cache/tools/geo)",
-    )
-    parser.add_argument(
         "--domain",
         action="append",
         dest="domains",
@@ -426,17 +311,12 @@ def main() -> int:
 
     labels = args.templates or list(TEMPLATES.keys())
     domains = args.domains or list(DEFAULT_DOMAINS)
-    geo_bin = (
-        ensure_geo_bin(args.geo_bin)
-        if any(label.startswith("MC-") for label in labels)
-        else args.geo_bin
-    )
 
     if args.update_cache and not update_all_caches(cache_dir, labels):
         print("FAIL")
         return 1
 
-    engine = er.RouteEngine(cache_dir, geo_bin)
+    engine = er.RouteEngine(cache_dir)
     results = run_matrix(engine, labels, domains)
 
     print("=" * 130)
@@ -459,10 +339,10 @@ def main() -> int:
     print("=" * 130)
     print(f"SUMMARY: {fails} FAIL, {warns} WARN")
     print("Notes:")
-    print("  - Domain-only diagnosis; GEOIP / pure IP providers skipped for domain probes.")
-    print("  - Sift is the mainland whitelist: private / games-cn / cn / cnip / steam-cdn-domain+ip direct, telegram+proxy before cn, rest proxied.")
+    print("  - Domain-only diagnosis; pure IP providers skipped for domain probes.")
+    print("  - Sift is the mainland whitelist: private / custom-direct / games-cn / cn / cnip / steam-cdn-ip direct, telegram+proxy before cn, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
-    print("  - Sift-Full uses DustinWin service sets plus steam-cdn-domain/ip; CN Apple/Microsoft/Google/games go to 全球直连, Telegram domain before proxy, MATCH to 漏网之鱼.")
+    print("  - Sift-Full uses DustinWin service sets plus custom-direct-domain and steam-cdn-ip; CN Apple/Microsoft/Google/games go to 全球直连, Telegram domain before proxy, MATCH to 漏网之鱼.")
     print("  - Steam download path: cm.steampowered.com / steamserver.net pick the region, steamcontent.com carries the payload.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:

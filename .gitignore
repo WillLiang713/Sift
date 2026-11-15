@@ -1,6 +1,5 @@
 .vscode
-.codex
-repo
+.claude
 .cache
 __pycache__/
 *.py[cod]
