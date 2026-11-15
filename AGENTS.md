@@ -11,6 +11,7 @@ Sift 维护三档 Mihomo 无节点分流模板：`rules/core.yaml`（大陆白�
 - **尽可能使用 MRS**（`format: mrs`）作为 rule-provider 交付格式，优先于 `.list` / classical 文本集，以降低加载体积与匹配开销、保证性能。
 - 三档模板的 domain / ipcidr 提供者默认走 MRS 锚点（如 `mrs-domain` / `mrs-ip`）；新增或更换规则源时，优先选上游已发布的 `.mrs`。
 - 仅当上游没有可用 MRS、或必须保留 classical 语义时，才允许临时使用其他格式，并在 PR 说明原因与回退计划。
+- 规则集主机统一用 `fastly.jsdelivr.net`（与 `cdn.jsdelivr.net` 同源同内容）。`cdn.jsdelivr.net` 在中国移动直连会被 RST（2026-11 实测移动探测点 0/9，换域名后 9/9），而 provider 以 `proxy: DIRECT` 拉取，不要把主机改回去。
 - 不要把「能跑」当成「可以混用格式」：同一行为的规则集，有 MRS 就不要并行引入 `.list` / classical。
 
 ## 产品合同（摘要）

@@ -103,23 +103,23 @@ rule-providers:
   fakeip-filter:
     <<: *mrs-domain
     path: ./ruleset/fakeip-filter.mrs
-    url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.mrs
+    url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.mrs
   private:
     <<: *mrs-domain
     path: ./ruleset/private.mrs
-    url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs
+    url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/private.mrs
   privateip:
     <<: *mrs-ip
     path: ./ruleset/privateip.mrs
-    url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs
+    url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs
   telegram:
     <<: *mrs-domain
     path: ./ruleset/telegram.mrs
-    url: https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs
+    url: https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/telegram.mrs
   gfw:
     <<: *mrs-domain
     path: ./ruleset/gfw.mrs
-    url: https://cdn.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.mrs
+    url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/gfw.mrs
 
 rules:
   - RULE-SET,private,DIRECT
