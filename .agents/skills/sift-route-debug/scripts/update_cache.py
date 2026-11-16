@@ -85,7 +85,7 @@ def parse_template(path: Path) -> Dict[str, object]:
                         )
                 continue
 
-            if section == "rules" and stripped.startswith("- "):
+            if stripped.startswith("- "):
                 raw_rule = strip_comment(stripped[2:]).strip()
                 parts = [part.strip() for part in raw_rule.split(",")]
                 if len(parts) >= 2 and parts[0].upper() == "RULE-SET":

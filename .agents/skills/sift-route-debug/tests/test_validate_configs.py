@@ -74,6 +74,19 @@ class ValidateConfigsTest(unittest.TestCase):
                         f"{relative} 的 {name} 使用 {host}，移动网络直连拉取不可靠",
                     )
 
+    def test_cache_collects_fake_ip_filter_provider(self) -> None:
+        templates = vc.discover_templates([])
+        for path in templates:
+            relative = path.relative_to(vc.REPO_ROOT).as_posix()
+            parsed = uc.parse_template(path)
+            with self.subTest(template=relative):
+                self.assertIn("fakeip-filter", parsed["providers"])
+                self.assertIn("fakeip-filter", parsed["used_providers"])
+
+        jobs, _ = uc.collect_jobs(templates)
+        labels = {job.names[0] for job in jobs}
+        self.assertIn("fakeip-filter", labels)
+
     def test_route_matrix_covers_every_repository_template(self) -> None:
         discovered = {
             path.relative_to(vc.REPO_ROOT).as_posix() for path in vc.discover_templates([])
