@@ -66,6 +66,7 @@ DEFAULT_DOMAINS: List[str] = [
     "steamcommunity.com",
     "cmp1-hkg1.steamserver.net",
     "45.121.184.5",
+    "198.41.192.1",
     "apps.apple.com",
     "download.windowsupdate.com",
     "metacubex.github.io",
@@ -123,19 +124,20 @@ Expectation = Tuple[str, Sequence[str], Set[str], str]
 def default_expectations() -> Sequence[Expectation]:
     """Per-template product contract.
 
-    ``Sift`` is the mainland whitelist: private / custom-direct / games-cn / cn /
-    cnip / steam-cdn-ip and mainland IPs go direct, telegram domain and ``proxy``
-    go to 节点选择 (telegram before cn), AI fall through to 节点选择, everything
-    else is proxied. ``Sift-GFW`` proxies ``telegram`` + ``gfw``, everything else
-    goes direct. ``Sift-Full`` uses DustinWin service sets plus custom-direct-domain
-    and steam-cdn-ip: Custom Direct wins over service groups, CN
+    ``Sift`` is the mainland whitelist: private / custom-direct-domain /
+    custom-direct-ip / games-cn / cn / cnip / steam-cdn-ip and mainland IPs go
+    direct, telegram domain and ``proxy`` go to 节点选择 (telegram before cn),
+    AI fall through to 节点选择, everything else is proxied. ``Sift-GFW`` proxies
+    ``telegram`` + ``gfw``, everything else goes direct. ``Sift-Full`` uses
+    DustinWin service sets plus custom-direct-domain / custom-direct-ip and
+    steam-cdn-ip: Custom Direct wins over service groups, CN
     Apple/Microsoft/Google/games go to 全球直连, AI/media/games/Telegram(+IP) to
     theirs, ``proxy`` to 节点选择, MATCH to 漏网之鱼.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
                         "cm.steampowered.com", "steamcontent.com", "st.dl.eccdnx.com",
-                        "cmp1-hkg1.steamserver.net", "45.121.184.5",
+                        "cmp1-hkg1.steamserver.net", "45.121.184.5", "198.41.192.1",
                         "adobe.com", "pool.ntp.org", "steamcdn-a.akamaihd.net")
     whitelist_proxy = ("play.googleapis.com", "googleapis.cn", "services.googleapis.cn",
                        "xn--ngstr-lra8j.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
@@ -161,6 +163,7 @@ def default_expectations() -> Sequence[Expectation]:
         ("download.windowsupdate.com", "全球直连"),
         ("cmp1-hkg1.steamserver.net", "全球直连"),
         ("45.121.184.5", "全球直连"),
+        ("198.41.192.1", "全球直连"),
         ("googleapis.cn", "节点选择"),
         ("www.google.com", "节点选择"),
         ("services.googleapis.cn", "节点选择"),

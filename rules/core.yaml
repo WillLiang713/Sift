@@ -137,6 +137,10 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/custom-direct-domain.mrs
     url: https://fastly.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Custom_Direct_Domain.mrs
+  custom-direct-ip:
+    <<: *mrs-ip
+    path: ./ruleset/custom-direct-ip.mrs
+    url: https://fastly.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/rule/Custom_Direct_IP.mrs
   cn:
     <<: *mrs-domain
     path: ./ruleset/cn.mrs
@@ -150,6 +154,7 @@ rules:
   - RULE-SET,private,DIRECT
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,custom-direct-domain,DIRECT
+  - RULE-SET,custom-direct-ip,DIRECT,no-resolve
   - RULE-SET,games-cn,DIRECT
   - RULE-SET,telegram,节点选择
   - RULE-SET,proxy,节点选择
