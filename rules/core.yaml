@@ -6,6 +6,14 @@ profile:
   store-selected: true
   store-fake-ip: true
 
+dns-anchor:
+  domestic: &domestic-dns
+    - https://223.5.5.5/dns-query#DIRECT
+    - https://1.12.12.12/dns-query#DIRECT
+  overseas: &overseas-dns
+    - "https://8.8.8.8/dns-query#节点选择"
+    - "https://1.1.1.1/dns-query#节点选择"
+
 dns:
   enable: true
   cache-algorithm: arc
@@ -19,6 +27,7 @@ dns:
     - RULE-SET,private,real-ip
     - RULE-SET,custom-direct-domain,real-ip
     - RULE-SET,games-cn,real-ip
+    - RULE-SET,telegram,fake-ip
     - RULE-SET,proxy,fake-ip
     - RULE-SET,cn,real-ip
     - MATCH,fake-ip
@@ -27,15 +36,13 @@ dns:
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
-  proxy-server-nameserver:
-    - https://223.5.5.5/dns-query
-  nameserver:
-    - "https://8.8.8.8/dns-query#节点选择"
+  proxy-server-nameserver: *domestic-dns
+  nameserver: *overseas-dns
   nameserver-policy:
-    "+.jsdelivr.net": https://223.5.5.5/dns-query
-    "rule-set:custom-direct-domain": https://223.5.5.5/dns-query
-    "rule-set:proxy": "https://8.8.8.8/dns-query#节点选择"
-    "rule-set:private,games-cn,cn": https://223.5.5.5/dns-query
+    "+.jsdelivr.net": *domestic-dns
+    "rule-set:private,custom-direct-domain,games-cn": *domestic-dns
+    "rule-set:telegram,proxy": *overseas-dns
+    "rule-set:cn": *domestic-dns
 
 sniffer:
   enable: true
@@ -59,7 +66,7 @@ sniffer:
     - "+.push.apple.com"
 
 group-anchor:
-  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|Traffic|Expire"
+  node-exclude: &node-exclude "(?i)官网|流量|到期|剩余|邀请|返利|机场|订阅|通知|频道|过期|重置|套餐|网址|公告|群组|距离|Traffic|Expire"
   url-test: &url-test
     type: url-test
     include-all: true
@@ -102,8 +109,8 @@ proxy-groups:
     exclude-filter: *node-exclude
 
 rule-anchor:
-  domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
-  ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
+  mrs-domain: &mrs-domain {type: http, behavior: domain, format: mrs, interval: 86400, proxy: DIRECT}
+  mrs-ip: &mrs-ip {type: http, behavior: ipcidr, format: mrs, interval: 86400, proxy: DIRECT}
 
 rule-providers:
   fakeip-filter:

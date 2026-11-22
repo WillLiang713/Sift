@@ -104,6 +104,7 @@ DEFAULT_DOMAINS: List[str] = [
     "192.168.1.1",
     "223.5.5.5",
     "8.8.8.8",
+    "149.154.167.50",
     "unlisted-sift-probe-73921.com",
 ]
 
@@ -140,7 +141,8 @@ def default_expectations() -> Sequence[Expectation]:
                         "cmp1-hkg1.steamserver.net", "45.121.184.5", "198.41.192.1",
                         "adobe.com", "pool.ntp.org", "steamcdn-a.akamaihd.net")
     whitelist_proxy = ("play.googleapis.com", "googleapis.cn", "services.googleapis.cn",
-                       "xn--ngstr-lra8j.com", "github.com", "8.8.8.8", "unlisted-sift-probe-73921.com",
+                       "xn--ngstr-lra8j.com", "github.com", "8.8.8.8", "149.154.167.50",
+                       "unlisted-sift-probe-73921.com",
                        "store.steampowered.com", "steamcommunity.com", "web.telegram.org")
     whitelist_ai = ("chatgpt.com", "openai.com", "claude.ai")
     gfwlist_direct = ("localhost", "www.baidu.com", "www.qq.com", "www.taobao.com",
@@ -150,7 +152,7 @@ def default_expectations() -> Sequence[Expectation]:
                       "cm.steampowered.com", "steamcontent.com", "steamserver.net")
     gfwlist_proxy = ("www.google.com", "play.googleapis.com", "github.com", "chatgpt.com",
                      "openai.com", "www.youtube.com", "x.com", "discord.com",
-                     "store.steampowered.com", "steamcommunity.com", "web.telegram.org")
+                     "149.154.167.50", "store.steampowered.com", "steamcommunity.com", "web.telegram.org")
     full_groups = (
         ("localhost", "DIRECT"),
         ("www.baidu.com", "全球直连"),
@@ -174,6 +176,7 @@ def default_expectations() -> Sequence[Expectation]:
         ("chatgpt.com", "AI"),
         ("github.com", "节点选择"),
         ("web.telegram.org", "Telegram"),
+        ("149.154.167.50", "Telegram"),
         ("icloud.com", "节点选择"),
         ("office.com", "节点选择"),
         ("x.com", "节点选择"),
