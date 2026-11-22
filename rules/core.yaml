@@ -32,6 +32,7 @@ dns:
   nameserver:
     - "https://8.8.8.8/dns-query#节点选择"
   nameserver-policy:
+    "+.jsdelivr.net": https://223.5.5.5/dns-query
     "rule-set:custom-direct-domain": https://223.5.5.5/dns-query
     "rule-set:proxy": "https://8.8.8.8/dns-query#节点选择"
     "rule-set:private,games-cn,cn": https://223.5.5.5/dns-query
