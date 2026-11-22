@@ -104,7 +104,7 @@ group-anchor:
     timeout: 2000
     max-failed-times: 1
     empty-fallback: COMPATIBLE
-    lazy: false
+    lazy: true
   proxy-options: &proxy-options
     - 节点选择
     - 自动测速
@@ -156,7 +156,7 @@ proxy-groups:
     interval: 30
     timeout: 2000
     max-failed-times: 1
-    lazy: false
+    lazy: true
   - name: 自建节点
     <<: *fallback
     filter: *filter-self

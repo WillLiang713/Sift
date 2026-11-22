@@ -81,7 +81,7 @@ group-anchor:
     timeout: 2000
     max-failed-times: 1
     empty-fallback: COMPATIBLE
-    lazy: false
+    lazy: true
 
 proxy-groups:
   - name: 节点选择
