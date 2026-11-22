@@ -32,6 +32,7 @@ dns:
     - RULE-SET,proxy,fake-ip
     - MATCH,real-ip
   nameserver-policy:
+    "+.jsdelivr.net": *domestic-dns
     "rule-set:custom-direct-domain": *domestic-dns
     "rule-set:proxy": *overseas-dns
     "rule-set:cn,private,apple-cn,microsoft-cn,google-cn,games-cn": *domestic-dns
@@ -160,6 +161,7 @@ proxy-groups:
   - name: 自建节点
     <<: *fallback
     filter: *filter-self
+    empty-fallback: REJECT
   - name: AI
     type: select
     proxies: *proxy-options
