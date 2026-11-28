@@ -26,6 +26,7 @@ dns:
     - RULE-SET,fakeip-filter,real-ip
     - RULE-SET,private,real-ip
     - RULE-SET,custom-direct-domain,real-ip
+    - RULE-SET,apple-cn,real-ip
     - RULE-SET,games-cn,real-ip
     - RULE-SET,telegram,fake-ip
     - RULE-SET,proxy,fake-ip
@@ -40,7 +41,7 @@ dns:
   nameserver: *overseas-dns
   nameserver-policy:
     "+.jsdelivr.net": *domestic-dns
-    "rule-set:private,custom-direct-domain,games-cn": *domestic-dns
+    "rule-set:private,custom-direct-domain,apple-cn,games-cn": *domestic-dns
     "rule-set:telegram,proxy": *overseas-dns
     "rule-set:cn": *domestic-dns
 
@@ -125,6 +126,10 @@ rule-providers:
     <<: *mrs-ip
     path: ./ruleset/privateip.mrs
     url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/privateip.mrs
+  apple-cn:
+    <<: *mrs-domain
+    path: ./ruleset/apple-cn.mrs
+    url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/apple-cn.mrs
   games-cn:
     <<: *mrs-domain
     path: ./ruleset/games-cn.mrs
@@ -163,6 +168,7 @@ rules:
   - RULE-SET,privateip,DIRECT,no-resolve
   - RULE-SET,custom-direct-domain,DIRECT
   - RULE-SET,custom-direct-ip,DIRECT,no-resolve
+  - RULE-SET,apple-cn,DIRECT
   - RULE-SET,games-cn,DIRECT
   - RULE-SET,telegram,节点选择
   - RULE-SET,proxy,节点选择

@@ -126,8 +126,9 @@ def default_expectations() -> Sequence[Expectation]:
     """Per-template product contract.
 
     ``Sift`` is the mainland whitelist: private / custom-direct-domain /
-    custom-direct-ip / games-cn / cn / cnip / steam-cdn-ip and mainland IPs go
-    direct, telegram domain and ``proxy`` go to 节点选择 (telegram before cn),
+    custom-direct-ip / apple-cn / games-cn / cn / cnip / steam-cdn-ip and
+    mainland IPs go direct, telegram domain and ``proxy`` go to 节点选择
+    (telegram before cn),
     AI fall through to 节点选择, everything else is proxied. ``Sift-GFW`` proxies
     ``telegram`` + ``gfw``, everything else goes direct. ``Sift-Full`` uses
     DustinWin service sets plus custom-direct-domain / custom-direct-ip and
@@ -139,7 +140,9 @@ def default_expectations() -> Sequence[Expectation]:
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
                         "cm.steampowered.com", "steamcontent.com", "st.dl.eccdnx.com",
                         "cmp1-hkg1.steamserver.net", "45.121.184.5", "198.41.192.1",
-                        "adobe.com", "pool.ntp.org", "steamcdn-a.akamaihd.net")
+                        "adobe.com", "pool.ntp.org", "steamcdn-a.akamaihd.net",
+                        "apps.apple.com", "iosapps.itunes.apple.com",
+                        "appleid.cdn-apple.com")
     whitelist_proxy = ("play.googleapis.com", "googleapis.cn", "services.googleapis.cn",
                        "xn--ngstr-lra8j.com", "github.com", "8.8.8.8", "149.154.167.50",
                        "unlisted-sift-probe-73921.com",
