@@ -28,7 +28,6 @@ dns:
     - RULE-SET,custom-direct-domain,real-ip
     - RULE-SET,apple-cn,real-ip
     - RULE-SET,microsoft-cn,real-ip
-    - RULE-SET,google-cn,real-ip
     - RULE-SET,games-cn,real-ip
     - RULE-SET,ai,fake-ip
     - RULE-SET,games,fake-ip
@@ -46,7 +45,7 @@ dns:
   nameserver: *overseas-dns
   nameserver-policy:
     "+.jsdelivr.net": *domestic-dns
-    "rule-set:private,custom-direct-domain,apple-cn,microsoft-cn,google-cn,games-cn": *domestic-dns
+    "rule-set:private,custom-direct-domain,apple-cn,microsoft-cn,games-cn": *domestic-dns
     "rule-set:ai,games,media,telegram,proxy": *overseas-dns
     "rule-set:cn": *domestic-dns
 
@@ -217,10 +216,6 @@ rule-providers:
     <<: *mrs-domain
     path: ./ruleset/microsoft-cn.mrs
     url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/microsoft-cn.mrs
-  google-cn:
-    <<: *mrs-domain
-    path: ./ruleset/google-cn.mrs
-    url: https://fastly.jsdelivr.net/gh/DustinWin/ruleset_geodata@mihomo-ruleset/google-cn.mrs
   games-cn:
     <<: *mrs-domain
     path: ./ruleset/games-cn.mrs
@@ -281,7 +276,6 @@ rules:
   - RULE-SET,custom-direct-ip,全球直连,no-resolve
   - RULE-SET,apple-cn,全球直连
   - RULE-SET,microsoft-cn,全球直连
-  - RULE-SET,google-cn,全球直连
   - RULE-SET,games-cn,全球直连
   - RULE-SET,ai,AI
   - RULE-SET,games,游戏平台

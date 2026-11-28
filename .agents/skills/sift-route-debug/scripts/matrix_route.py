@@ -53,7 +53,15 @@ DEFAULT_DOMAINS: List[str] = [
     "pagead2.googlesyndication.com",
     "googleapis.cn",
     "gstatic.cn",
+    "www.google.cn",
     "www.google.com",
+    "dl.google.com",
+    "update.googleapis.com",
+    "fonts.googleapis.com",
+    "fonts.gstatic.com",
+    "connectivitycheck.gstatic.com",
+    "mtalk.google.com",
+    "redirector.gvt1.com",
     "play.googleapis.com",
     "xn--ngstr-lra8j.com",
     "recaptcha.net",
@@ -133,8 +141,11 @@ def default_expectations() -> Sequence[Expectation]:
     ``telegram`` + ``gfw``, everything else goes direct. ``Sift-Full`` uses
     DustinWin service sets plus custom-direct-domain / custom-direct-ip and
     steam-cdn-ip: Custom Direct wins over service groups, CN
-    Apple/Microsoft/Google/games go to 全球直连, AI/media/games/Telegram(+IP) to
-    theirs, ``proxy`` to 节点选择, MATCH to 漏网之鱼.
+    Apple/Microsoft/games go to 全球直连. ``google-cn`` is not loaded:
+    ``google.cn`` / ``gstatic.cn`` stay direct via ``cn``, while Chrome
+    downloads, fonts, FCM and connectivity checks stay on ``proxy`` or a
+    service group. AI/media/games/Telegram(+IP) go to theirs, ``proxy`` to
+    节点选择, MATCH to 漏网之鱼.
     """
     whitelist_direct = ("localhost", "metacubex.github.io", "www.baidu.com", "www.qq.com",
                         "www.taobao.com", "www.bilibili.com", "192.168.1.1", "223.5.5.5",
@@ -174,6 +185,14 @@ def default_expectations() -> Sequence[Expectation]:
         ("services.googleapis.cn", "节点选择"),
         ("xn--ngstr-lra8j.com", "节点选择"),
         ("gstatic.cn", "全球直连"),
+        ("www.google.cn", "全球直连"),
+        ("dl.google.com", "节点选择"),
+        ("update.googleapis.com", "节点选择"),
+        ("fonts.googleapis.com", "节点选择"),
+        ("fonts.gstatic.com", "节点选择"),
+        ("connectivitycheck.gstatic.com", "节点选择"),
+        ("mtalk.google.com", "节点选择"),
+        ("redirector.gvt1.com", "流媒体"),
         ("www.youtube.com", "流媒体"),
         ("iq.com", "全球直连"),
         ("chatgpt.com", "AI"),
@@ -351,7 +370,7 @@ def main() -> int:
     print("  - Domain-only diagnosis; pure IP providers skipped for domain probes.")
     print("  - Sift is the mainland whitelist: private / custom-direct / games-cn / cn / cnip / steam-cdn-ip direct, telegram+proxy before cn, rest proxied.")
     print("  - Sift-GFW is the GFWlist: only the gfw set is proxied, everything else direct.")
-    print("  - Sift-Full uses DustinWin service sets plus custom-direct-domain and steam-cdn-ip; CN Apple/Microsoft/Google/games go to 全球直连, Telegram domain before proxy, MATCH to 漏网之鱼.")
+    print("  - Sift-Full uses DustinWin service sets plus custom-direct-domain and steam-cdn-ip; CN Apple/Microsoft/games go to 全球直连. google-cn is not loaded. Telegram domain before proxy, MATCH to 漏网之鱼.")
     print("  - Steam download path: cm.steampowered.com / steamserver.net pick the region, steamcontent.com carries the payload.")
     print("  - In-process RouteEngine reuses provider indexes across all probes.")
     if fails:

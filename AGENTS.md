@@ -22,12 +22,13 @@ Sift 维护三档 Mihomo 无节点分流模板：`rules/core.yaml`（大陆白�
 - `custom-direct-domain` / `custom-direct-ip` 直连优先级仅次于 private（与上游顺序一致），Steam CDN 只保留 IP 集。
 - 直连域名集合在 `fake-ip-filter` 标 `real-ip`，并让 `nameserver-policy` 走国内 DNS；`custom-direct-domain` 的策略项排在 `proxy` 之前。
 - `apple-cn` 在 `core.yaml` 与 `full.yaml` 一律直连（国内有 CDN，且 Apple 按出口 IP 判商店地区；`proxy` 集的 `+.apple.com` 会先吃掉它，必须把 `apple-cn` 排在 `proxy` 前面）；`gfwlist.yaml` 靠 `MATCH,DIRECT` 已直连，不重复引入。
+- 不引入 `google-cn`。`google.cn` / `gstatic.cn` 已由 `cn` 直连；该集还包含 `dl.google.com`、`fonts.googleapis.com`、`fonts.gstatic.com`、`update.googleapis.com`、`mtalk.google.com`、`connectivitycheck.gstatic.com`，排在 `proxy` 之前会把这些国内直连不通的域名强制直连。
 - 保留 include-all 与信息节点 exclude-filter；url-test/自动测速健康检查默认 interval 60、timeout 3000、expected-status 204、max-failed-times 2、lazy true；fallback/故障转移默认 interval 30、timeout 2000、expected-status 204、max-failed-times 1、lazy true（空闲时不探测，有流量经过时仍每 30 秒检查一次）。
 - 开启嗅探（HTTP / TLS / QUIC）；不提交节点、订阅或密钥。
 
 `core.yaml` / `gfwlist.yaml`：策略组保持精简（节点选择 / 自动测速 / 故障转移 / 全部节点），不恢复品牌独立组。
 
-`full.yaml`：可有服务组与地区组；`apple-cn` / `microsoft-cn` / `google-cn` / `games-cn` → 全球直连。
+`full.yaml`：可有服务组与地区组；`apple-cn` / `microsoft-cn` / `games-cn` → 全球直连。
 
 ## 修改与验证
 
