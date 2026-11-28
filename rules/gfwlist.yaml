@@ -28,8 +28,6 @@ dns:
     - RULE-SET,telegram,fake-ip
     - RULE-SET,gfw,fake-ip
     - MATCH,real-ip
-  prefer-h3: false
-  respect-rules: true
   default-nameserver:
     - 223.5.5.5
     - 119.29.29.29
@@ -72,7 +70,6 @@ group-anchor:
     interval: 60
     timeout: 3000
     max-failed-times: 2
-    empty-fallback: COMPATIBLE
     tolerance: 50
     lazy: true
   fallback: &fallback
@@ -84,7 +81,6 @@ group-anchor:
     interval: 30
     timeout: 2000
     max-failed-times: 1
-    empty-fallback: COMPATIBLE
     lazy: true
 
 proxy-groups:
